@@ -1,0 +1,99 @@
+version: "7.2"
+description: "Breaking change patterns for Rails 7.1 → 7.2 upgrade"
+
+breaking_changes:
+  high_priority:
+    - name: "params comparison"
+      pattern: "params.*==|==.*params|args.*==|==.*args"
+      exclude: "to_h|permit|params.require"
+      search_paths:
+        - "app/controllers/"
+        - "app/graphql/mutations/"
+        - "app/services/"
+      explanation: "Rails 7.2 removed ActionController::Parameters comparison with hashes"
+      fix: "Use params.to_h == hash instead"
+      variable_name: "PARAMS"
+
+    - name: ".connection usage"
+      pattern: '\.connection\.'
+      exclude: 'with_connection|lease_connection|@connection\s*=\s*Faraday|@connection\s*=\s*nil'
+      search_paths:
+        - "app/"
+        - "lib/"
+        - "config/initializers/"
+      explanation: "ActiveRecord::Base.connection is deprecated"
+      fix: "Wrap in with_connection block or use lease_connection"
+      variable_name: "CONNECTION"
+
+    - name: "Rails.application.secrets"
+      pattern: '\.secrets\.|\.secrets\[|Rails\.application\.secrets'
+      exclude: ""
+      search_paths:
+        - "app/"
+        - "config/"
+        - "lib/"
+      explanation: "Rails.application.secrets is removed"
+      fix: "Use Rails.application.credentials instead"
+      variable_name: "SECRETS"
+
+    - name: "show_exceptions boolean"
+      pattern: 'show_exceptions\s*=\s*(true|false)'
+      exclude: ""
+      search_paths:
+        - "config/environments/"
+      explanation: "Boolean values for show_exceptions are removed"
+      fix: "Use :all, :rescuable, or :none symbols"
+      variable_name: "SHOW_EXCEPTIONS"
+
+    - name: "jobs in transactions"
+      pattern: '\.transaction\s+do'
+      exclude: ""
+      search_paths:
+        - "app/"
+      explanation: "Jobs enqueued in transactions now wait for commit"
+      fix: "Review job timing - set enqueue_after_transaction_commit if needed"
+      variable_name: "TRANSACTIONS"
+
+  medium_priority:
+    - name: "serialize old syntax"
+      pattern: 'serialize\s+:'
+      exclude: "type:|coder:"
+      search_paths:
+        - "app/models/"
+      explanation: "Old serialize syntax is deprecated"
+      fix: "Use serialize :attr, type: Hash"
+      variable_name: "SERIALIZE"
+
+    - name: "MissingHelperError"
+      pattern: "MissingHelperError"
+      exclude: ""
+      search_paths:
+        - "app/"
+        - "spec/"
+        - "test/"
+      explanation: "MissingHelperError constant removed"
+      fix: "This constant no longer exists"
+      variable_name: "MISSING_HELPER"
+
+    - name: "fixture_path singular"
+      pattern: "fixture_path[^s]"
+      exclude: ""
+      search_paths:
+        - "spec/"
+        - "test/"
+      explanation: "fixture_path is removed, use fixture_paths"
+      fix: "Change to fixture_paths (plural)"
+      variable_name: "FIXTURE_PATH"
+
+dependencies:
+  mongoid:
+    check: true
+    gem_name: "mongoid"
+    message: "Check Mongoid GitHub for Rails 7.2 compatibility"
+    url: "https://github.com/mongodb/mongoid"
+
+file_checks:
+  - path: "config/secrets.yml"
+    should_exist: false
+    message: "Remove config/secrets.yml and migrate to credentials"
+    priority: "HIGH"

@@ -1,0 +1,12 @@
+{
+    "name": "rails-upgrade-assistant",
+    "version": "1.0.0",
+    "description": "Analyzes Rails applications and generates comprehensive upgrade reports with breaking changes, deprecations, and step-by-step migration guides for Rails 7.0 through 8.1.1",
+    "author": {
+        "name": "Mario Alberto Chávez",
+        "email": "mario@maquina.app"
+    },
+    "repository": "https://github.com/maquina/rails-claude-code",
+    "license": "MIT",
+    "keywords": ["rails", "upgrade", "migration", "breaking-changes", "deprecations"]
+}

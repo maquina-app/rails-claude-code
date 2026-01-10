@@ -1,0 +1,40 @@
+version: "8.1"
+description: "Breaking change patterns for Rails 8.0 → 8.1 upgrade"
+
+breaking_changes:
+  high_priority:
+    - name: "SSL configuration changes"
+      pattern: 'force_ssl\s*=\s*true'
+      exclude: "assume_ssl"
+      search_paths:
+        - "config/environments/production.rb"
+      explanation: "Rails 8.1 changes SSL handling"
+      fix: "Add config.assume_ssl = true alongside force_ssl"
+      variable_name: "SSL_CONFIG"
+
+    - name: "bundler-audit integration"
+      pattern: "bundle-audit|bundler-audit"
+      exclude: ""
+      search_paths:
+        - "Gemfile"
+        - ".github/"
+      explanation: "Rails 8.1 integrates bundler-audit"
+      fix: "Review Gemfile.lock for vulnerable gems"
+      variable_name: "BUNDLER_AUDIT"
+
+  medium_priority:
+    - name: "cache configuration updates"
+      pattern: "cache_store"
+      exclude: ""
+      search_paths:
+        - "config/environments/"
+      explanation: "Rails 8.1 updates cache defaults"
+      fix: "Review cache configuration for new options"
+      variable_name: "CACHE_CONFIG"
+
+dependencies:
+  bundler_audit:
+    check: false
+    gem_name: "bundler-audit"
+    message: "Rails 8.1 includes bundler-audit integration"
+    url: "https://github.com/rubysec/bundler-audit"

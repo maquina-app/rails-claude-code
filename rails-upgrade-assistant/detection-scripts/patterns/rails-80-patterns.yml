@@ -1,0 +1,56 @@
+version: "8.0"
+description: "Breaking change patterns for Rails 7.2 → 8.0 upgrade"
+
+breaking_changes:
+  high_priority:
+    - name: "Sprockets usage"
+      pattern: "Sprockets|sprockets"
+      exclude: "propshaft"
+      search_paths:
+        - "config/"
+        - "app/assets/"
+        - "Gemfile"
+      explanation: "Sprockets removed in Rails 8.0, replaced with Propshaft"
+      fix: "Migrate to Propshaft for asset pipeline"
+      variable_name: "SPROCKETS"
+
+    - name: "missing importmap"
+      pattern: "javascript_include_tag"
+      exclude: "importmap"
+      search_paths:
+        - "app/views/layouts/"
+      explanation: "Rails 8.0 uses importmap by default"
+      fix: "Add importmap-rails gem and update tags"
+      variable_name: "IMPORTMAP"
+
+    - name: "Solid gems configuration"
+      pattern: "cache_store|queue_adapter|cable"
+      exclude: "solid"
+      search_paths:
+        - "config/environments/"
+      explanation: "Rails 8.0 defaults to Solid Cache/Queue/Cable"
+      fix: "Configure Solid gems or opt-out explicitly"
+      variable_name: "SOLID_GEMS"
+
+  medium_priority:
+    - name: "Kamal deployment"
+      pattern: 'deploy\.yml'
+      exclude: ""
+      search_paths:
+        - "config/"
+      explanation: "Rails 8.0 includes Kamal for deployment"
+      fix: "Review config/deploy.yml if upgrading"
+      variable_name: "KAMAL"
+
+dependencies:
+  propshaft:
+    check: true
+    gem_name: "propshaft"
+    message: "Rails 8.0 requires Propshaft instead of Sprockets"
+    url: "https://github.com/rails/propshaft"
+
+  solid_cache:
+    check: false
+    gem_name: "solid_cache"
+    message: "Consider using Solid Cache for improved performance"
+    url: "https://github.com/rails/solid_cache"

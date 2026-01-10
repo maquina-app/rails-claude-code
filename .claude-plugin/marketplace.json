@@ -1,0 +1,50 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "rails",
+  "version": "1.0.0",
+  "metadata": {
+    "description": "Claude Code plugins for Ruby on Rails development following 37signals patterns and the One Person Framework philosophy"
+  },
+  "owner": {
+    "name": "Mario Alberto Chávez",
+    "email": "mario@maquina.app"
+  },
+  "plugins": [
+    {
+      "name": "rails-simplifier",
+      "source": "./rails-simplifier",
+      "description": "Simplifies and refines Ruby on Rails code following 37signals patterns and the One Person Framework philosophy",
+      "version": "1.0.0",
+      "author": {
+        "name": "Mario Alberto Chávez",
+        "email": "mario@maquina.app"
+      },
+      "category": "productivity",
+      "tags": ["rails", "refactoring", "37signals", "code-quality"]
+    },
+    {
+      "name": "rails-upgrade-assistant",
+      "source": "./rails-upgrade-assistant",
+      "description": "Analyzes Rails applications and generates comprehensive upgrade reports with breaking changes, deprecations, and step-by-step migration guides for Rails 7.0 through 8.1.1",
+      "version": "1.0.0",
+      "author": {
+        "name": "Mario Alberto Chávez",
+        "email": "mario@maquina.app"
+      },
+      "category": "development",
+      "tags": ["rails", "upgrade", "migration", "breaking-changes"]
+    },
+    {
+      "name": "maquina-ui-standards",
+      "source": "./maquina-ui-standards",
+      "description": "Build consistent, accessible UIs in Rails using maquina_components — ERB partials styled with Tailwind CSS 4, inspired by shadcn/ui",
+      "version": "0.3.0",
+      "author": {
+        "name": "Mario Alberto Chávez",
+        "email": "mario@maquina.app"
+      },
+      "category": "development",
+      "tags": ["rails", "ui", "components", "tailwind", "shadcn"]
+    }
+  ]
+}
