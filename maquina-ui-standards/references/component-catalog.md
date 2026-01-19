@@ -47,6 +47,8 @@ Choose the approach that fits your use case. There's no "right" level of abstrac
    - [Pagination](#pagination)
 4. [Interactive Components](#interactive-components)
    - [Toggle Group](#toggle-group)
+   - [Calendar](#calendar)
+   - [Date Picker](#date-picker)
 5. [Form Components](#form-components)
    - [Button](#button)
    - [Input](#input)
@@ -658,6 +660,139 @@ Single or multiple selection button group.
 | `type` | `:single`, `:multiple` | `:single` |
 | `variant` | `:default`, `:outline` | `:default` |
 | `size` | `:sm`, `:md`, `:lg` | `:md` |
+
+---
+
+### Calendar
+
+Date picker calendar with single and range selection modes.
+
+**When to Use:**
+- Inline date selection (always visible)
+- Booking/scheduling interfaces
+- Dashboard date widgets
+- Date range selection for reports
+
+**Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `selected` | Date, String | `nil` | Currently selected date |
+| `selected_end` | Date, String | `nil` | End date for range selection |
+| `mode` | Symbol | `:single` | `:single` or `:range` |
+| `min_date` | Date, String | `nil` | Minimum selectable date |
+| `max_date` | Date, String | `nil` | Maximum selectable date |
+| `disabled_dates` | Array | `[]` | Dates to disable |
+| `show_outside_days` | Boolean | `true` | Show adjacent month days |
+| `week_starts_on` | Symbol | `:sunday` | `:sunday` or `:monday` |
+| `input_name` | String | `nil` | Hidden input name for forms |
+| `input_name_end` | String | `nil` | End date hidden input name |
+
+**Basic Usage:**
+```erb
+<%= render "components/calendar", selected: Date.current %>
+```
+
+**Range Selection:**
+```erb
+<%= render "components/calendar",
+  mode: :range,
+  selected: @booking.check_in,
+  selected_end: @booking.check_out,
+  min_date: Date.current %>
+```
+
+**Form Integration:**
+```erb
+<%= form_with model: @event do |f| %>
+  <%= render "components/calendar",
+    selected: @event.scheduled_at,
+    input_name: "event[scheduled_at]",
+    min_date: Date.current %>
+  <%= f.submit "Save", data: { component: "button", variant: "primary" } %>
+<% end %>
+```
+
+**With Disabled Dates:**
+```erb
+<%= render "components/calendar",
+  min_date: Date.current,
+  max_date: Date.current + 90.days,
+  disabled_dates: @unavailable_dates %>
+```
+
+---
+
+### Date Picker
+
+Compact date picker with trigger button and popover calendar using native Popover API.
+
+**When to Use:**
+- Form date inputs
+- Date filters
+- Space-constrained UIs
+- Any date selection that should be hidden until needed
+
+**Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `selected` | Date, String | `nil` | Currently selected date |
+| `selected_end` | Date, String | `nil` | End date for range selection |
+| `mode` | Symbol | `:single` | `:single` or `:range` |
+| `min_date` | Date, String | `nil` | Minimum selectable date |
+| `max_date` | Date, String | `nil` | Maximum selectable date |
+| `disabled_dates` | Array | `[]` | Dates to disable |
+| `placeholder` | String | `nil` | Placeholder text |
+| `input_name` | String | `nil` | Hidden input name for forms |
+| `input_name_end` | String | `nil` | End date hidden input name |
+| `disabled` | Boolean | `false` | Disable the trigger |
+| `required` | Boolean | `false` | Mark input as required |
+
+**Basic Usage:**
+```erb
+<%= render "components/date_picker",
+  placeholder: "Pick a date" %>
+```
+
+**With Selected Date:**
+```erb
+<%= render "components/date_picker",
+  selected: @event.date,
+  placeholder: "Event date" %>
+```
+
+**Range Selection:**
+```erb
+<%= render "components/date_picker",
+  mode: :range,
+  selected: @booking.check_in,
+  selected_end: @booking.check_out,
+  placeholder: "Select dates" %>
+```
+
+**Form Integration:**
+```erb
+<%= form_with model: @event do |f| %>
+  <div class="space-y-2">
+    <%= f.label :scheduled_at, "Event Date" %>
+    <%= render "components/date_picker",
+      selected: @event.scheduled_at,
+      input_name: "event[scheduled_at]",
+      min_date: Date.current,
+      required: true %>
+  </div>
+  <%= f.submit "Save", data: { component: "button", variant: "primary" } %>
+<% end %>
+```
+
+**Calendar vs Date Picker:**
+
+| Feature | Calendar | Date Picker |
+|---------|----------|-------------|
+| Display | Always visible | Hidden until triggered |
+| Use case | Dashboards, scheduling | Form inputs, filters |
+| Popover | No | Yes (native Popover API) |
 
 ---
 
