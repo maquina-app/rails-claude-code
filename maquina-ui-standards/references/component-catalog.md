@@ -41,15 +41,18 @@ Choose the approach that fits your use case. There's no "right" level of abstrac
    - [Table](#table)
    - [Empty State](#empty-state)
    - [Separator](#separator)
-3. [Navigation Components](#navigation-components)
+3. [Feedback Components](#feedback-components)
+   - [Toast](#toast)
+4. [Navigation Components](#navigation-components)
    - [Breadcrumbs](#breadcrumbs)
    - [Dropdown Menu](#dropdown-menu)
    - [Pagination](#pagination)
-4. [Interactive Components](#interactive-components)
-   - [Toggle Group](#toggle-group)
+5. [Interactive Components](#interactive-components)
    - [Calendar](#calendar)
+   - [Combobox](#combobox)
    - [Date Picker](#date-picker)
-5. [Form Components](#form-components)
+   - [Toggle Group](#toggle-group)
+6. [Form Components](#form-components)
    - [Button](#button)
    - [Input](#input)
    - [Textarea](#textarea)
@@ -454,6 +457,149 @@ Visual divider between content sections.
 
 ---
 
+## Feedback Components
+
+### Toast
+
+Non-intrusive notifications that appear temporarily and dismiss automatically.
+
+**When to Use:**
+- Form submission feedback
+- Background task completion
+- Transient success/error messages
+- Any temporary notification
+
+**Setup:**
+Add toaster container to your layout:
+```erb
+<!DOCTYPE html>
+<html>
+  <body>
+    <%= yield %>
+    <%= render "components/toaster", position: :bottom_right %>
+  </body>
+</html>
+```
+
+**Variants:**
+
+| Variant | Usage |
+|---------|-------|
+| `:default` | Neutral notifications |
+| `:success` | Positive confirmations |
+| `:info` | Informational messages |
+| `:warning` | Caution needed |
+| `:error` | Errors, failures |
+
+**Position Values:**
+- `:top_left`, `:top_center`, `:top_right`
+- `:bottom_left`, `:bottom_center`, `:bottom_right`
+
+**Flash Messages (Most Common):**
+```erb
+<%= render "components/toaster", position: :bottom_right do %>
+  <%= toast_flash_messages %>
+<% end %>
+```
+
+Controller:
+```ruby
+def update
+  if @user.update(user_params)
+    flash[:success] = "Profile updated successfully!"
+    redirect_to @user
+  else
+    flash[:error] = "Unable to save changes."
+    render :edit, status: :unprocessable_entity
+  end
+end
+```
+
+**Single Toast:**
+```erb
+<%= toast :success, "Profile updated!" %>
+
+<%= toast :error, "Save failed", description: "Please check your connection." %>
+
+<%= toast :info, "New version available", duration: 10000 %>
+```
+
+**Toast with Action:**
+```erb
+<%= toast :info, "New version available" do %>
+  <%= render "components/toast/action", label: "Refresh", href: root_path %>
+<% end %>
+
+<%= toast :warning, "Item pending deletion" do %>
+  <%= render "components/toast/action",
+              label: "Undo",
+              href: restore_item_path(@item),
+              method: :patch %>
+<% end %>
+```
+
+**Turbo Stream Toasts:**
+```erb
+<%= turbo_stream.append "toaster" do %>
+  <%= toast :success, "Post created!", description: "Your post is now live." %>
+<% end %>
+```
+
+**JavaScript API:**
+```javascript
+// Basic toasts
+Toast.success("Profile saved!")
+Toast.error("Something went wrong")
+Toast.warning("Session expiring soon")
+Toast.info("New notification")
+
+// With options
+Toast.success("File uploaded", {
+  description: "Your file has been processed.",
+  duration: 8000
+})
+
+// No auto-dismiss
+Toast.warning("Important notice", { duration: 0 })
+
+// Dismiss programmatically
+const toastId = Toast.success("Saved!")
+Toast.dismiss(toastId)
+Toast.dismissAll()
+```
+
+**Helper Methods:**
+
+| Method | Description |
+|--------|-------------|
+| `toast_flash_messages` | Render all flash messages |
+| `toast` | Single toast with variant |
+| `toast_success` | Convenience helper |
+| `toast_error` | Convenience helper |
+| `toast_warning` | Convenience helper |
+| `toast_info` | Convenience helper |
+
+**Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `variant` | Symbol | `:default` | Toast variant |
+| `title` | String | `nil` | Toast title |
+| `description` | String | `nil` | Optional description |
+| `duration` | Integer | `5000` | Auto-dismiss ms (0 = persistent) |
+| `dismissible` | Boolean | `true` | Show close button |
+
+**Flash Type Mapping:**
+
+| Flash Type | Toast Variant |
+|------------|---------------|
+| `:notice`, `:success` | `:success` |
+| `:alert`, `:error` | `:error` |
+| `:warning`, `:warn` | `:warning` |
+| `:info` | `:info` |
+
+---
+
 ## Navigation Components
 
 ### Breadcrumbs
@@ -619,50 +765,6 @@ Page navigation integrated with Pagy.
 
 ## Interactive Components
 
-### Toggle Group
-
-Single or multiple selection button group.
-
-**When to Use:**
-- View mode switching (list/grid)
-- Text formatting (bold/italic)
-- Filter options
-- Any exclusive/inclusive selection
-
-**Single Selection:**
-```erb
-<%= render "components/toggle_group", type: :single, variant: :outline do %>
-  <%= render "components/toggle_group/item", value: "list", pressed: true, aria_label: "List view" do %>
-    <%= icon_for :list, class: "size-4" %>
-  <% end %>
-  <%= render "components/toggle_group/item", value: "grid", aria_label: "Grid view" do %>
-    <%= icon_for :grid, class: "size-4" %>
-  <% end %>
-<% end %>
-```
-
-**Multiple Selection:**
-```erb
-<%= render "components/toggle_group", type: :multiple, variant: :default do %>
-  <%= render "components/toggle_group/item", value: "bold", pressed: true do %>
-    <%= icon_for :bold, class: "size-4" %>
-  <% end %>
-  <%= render "components/toggle_group/item", value: "italic" do %>
-    <%= icon_for :italic, class: "size-4" %>
-  <% end %>
-<% end %>
-```
-
-**Props:**
-
-| Prop | Values | Default |
-|------|--------|---------|
-| `type` | `:single`, `:multiple` | `:single` |
-| `variant` | `:default`, `:outline` | `:default` |
-| `size` | `:sm`, `:md`, `:lg` | `:md` |
-
----
-
 ### Calendar
 
 Date picker calendar with single and range selection modes.
@@ -719,6 +821,219 @@ Date picker calendar with single and range selection modes.
   min_date: Date.current,
   max_date: Date.current + 90.days,
   disabled_dates: @unavailable_dates %>
+```
+
+---
+
+### Combobox
+
+Autocomplete input with searchable dropdown list for selecting from many options.
+
+**When to Use:**
+- Selecting from large lists (countries, users, tags)
+- When filtering/searching options is helpful
+- Form fields needing autocomplete
+- Any selection that benefits from search
+
+**Parts:**
+
+| Part | Purpose |
+|------|---------|
+| `combobox` | Root container with Stimulus controller |
+| `combobox/trigger` | Button that opens the popover |
+| `combobox/content` | Popover container |
+| `combobox/input` | Search/filter input field |
+| `combobox/list` | Scrollable options container |
+| `combobox/option` | Selectable item with check indicator |
+| `combobox/empty` | "No results" message |
+| `combobox/group` | Logical grouping |
+| `combobox/label` | Section heading |
+| `combobox/separator` | Visual divider |
+
+**Using the Helper (Recommended):**
+```erb
+<%= combobox placeholder: "Select framework..." do |cb| %>
+  <% cb.trigger %>
+  <% cb.content do %>
+    <% cb.input placeholder: "Search frameworks..." %>
+    <% cb.list do %>
+      <% cb.option value: "rails" do %>Ruby on Rails<% end %>
+      <% cb.option value: "django" do %>Django<% end %>
+      <% cb.option value: "phoenix" do %>Phoenix<% end %>
+    <% end %>
+    <% cb.empty %>
+  <% end %>
+<% end %>
+```
+
+**Simple Data-Driven:**
+```erb
+<%= combobox_simple placeholder: "Select framework...",
+                     name: "project[framework]",
+                     options: [
+                       { value: "rails", label: "Ruby on Rails" },
+                       { value: "django", label: "Django" },
+                       { value: "phoenix", label: "Phoenix" }
+                     ] %>
+```
+
+**With Pre-selected Value:**
+```erb
+<%= combobox_simple placeholder: "Select framework...",
+                     value: "rails",
+                     options: Framework.all.map { |fw|
+                       { value: fw.slug, label: fw.name }
+                     } %>
+```
+
+**With Disabled Options:**
+```erb
+<%= combobox_simple placeholder: "Select framework...",
+                     options: [
+                       { value: "rails", label: "Ruby on Rails" },
+                       { value: "angular", label: "Angular (deprecated)", disabled: true },
+                       { value: "phoenix", label: "Phoenix" }
+                     ] %>
+```
+
+**With Groups:**
+```erb
+<%= combobox placeholder: "Select technology..." do |cb| %>
+  <% cb.trigger %>
+  <% cb.content width: :md do %>
+    <% cb.input %>
+    <% cb.list do %>
+      <% cb.group do %>
+        <% cb.label "Frontend Frameworks" %>
+        <% cb.option value: "react" do %>React<% end %>
+        <% cb.option value: "vue" do %>Vue<% end %>
+      <% end %>
+      <% cb.separator %>
+      <% cb.group do %>
+        <% cb.label "Backend Frameworks" %>
+        <% cb.option value: "rails" do %>Ruby on Rails<% end %>
+        <% cb.option value: "phoenix" do %>Phoenix<% end %>
+      <% end %>
+    <% end %>
+    <% cb.empty %>
+  <% end %>
+<% end %>
+```
+
+**Country Selector Pattern:**
+```erb
+<%= combobox placeholder: "Select country...", name: "user[country]" do |cb| %>
+  <% cb.trigger %>
+  <% cb.content width: :md do %>
+    <% cb.input placeholder: "Search countries..." %>
+    <% cb.list do %>
+      <% Country.all.each do |country| %>
+        <% cb.option value: country.code, selected: @user.country == country.code do %>
+          <%= country.flag %> <%= country.name %>
+        <% end %>
+      <% end %>
+    <% end %>
+    <% cb.empty text: "No countries found." %>
+  <% end %>
+<% end %>
+```
+
+**User Selector Pattern:**
+```erb
+<%= combobox placeholder: "Assign to...", id: "assignee-select" do |cb| %>
+  <% cb.trigger variant: :ghost %>
+  <% cb.content width: :lg do %>
+    <% cb.input placeholder: "Search team members..." %>
+    <% cb.list do %>
+      <% @team_members.each do |member| %>
+        <% cb.option value: member.id do %>
+          <div class="flex items-center gap-2">
+            <%= image_tag member.avatar_url, class: "size-6 rounded-full" %>
+            <span><%= member.name %></span>
+            <span class="text-muted-foreground text-xs"><%= member.role %></span>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+    <% cb.empty %>
+  <% end %>
+<% end %>
+```
+
+**With Form Builder:**
+```erb
+<%= form_with model: @project do |f| %>
+  <div class="space-y-4">
+    <%= render "components/label", for: "project_framework" do %>Framework<% end %>
+
+    <%= combobox_simple id: "project_framework",
+                         name: "project[framework]",
+                         value: @project.framework,
+                         placeholder: "Select framework...",
+                         options: Framework.all.map { |fw|
+                           { value: fw.slug, label: fw.name }
+                         } %>
+
+    <%= f.submit "Save", data: { component: "button", variant: "primary" } %>
+  </div>
+<% end %>
+```
+
+**Listening for Changes (Stimulus):**
+```erb
+<div data-controller="project-form">
+  <%= combobox placeholder: "Select framework...",
+               data: { action: "combobox:change->project-form#frameworkChanged" } do |cb| %>
+  <% end %>
+</div>
+```
+
+```javascript
+// project_form_controller.js
+export default class extends Controller {
+  frameworkChanged(event) {
+    const { value, label } = event.detail
+    console.log(`Selected: ${label} (${value})`)
+  }
+}
+```
+
+**Content Props:**
+
+| Prop | Values | Default |
+|------|--------|---------|
+| `align` | `:start`, `:center`, `:end` | `:start` |
+| `width` | `:sm`, `:default`, `:md`, `:lg`, `:full` | `:default` |
+
+**Option Props:**
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `value` | String | Option value (required) |
+| `selected` | Boolean | Initially selected |
+| `disabled` | Boolean | Whether disabled |
+
+**Keyboard Navigation:**
+
+| Key | Action |
+|-----|--------|
+| `Enter` / `Space` | Open combobox, select option |
+| `Escape` | Close combobox |
+| `↓` / `↑` | Navigate options |
+| `Home` / `End` | First/last option |
+| Type characters | Filter options |
+
+**Browser Support (Popover API):**
+The combobox uses the HTML5 Popover API. For older browsers, add the polyfill:
+
+```ruby
+# config/importmap.rb
+pin "@oddbird/popover-polyfill", to: "https://cdn.jsdelivr.net/npm/@oddbird/popover-polyfill@latest/dist/popover.min.js"
+```
+
+```javascript
+// app/javascript/application.js
+import "@oddbird/popover-polyfill"
 ```
 
 ---
@@ -793,6 +1108,50 @@ Compact date picker with trigger button and popover calendar using native Popove
 | Display | Always visible | Hidden until triggered |
 | Use case | Dashboards, scheduling | Form inputs, filters |
 | Popover | No | Yes (native Popover API) |
+
+---
+
+### Toggle Group
+
+Single or multiple selection button group.
+
+**When to Use:**
+- View mode switching (list/grid)
+- Text formatting (bold/italic)
+- Filter options
+- Any exclusive/inclusive selection
+
+**Single Selection:**
+```erb
+<%= render "components/toggle_group", type: :single, variant: :outline do %>
+  <%= render "components/toggle_group/item", value: "list", pressed: true, aria_label: "List view" do %>
+    <%= icon_for :list, class: "size-4" %>
+  <% end %>
+  <%= render "components/toggle_group/item", value: "grid", aria_label: "Grid view" do %>
+    <%= icon_for :grid, class: "size-4" %>
+  <% end %>
+<% end %>
+```
+
+**Multiple Selection:**
+```erb
+<%= render "components/toggle_group", type: :multiple, variant: :default do %>
+  <%= render "components/toggle_group/item", value: "bold", pressed: true do %>
+    <%= icon_for :bold, class: "size-4" %>
+  <% end %>
+  <%= render "components/toggle_group/item", value: "italic" do %>
+    <%= icon_for :italic, class: "size-4" %>
+  <% end %>
+<% end %>
+```
+
+**Props:**
+
+| Prop | Values | Default |
+|------|--------|---------|
+| `type` | `:single`, `:multiple` | `:single` |
+| `variant` | `:default`, `:outline` | `:default` |
+| `size` | `:sm`, `:md`, `:lg` | `:md` |
 
 ---
 
