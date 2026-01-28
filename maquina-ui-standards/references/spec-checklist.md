@@ -1,5 +1,8 @@
 # UI Spec Checklist
 
+**Official Documentation:** https://maquina.app/documentation/components/
+
+
 Checklist for UI implementation when working from feature specs. Use this to verify completeness before marking a spec implementation as done.
 
 ---

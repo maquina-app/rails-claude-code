@@ -1,5 +1,8 @@
 # Layout Patterns
 
+**Official Documentation:** https://maquina.app/documentation/components/
+
+
 Page structure, grid systems, and responsive design patterns using maquina_components.
 
 ---

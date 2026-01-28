@@ -1,69 +1,58 @@
-# Quick Start: maquina-ui-standards
 
-## When to Use
+# Maquina UI Standards - Quick Start
 
-Implementing UI in Rails apps with maquina_components.
+Build Rails UIs with maquina_components — server-rendered ERB partials with Tailwind CSS 4.
 
-## Basic Workflow
+**Official Documentation:** https://maquina.app/documentation/components/
 
-```
-1. Identify page type (dashboard, list, detail, form)
-2. Check layout-patterns.md for structure
-3. Use components from component-catalog.md
-4. Follow form-patterns.md for forms
-5. Add Turbo per turbo-integration.md
-6. Verify with spec-checklist.md
-```
-
-## Page Types
-
-| Type | Layout | Key Components |
-|------|--------|----------------|
-| Dashboard | Cards grid | Card, Badge, Button |
-| List | Table or cards | Table, Pagination, EmptyState |
-| Detail | Header + sections | Card, DescriptionList, Badge |
-| Form | Centered card | Input, Select, Button, Alert |
-
-## Form Essentials
+## Core Pattern
 
 ```erb
-<%= form_with model: @booking, class: "group space-y-4" do |f| %>
-  <%# Inline errors (not alert list!) %>
-  <div>
-    <%= f.label :name %>
-    <%= f.text_field :name, 
-        required: true,
-        maxlength: 100,
-        data: { ... } %>
-    <%= render_field_error(@booking, :name) %>
-  </div>
-
-  <%# Submit with loading state %>
-  <%= f.button type: :submit, class: "..." do %>
-    <span class="group-aria-busy:hidden">Save</span>
-    <svg class="hidden group-aria-busy:block animate-spin">...</svg>
+<%# Partial components %>
+<%= render "components/card" do %>
+  <%= render "components/card/header" do %>
+    <%= render "components/card/title", text: "My Title" %>
   <% end %>
+  <%= render "components/card/content" do %>
+    Content here
+  <% end %>
+<% end %>
+
+<%# Form components via data attributes %>
+<%= form_with model: @user, data: { component: "form" } do |f| %>
+  <div data-form-part="group">
+    <%= f.label :email, data: { component: "label" } %>
+    <%= f.email_field :email, data: { component: "input" } %>
+  </div>
+  <%= f.submit "Save", data: { component: "button", variant: "primary" } %>
 <% end %>
 ```
 
-## Key Patterns
+## Key Files
 
-1. **Errors:** Inline under fields, not alert lists
-2. **Loading:** Use `group` + `group-aria-busy:` for spinners
-3. **Inputs:** Always add `type`, `maxlength`, `autocomplete`
-4. **Empty states:** Use EmptyState component with action
+| File | Purpose |
+|------|---------|
+| `agents/maquina-ui-standards.md` | Core principles, decision framework |
+| `references/component-catalog.md` | All components with props and examples |
+| `references/form-patterns.md` | Forms, validation, field groups |
+| `references/layout-patterns.md` | Grids, responsive, page structure |
+| `references/turbo-integration.md` | Frames, Streams, Morph patterns |
+| `references/spec-checklist.md` | UI review checklist |
 
-## Turbo Basics
+## Component Categories
 
-| Pattern | Use Case |
-|---------|----------|
-| Morph (default) | Full page updates |
-| Frame | Inline edit, modals |
-| Stream | Multi-element updates |
+- **Layout:** Sidebar, Header
+- **Content:** Card, Alert, Badge, Table, Empty, Separator, Stats
+- **Navigation:** Breadcrumbs, Dropdown Menu, Pagination
+- **Interactive:** Toggle Group, Calendar, Date Picker, Combobox, Toast
+- **Forms:** Button, Input, Textarea, Select, Checkbox, Radio, Switch
 
-## Next Steps
+## Quick Tips
 
-1. `component-catalog.md` — All available components
-2. `layout-patterns.md` — Page structure templates
-3. `form-patterns.md` — Validation and loading states
-4. `spec-checklist.md` — Pre-flight verification
+1. **Compose, don't configure** — Build UIs from small parts
+2. **Inline errors** — Show errors next to fields, not in lists
+3. **Data attributes** — Components identify via `data-component="..."`
+4. **Icons** — Use `icon_for :name, class: "size-4"`
+5. **Theme** — Colors via CSS variables (`--primary`, `--destructive`, etc.)
+
+Read the main skill file for complete guidelines.

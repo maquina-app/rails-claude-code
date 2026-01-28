@@ -38,7 +38,7 @@
       "name": "maquina-ui-standards",
       "source": "./maquina-ui-standards",
       "description": "Build consistent, accessible UIs in Rails using maquina_components — ERB partials styled with Tailwind CSS 4, inspired by shadcn/ui",
-      "version": "0.3.0",
+      "version": "0.3.0.1",
       "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"

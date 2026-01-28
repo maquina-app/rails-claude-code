@@ -7,6 +7,8 @@ description: Build consistent, accessible UIs in Rails using maquina_components.
 
 Build production-quality Rails UIs with maquina_components — ERB partials styled with Tailwind CSS 4 and data attributes, inspired by shadcn/ui.
 
+**Official Documentation:** https://maquina.app/documentation/components/
+
 ## When to Use This Skill
 
 - Implementing UI for a feature spec
@@ -49,16 +51,90 @@ Build production-quality Rails UIs with maquina_components — ERB partials styl
 | Form inputs | **Form components** | Consistent styling via data attrs |
 | Inline date selection | **Calendar** | Always visible, single/range modes |
 | Date input field | **Date Picker** | Popover calendar, compact trigger |
+| Searchable selection | **Combobox** | Autocomplete, type-ahead search |
+| Temporary feedback | **Toast/Toaster** | Auto-dismiss notifications |
+| Statistics display | **Stats** | Cards and grids for metrics |
 
 ## File References
 
 | File | Content |
 |------|---------|
-| [component-catalog.md](component-catalog.md) | All components with props, variants, examples |
-| [layout-patterns.md](layout-patterns.md) | Page structure, grids, responsive design |
-| [form-patterns.md](form-patterns.md) | Forms, validation, field groups |
-| [turbo-integration.md](turbo-integration.md) | Frames, Streams, Morph with components |
-| [spec-checklist.md](spec-checklist.md) | UI implementation checklist for specs |
+| [component-catalog.md](references/component-catalog.md) | All components with props, variants, examples |
+| [layout-patterns.md](references/layout-patterns.md) | Page structure, grids, responsive design |
+| [form-patterns.md](references/form-patterns.md) | Forms, validation, field groups |
+| [turbo-integration.md](references/turbo-integration.md) | Frames, Streams, Morph with components |
+| [spec-checklist.md](references/spec-checklist.md) | UI implementation checklist for specs |
+
+---
+
+## Universal Component API
+
+All maquina_components partials follow a consistent API pattern. Understanding this enables flexible usage across your application.
+
+### Common Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `css_classes` | String | `""` | Additional CSS classes to apply |
+| `**html_options` | Hash | `{}` | Any HTML attribute passthrough (id, data, aria, etc.) |
+| `variant` | Symbol | `:default` | Visual style variant (component-specific) |
+| `size` | Symbol | `:md` | Size variant (component-specific) |
+
+### Data Attribute Merging
+
+When you pass `data:` attributes, they **merge** with the component's internal data attributes:
+
+```erb
+<%# Your data attributes merge with component's data-component attribute %>
+<%= render "components/badge", 
+    variant: :success, 
+    data: { controller: "tooltip", tooltip_content: "Active since Jan 1" } do %>
+  Active
+<% end %>
+
+<%# Renders: %>
+<span data-component="badge" data-variant="success" data-controller="tooltip" data-tooltip-content="Active since Jan 1">
+  Active
+</span>
+```
+
+### HTML Options Passthrough
+
+All standard HTML attributes pass through via `**html_options`:
+
+```erb
+<%# Custom ID %>
+<%= render "components/card", id: "user-profile-card" do %>...content...<% end %>
+
+<%# ARIA attributes %>
+<%= render "components/alert", variant: :warning, aria: { live: "polite" } do %>...content...<% end %>
+
+<%# Stimulus controller integration %>
+<%= render "components/card", data: { controller: "collapsible" } do %>...content...<% end %>
+
+<%# Multiple attributes combined %>
+<%= render "components/badge",
+    variant: :primary,
+    id: "notification-count",
+    title: "Unread notifications",
+    data: { controller: "counter", counter_value: 5 } do %>
+  5 new
+<% end %>
+```
+
+### css_classes vs class
+
+Use `css_classes` parameter (not `class:`) for additional styling:
+
+```erb
+<%# Correct %>
+<%= render "components/card", css_classes: "shadow-lg" do %>...content...<% end %>
+
+<%# Also works via html_options %>
+<%= render "components/card", class: "shadow-lg" do %>...content...<% end %>
+```
+
+---
 
 ## Core Principles
 
@@ -96,17 +172,12 @@ Components are small, composable building blocks. You have full flexibility in h
     <%= yield %>
   <% end %>
 <% end %>
-
-<%# Usage: <%= render "components/resource_card", resource: @user do %>...content...<% end %>
-
-<%# Option C: Copied and customized for booking-specific needs %>
-<%# app/views/bookings/_booking_card.html.erb - your own component %>
 ```
 
 Choose the approach that best fits your use case. The goal is consistency within your application, not rigid adherence to a single pattern.
 
 ```erb
-<%# ✅ GOOD: Compose from parts %>
+<%# GOOD: Compose from parts %>
 <%= render "components/card" do %>
   <%= render "components/card/header", layout: :row do %>
     <div>
@@ -122,7 +193,7 @@ Choose the approach that best fits your use case. The goal is consistency within
   <% end %>
 <% end %>
 
-<%# ❌ BAD: Trying to configure everything via props %>
+<%# BAD: Trying to configure everything via props %>
 <%= render "components/card", 
     title: @resource.name, 
     description: @resource.summary,
@@ -135,7 +206,7 @@ Choose the approach that best fits your use case. The goal is consistency within
 **Always prefer inline field errors with a flash message** over an alert containing a list of all validation errors.
 
 ```erb
-<%# ✅ RECOMMENDED: Inline errors + flash %>
+<%# RECOMMENDED: Inline errors + flash %>
 <%= form_with model: @user, data: { component: "form" } do |f| %>
   <div data-form-part="group">
     <%= f.label :email, data: { component: "label" } %>
@@ -147,7 +218,7 @@ Choose the approach that best fits your use case. The goal is consistency within
   <%# Flash shows brief summary: "Please fix the errors below" %>
 <% end %>
 
-<%# ❌ AVOID: Alert with error list %>
+<%# AVOID: Alert with error list %>
 <% if @user.errors.any? %>
   <%= render "components/alert", variant: :destructive do %>
     <ul>
@@ -176,7 +247,7 @@ Inline errors are more accessible — users see the problem next to the field th
 | `autocomplete` | Autofill hints | `autocomplete: "email"` |
 
 ```erb
-<%# ✅ GOOD: Complete input attributes %>
+<%# GOOD: Complete input attributes %>
 <%= f.email_field :email,
     data: { component: "input" },
     required: true,
@@ -199,7 +270,7 @@ Inline errors are more accessible — users see the problem next to the field th
     maxlength: 100,
     autocomplete: "name" %>
 
-<%# ❌ BAD: Missing attributes %>
+<%# BAD: Missing attributes %>
 <%= f.text_field :name, data: { component: "input" } %>
 ```
 
@@ -260,6 +331,73 @@ Colors come from CSS variables (shadcn/ui convention):
 | `--border` | Borders |
 | `--ring` | Focus rings |
 
+---
+
+## Common UI Patterns
+
+These patterns provide reusable solutions for common UI needs.
+
+### Status Badge Pattern
+
+Map record status to badge variants:
+
+```erb
+<% variant = case record.status
+   when "active", "confirmed" then :success
+   when "pending", "processing" then :warning
+   when "cancelled", "failed", "inactive" then :destructive
+   when "draft" then :secondary
+   else :default
+   end %>
+<%= render "components/badge", variant: variant do %>
+  <%= record.status.humanize %>
+<% end %>
+```
+
+### Money Display
+
+For displaying monetary values consistently:
+
+```erb
+<%# Using a badge for prices %>
+<%= render "components/badge", variant: :outline do %>
+  <%= format_money(item.price_cents) %>
+<% end %>
+
+<%# Or simple formatted text %>
+<span class="font-medium"><%= format_money(item.price_cents) %></span>
+```
+
+### Time Display
+
+Use monospace font for times to ensure alignment:
+
+```erb
+<%# Time with monospace %>
+<span class="font-mono text-sm">
+  <%= l(event.starts_at, format: :time) %>
+</span>
+
+<%# Date and time %>
+<span class="text-sm text-muted-foreground">
+  <%= l(event.scheduled_at, format: :short) %>
+</span>
+```
+
+### Brand Color Override
+
+Override theme variables in your application.css:
+
+```css
+:root {
+  /* Your brand primary color */
+  --primary: oklch(0.467 0.175 3.95);
+  --primary-foreground: oklch(0.985 0 0);
+}
+```
+
+---
+
 ## Implementation Workflow
 
 ### Step 1: Identify Components Needed
@@ -300,12 +438,14 @@ Use component catalog, follow composition patterns.
 
 ### Step 4: Verify Against Checklist
 
-Run through [spec-checklist.md](spec-checklist.md) before marking complete.
+Run through [spec-checklist.md](references/spec-checklist.md) before marking complete.
+
+---
 
 ## Anti-Patterns
 
-| ❌ Don't | ✅ Do Instead |
-|----------|---------------|
+| Don't | Do Instead |
+|-------|------------|
 | Inline Tailwind for component styling | Use data attributes, let CSS handle it |
 | Create custom card/alert/badge divs | Use maquina_components |
 | Skip empty states | Always handle zero-data case |
@@ -315,51 +455,7 @@ Run through [spec-checklist.md](spec-checklist.md) before marking complete.
 | Nest components incorrectly | Follow documented composition |
 | Skip accessibility attributes | Include ARIA labels, roles |
 
-## Haab-Specific Patterns
-
-For the Haab project, these additional conventions apply:
-
-### Brand Colors
-
-Override theme variables in application.css:
-
-```css
-:root {
-  --primary: oklch(0.467 0.175 3.95);      /* Dusty Rose #BE185D */
-  --primary-foreground: oklch(0.985 0 0);
-}
-```
-
-### Booking Status Badges
-
-```erb
-<% variant = case booking.status
-   when "confirmed" then :success
-   when "pending" then :warning
-   when "cancelled", "no_show" then :destructive
-   else :secondary
-   end %>
-<%= render "components/badge", variant: variant do %>
-  <%= t("enums.booking.status.#{booking.status}") %>
-<% end %>
-```
-
-### Money Display
-
-```erb
-<%= render "components/badge", variant: :outline do %>
-  <%= format_money(service.price_cents) %>
-<% end %>
-```
-
-### Time Display
-
-```erb
-<%# Use monospace for times %>
-<span class="font-mono text-sm">
-  <%= l(booking.starts_at, format: :time) %>
-</span>
-```
+---
 
 ## Quick Component Examples
 

@@ -1,5 +1,8 @@
 # Form Patterns
 
+**Official Documentation:** https://maquina.app/documentation/components/
+
+
 Building forms with maquina_components, validation, error handling, and common form patterns.
 
 ---
@@ -430,7 +433,7 @@ More visual radio selection:
   <div data-component="input-group">
     <%= f.text_field :subdomain, data: { component: "input" }, 
         placeholder: "mi-negocio" %>
-    <span data-input-group-part="suffix">.haab.mx</span>
+    <span data-input-group-part="suffix">.example.com</span>
   </div>
 </div>
 
@@ -924,7 +927,7 @@ For simple text replacement without a spinner:
 
 ## Money Input Pattern
 
-For Haab (storing cents, displaying currency):
+For monetary values (storing cents, displaying currency):
 
 ```erb
 <%# In the form %>
