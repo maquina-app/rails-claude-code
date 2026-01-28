@@ -22,7 +22,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 |--------|-------------|---------|
 | [rails-simplifier](#1-rails-simplifier) | Code quality following 37signals patterns | 1.0.0 |
 | [rails-upgrade-assistant](#2-rails-upgrade-assistant) | Rails 7.0→8.1 upgrade planning | 1.0.0 |
-| [maquina-ui-standards](#3-maquina-ui-standards) | UI components with maquina_components | 0.3.0 |
+| [maquina-ui-standards](#3-maquina-ui-standards) | UI components with maquina_components | 0.3.1.0 |
 
 ---
 
