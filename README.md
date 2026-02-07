@@ -263,7 +263,7 @@ recuerd0/
 
 ### Requirements
 
-- [Recuerd0 CLI](https://recuerd0.com) installed and configured with an account
+- [Recuerd0 CLI](https://recuerd0.ai) installed and configured with an account
 
 ---
 
