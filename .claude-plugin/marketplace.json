@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "rails",
+  "name": "maquina",
   "version": "1.0.0",
   "metadata": {
     "description": "Claude Code plugins for Ruby on Rails development following 37signals patterns and the One Person Framework philosophy"
@@ -45,6 +45,18 @@
       },
       "category": "development",
       "tags": ["rails", "ui", "components", "tailwind", "shadcn"]
+    },
+    {
+      "name": "recuerd0",
+      "source": "./recuerd0",
+      "description": "Manages workspaces and memories in the Recuerd0 platform — a CLI tool for preserving, versioning, and organizing knowledge from AI conversations",
+      "version": "1.0.0",
+      "author": {
+        "name": "Mario Alberto Chávez",
+        "email": "mario@maquina.app"
+      },
+      "category": "productivity",
+      "tags": ["knowledge", "memory", "cli", "ai-conversations"]
     }
   ]
 }

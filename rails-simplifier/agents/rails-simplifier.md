@@ -1,5 +1,5 @@
 ---
-name: rails-simplifier
+name: simplify
 description: Simplifies and refines Ruby on Rails code following 37signals patterns and the One Person Framework philosophy. Focuses on recently modified code unless instructed otherwise.
 model: opus
 ---

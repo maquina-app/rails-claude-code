@@ -1,5 +1,5 @@
 ---
-name: rails-upgrade-assistant
+name: upgrade
 description: Analyzes Rails applications and generates comprehensive upgrade reports with breaking changes, deprecations, and step-by-step migration guides for Rails 7.0 through 8.1.1. Use when upgrading Rails applications, planning multi-hop upgrades, or querying version-specific changes.
 ---
 

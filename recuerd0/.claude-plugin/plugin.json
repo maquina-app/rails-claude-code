@@ -1,0 +1,9 @@
+{
+    "name": "recuerd0",
+    "version": "1.0.0",
+    "description": "Manages workspaces and memories in the Recuerd0 platform — a CLI tool for preserving, versioning, and organizing knowledge from AI conversations",
+    "author": {
+        "name": "Mario Alberto Chávez",
+        "email": "mario@maquina.app"
+    }
+}

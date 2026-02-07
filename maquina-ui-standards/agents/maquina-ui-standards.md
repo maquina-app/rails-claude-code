@@ -1,5 +1,5 @@
 ---
-name: maquina-ui-standards
+name: ui
 description: Build consistent, accessible UIs in Rails using maquina_components. Use this skill when implementing UI for features, creating views, building forms, or reviewing UI specs. Triggers on view creation, UI implementation, form building, layout design, or mentions of maquina_components usage.
 ---
 

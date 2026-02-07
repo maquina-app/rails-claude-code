@@ -9,9 +9,10 @@ A collection of Claude Code plugins for Ruby on Rails development.
 /plugin marketplace add maquina-app/rails-claude-code
 
 # Install individual plugins
-/plugin install rails-simplifier@rails
-/plugin install rails-upgrade-assistant@rails
-/plugin install maquina-ui-standards@rails
+/plugin install rails-simplifier@maquina
+/plugin install rails-upgrade-assistant@maquina
+/plugin install maquina-ui-standards@maquina
+/plugin install recuerd0@maquina
 ```
 
 ---
@@ -23,6 +24,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 | [rails-simplifier](#1-rails-simplifier) | Code quality following 37signals patterns | 1.0.0 |
 | [rails-upgrade-assistant](#2-rails-upgrade-assistant) | Rails 7.0→8.1 upgrade planning | 1.0.0 |
 | [maquina-ui-standards](#3-maquina-ui-standards) | UI components with maquina_components | 0.3.1.0 |
+| [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.0.0 |
 
 ---
 
@@ -215,6 +217,56 @@ maquina-ui-standards/
 
 ---
 
+## 4. recuerd0
+
+A CLI skill for **Recuerd0** — a command-line tool for preserving, versioning, and organizing knowledge from AI conversations.
+
+### What It Does
+
+| Feature | Description |
+|---------|-------------|
+| Save session | Generate a transcript from the current conversation, infer title/tags/workspace, and save as a memory |
+| Workspace management | Create, list, archive workspaces |
+| Memory CRUD | Create, read, update, delete memories |
+| Versioning | Create versions of existing memories |
+| Full-text search | FTS5-backed search with AND/OR/NOT operators |
+| Piped content | Read memory content from stdin |
+
+### Usage
+
+```
+> Remember this session
+> Save this conversation to my "Rails Patterns" workspace
+> Search my memories for "error handling"
+> Create a new workspace called "Rails Patterns"
+> Version memory 42 with updated content
+```
+
+### Save Session Workflow
+
+When asked to save a session, the skill will:
+
+1. Generate a structured transcript from the conversation context
+2. Infer a title, tags, and workspace
+3. Ask you to confirm or adjust before saving
+4. Save via `recuerd0 memory create` piping content through stdin
+
+If you provide a workspace name instead of an ID, it resolves the name automatically. If the workspace doesn't exist, it offers to create one.
+
+### Package Contents
+
+```
+recuerd0/
+├── agents/recuerd0.md              # Main skill
+└── .claude-plugin/plugin.json      # Plugin metadata
+```
+
+### Requirements
+
+- [Recuerd0 CLI](https://recuerd0.com) installed and configured with an account
+
+---
+
 ## Team Installation
 
 Add to your project's `.claude/settings.json` for automatic installation:
@@ -222,7 +274,7 @@ Add to your project's `.claude/settings.json` for automatic installation:
 ```json
 {
   "extraKnownMarketplaces": {
-    "rails": {
+    "maquina": {
       "source": {
         "source": "github",
         "repo": "maquina-app/rails-claude-code"
@@ -230,9 +282,10 @@ Add to your project's `.claude/settings.json` for automatic installation:
     }
   },
   "enabledPlugins": [
-    "rails-simplifier@rails",
-    "rails-upgrade-assistant@rails",
-    "maquina-ui-standards@rails"
+    "rails-simplifier@maquina",
+    "rails-upgrade-assistant@maquina",
+    "maquina-ui-standards@maquina",
+    "recuerd0@maquina"
   ]
 }
 ```
