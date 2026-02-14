@@ -66,17 +66,17 @@ recuerd0 workspace unarchive <id>
 recuerd0 memory list [--workspace ID] [--page N]
 recuerd0 memory show [--workspace ID] <memory_id>
 recuerd0 memory create [--workspace ID] [--title TITLE] [--content CONTENT | --content -] [--source SRC] [--tags tag1,tag2]
-recuerd0 memory update [--workspace ID] <memory_id> [--title T] [--content C] [--source S] [--tags T]
+recuerd0 memory update [--workspace ID] <memory_id> [--title T] [--content C | --content -] [--source S] [--tags T]
 recuerd0 memory delete [--workspace ID] <memory_id>
 ```
 
 - `--workspace` falls back to the workspace in `.recuerd0.yaml` or `RECUERD0_WORKSPACE`
-- `--content -` reads content from stdin
+- `--content -` reads content from stdin (supported in create, update, and version create)
 
 ### Memory Versions
 
 ```bash
-recuerd0 memory version create [--workspace ID] <memory_id> [--title T] [--content C] [--source S] [--tags T]
+recuerd0 memory version create [--workspace ID] <memory_id> [--title T] [--content C | --content -] [--source S] [--tags T]
 ```
 
 ### Search
@@ -102,6 +102,10 @@ recuerd0 search "deploy NOT heroku"
 
 # Phrases
 recuerd0 search '"error handling"'
+
+# Field-specific search
+recuerd0 search "title:authentication"
+recuerd0 search "body:caching"
 ```
 
 ### Version
