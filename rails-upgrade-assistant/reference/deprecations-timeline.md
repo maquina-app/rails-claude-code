@@ -3,7 +3,7 @@ title: "Rails Deprecations Timeline"
 description: "Complete timeline of Rails deprecations from 7.0 through 8.1, tracking what was deprecated when and when features were removed"
 type: "reference-material"
 reference_type: "timeline"
-rails_versions: "7.0.x to 8.1.1"
+rails_versions: "6.0.x to 8.1.1"
 content_includes:
   - deprecation-lifecycle
   - timeline-by-version
@@ -85,6 +85,52 @@ Rails 7.2: cache_classes likely removed (to be confirmed)
 ---
 
 ## 📅 Deprecation Timeline
+
+### Rails 6.0 → 6.1 Deprecations
+
+**Removed in Rails 6.1 (No longer work):**
+
+| Feature                         | Deprecated | Removed | Must Use Instead             |
+| ------------------------------- | ---------- | ------- | ---------------------------- |
+| `update_attributes`             | 4.0        | 6.1     | `update` / `update!`         |
+| `errors.to_hash` (old behavior) | 6.0        | 6.1     | `errors.messages`            |
+
+**Introduced in Rails 6.1 (Behavior changes and new deprecations):**
+
+| Feature                                 | Changed In | Replacement                                 | Impact    |
+| --------------------------------------- | ---------- | ------------------------------------------- | --------- |
+| `where.not` multi-key (NOR → NAND)     | 6.1        | Chain separate `where.not` calls for NOR    | Silent    |
+| `form_with` remote default              | 6.1        | Add `local: false` for AJAX forms           | Behavior  |
+| `config_for` string key access          | 6.1        | Use Symbol keys: `config[:key]`             | Breaking  |
+| `errors[:attr] << msg` manipulation     | 6.1        | `errors.add(:attr, :type, message: "msg")`  | Deprecated |
+| `request.content_type` (MIME only)      | 6.1        | `request.media_type` for MIME comparison    | Behavior  |
+
+**Impact:** Significant behavior changes, especially where.not and form_with
+
+---
+
+### Rails 6.1 → 7.0 Deprecations
+
+**Removed in Rails 7.0 (No longer work):**
+
+| Feature                                    | Deprecated | Removed | Must Use Instead                        |
+| ------------------------------------------ | ---------- | ------- | --------------------------------------- |
+| Classic autoloader (`config.autoloader`)   | 6.0        | 7.0     | Zeitwerk (mandatory)                    |
+| `require_dependency`                       | 6.1        | 7.0     | Direct constant reference (Zeitwerk)    |
+| `ActiveSupport::Dependencies` private API  | 6.1        | 7.0     | `Rails.autoloaders.main` (Zeitwerk API) |
+| Autoloaded paths in `$LOAD_PATH`          | 6.1        | 7.0     | Remove bare `require`, use constants    |
+
+**Introduced in Rails 7.0 (Still work, but show warnings):**
+
+| Feature                    | Deprecated | Replacement                         | Remove In |
+| -------------------------- | ---------- | ----------------------------------- | --------- |
+| `#to_s(:format)` on dates | 7.0        | `#to_fs(:format)`                   | 7.1+      |
+| `show_exceptions` boolean | 7.0        | Symbols (`:all`, `:rescuable`, `:none`) | 7.2   |
+| SHA1 key generator         | 7.0        | SHA256 (plan rotation)              | Future    |
+
+**Impact:** Major — Zeitwerk migration is the biggest change in this upgrade
+
+---
 
 ### Rails 7.0 → 7.1 Deprecations
 
@@ -354,6 +400,8 @@ gem "sidekiq", ">= 7.3.3"  # Includes adapter
 
 | Version | Deprecations Introduced | Deprecations Removed | Net Change |
 | ------- | ----------------------- | -------------------- | ---------- |
+| 6.1     | ~5                      | ~2                   | +3         |
+| 7.0     | ~3                      | ~4                   | -1         |
 | 7.1     | ~5                      | ~0                   | +5         |
 | 7.2     | ~10                     | ~10                  | +0         |
 | 8.0     | ~5                      | ~8                   | -3         |
@@ -589,8 +637,8 @@ ____________________
 
 ---
 
-**Last Updated:** November 1, 2025  
-**Rails Coverage:** 7.0.x → 8.1.1
+**Last Updated:** November 1, 2025
+**Rails Coverage:** 6.0.x → 8.1.1
 
 **Note:** This timeline is based on official Rails CHANGELOGs. For complete deprecation lists, see component-specific CHANGELOGs in the Rails GitHub repository.
 

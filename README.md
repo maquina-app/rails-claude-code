@@ -22,7 +22,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 | Plugin | Description | Version |
 |--------|-------------|---------|
 | [rails-simplifier](#1-rails-simplifier) | Code quality following 37signals patterns | 1.0.0 |
-| [rails-upgrade-assistant](#2-rails-upgrade-assistant) | Rails 7.0→8.1 upgrade planning | 1.0.0 |
+| [rails-upgrade-assistant](#2-rails-upgrade-assistant) | Rails 6.0→8.1 upgrade planning | 1.0.0 |
 | [maquina-ui-standards](#3-maquina-ui-standards) | UI components with maquina_components | 0.3.1.0 |
 | [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.0.0 |
 
@@ -73,7 +73,7 @@ A code simplification agent that refines Ruby on Rails code following **37signal
 
 ## 2. rails-upgrade-assistant
 
-A **unified, intelligent Rails upgrade skill** that helps you upgrade Ruby on Rails applications through any version from **7.0 to 8.1.1**. Built on official Rails CHANGELOGs and integrated with MCP tools for automatic project analysis.
+A **unified, intelligent Rails upgrade skill** that helps you upgrade Ruby on Rails applications through any version from **6.0 to 8.1.1**. Built on official Rails CHANGELOGs and integrated with MCP tools for automatic project analysis.
 
 ### What It Does
 
@@ -93,7 +93,9 @@ A **unified, intelligent Rails upgrade skill** that helps you upgrade Ruby on Ra
 | 7.2.x | 8.0.4 | 13 changes | Hard |
 | 7.1.x | 7.2.3 | 38 changes | Medium |
 | 7.0.x | 7.1.6 | 12 changes | Medium |
-| 7.0.x | 8.1.1 | All 71 changes | Very Hard |
+| 6.1.x | 7.0.0 | 17 changes | Hard |
+| 6.0.x | 6.1.0 | 18 changes | Medium |
+| 6.0.x | 8.1.1 | All 106 changes | Very Hard |
 
 ** Important:** Rails upgrades MUST be sequential. No version skipping!
 
@@ -127,6 +129,8 @@ A **unified, intelligent Rails upgrade skill** that helps you upgrade Ruby on Ra
 rails-upgrade-assistant/
 ├── agents/rails-upgrade-assistant.md    # Main skill
 ├── version-guides/                       # Rails version details
+│   ├── upgrade-6.0-to-6.1.md
+│   ├── upgrade-6.1-to-7.0.md
 │   ├── upgrade-7.0-to-7.1.md
 │   ├── upgrade-7.1-to-7.2.md
 │   ├── upgrade-7.2-to-8.0.md

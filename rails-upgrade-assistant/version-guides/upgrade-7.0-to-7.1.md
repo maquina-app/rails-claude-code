@@ -5,7 +5,6 @@ type: "version-guide"
 rails_from: "7.0.x"
 rails_to: "7.1.6"
 difficulty: "medium"
-estimated_time: "2-4 hours"
 breaking_changes: 12
 priority_high: 5
 priority_medium: 4
@@ -31,105 +30,25 @@ last_updated: "2025-11-01"
 copyright: Copyright (c) 2025 [Mario Alberto Chávez Cárdenas]
 ---
 
-# Rails Upgrade Assistant Skill - Version 1.0
+# Rails 7.0 → 7.1 Upgrade Guide
 
-**For upgrading Ruby on Rails applications from 7.0.x to 7.1.6**
+## Supported Upgrade Path
 
-This skill provides comprehensive, step-by-step guidance for upgrading Rails applications based on official CHANGELOGs from the Rails GitHub repository.
-
----
-
-## 🎯 Skill Purpose
-
-This skill helps upgrade Rails applications by:
-- **Analyzing** your Rails project using Rails MCP tools
-- **Identifying** breaking changes from official CHANGELOGs
-- **Detecting** custom code that needs attention
-- **Generating** detailed upgrade reports with OLD/NEW examples
-- **Updating** files interactively using Neovim MCP (optional)
-- **Providing** rollback plans and testing checklists
-
----
-
-## 📋 Supported Upgrade Path
-
-**From:** Rails 7.0.x  
+**From:** Rails 7.0.x
 **To:** Rails 7.1.6
 
-This is a **MEDIUM complexity** upgrade estimated to take **2-4 hours** for most applications.
+This is a **MEDIUM complexity** upgrade. Difficulty: medium.
 
 ---
 
-## 🔧 How This Skill Works
-
-### Phase 1: Project Analysis
-1. Uses `railsMcpServer:project_info` to understand your Rails project
-2. Uses `railsMcpServer:analyze_models` to understand data models
-3. Uses `railsMcpServer:get_schema` to understand database structure
-4. Uses `railsMcpServer:get_routes` to understand application routes
-5. Uses `railsMcpServer:get_file` to read configuration files
-
-### Phase 2: Change Detection
-1. Compares project against breaking changes from CHANGELOGs
-2. Identifies deprecated features being used
-3. Detects custom configurations that may conflict
-4. Flags files that need manual review
-
-### Phase 3: Report Generation  
-1. Generates comprehensive upgrade report
-2. Provides OLD vs NEW code examples
-3. Marks custom code with ⚠️ warnings
-4. Includes step-by-step migration instructions
-
-### Phase 4: Interactive Updates (Optional)
-1. Uses `nvimMcpServer:get_project_buffers` to see open files
-2. Uses `nvimMcpServer:update_buffer` to apply changes
-3. User reviews and confirms each change
-
----
-
-## 🚀 Usage Instructions
-
-### Basic Usage (Report Only)
-
-Simply say:
-```
-"Upgrade my Rails app from 7.0 to 7.1"
-```
-
-The assistant will:
-1. Analyze your Rails project
-2. Check all relevant CHANGELOGs
-3. Generate a comprehensive upgrade report
-4. Show you what needs to change
-
-### Interactive Mode (with Neovim)
-
-If you have files open in Neovim and want live updates:
-
-```
-"Upgrade my Rails app to 7.1 in interactive mode"
-```
-
-The assistant will:
-1. Generate the upgrade report
-2. Show which files need changes
-3. Ask for permission before each update
-4. Update files in your Neovim buffers
-5. Reload the files automatically
-
-**Important:** For interactive mode, you must have files open in Neovim and provide the project name.
-
----
-
-## 📊 Breaking Changes - Rails 7.0 → 7.1.6
+## Breaking Changes - Rails 7.0 → 7.1.6
 
 ### HIGH IMPACT Changes (Breaking)
 
 #### 1. **Cache Classes → Enable Reloading**
 
-**Component:** Railties, Environment Configuration  
-**Impact:** High - Changes core configuration pattern  
+**Component:** Railties, Environment Configuration
+**Impact:** High - Changes core configuration pattern
 **Type:** Breaking - old config will trigger deprecation
 
 **OLD (Rails 7.0):**
@@ -159,13 +78,13 @@ config.enable_reloading = true
 
 #### 2. **Force SSL Now Enabled by Default**
 
-**Component:** ActionPack, Security  
-**Impact:** High - Changes production behavior  
+**Component:** ActionPack, Security
+**Impact:** High - Changes production behavior
 **Type:** Breaking - affects deployment
 
 **OLD (Rails 7.0):**
 ```ruby
-# config/environments/production.rb  
+# config/environments/production.rb
 # SSL was opt-in
 # config.force_ssl = true
 ```
@@ -185,7 +104,7 @@ config.force_ssl = true  # This is now ON by default
 - New `assume_ssl` option for load balancer scenarios
 - All production traffic forced to HTTPS by default
 
-⚠️ **Custom Code Warning:** If you have custom SSL middleware, review for conflicts
+**Custom Code Warning:** If you have custom SSL middleware, review for conflicts
 
 **Migration Steps:**
 1. If you DON'T want forced SSL, explicitly set `config.force_ssl = false`
@@ -197,8 +116,8 @@ config.force_ssl = true  # This is now ON by default
 
 #### 3. **Action Mailer Preview Path Now Plural**
 
-**Component:** ActionMailer  
-**Impact:** High - Breaking API change  
+**Component:** ActionMailer
+**Impact:** High - Breaking API change
 **Type:** Breaking
 
 **OLD (Rails 7.0):**
@@ -227,8 +146,8 @@ config.action_mailer.preview_paths = ["test/mailers/previews"]
 
 #### 4. **Database Location Changed for SQLite**
 
-**Component:** ActiveRecord  
-**Impact:** High - Changes file locations  
+**Component:** ActiveRecord
+**Impact:** High - Changes file locations
 **Type:** Breaking - affects data storage
 
 **OLD (Rails 7.0):**
@@ -260,7 +179,7 @@ test:
 - `storage/` directory now used for all persistent files
 - Containers can mount single `storage/` directory
 
-⚠️ **Custom Code Warning:** Check for hard-coded `db/*.sqlite3` paths
+**Custom Code Warning:** Check for hard-coded `db/*.sqlite3` paths
 
 **Migration Steps:**
 1. Update `config/database.yml` paths
@@ -273,8 +192,8 @@ test:
 
 #### 5. **Autoload from lib/ by Default**
 
-**Component:** Railties, Autoloading  
-**Impact:** High - Changes autoloading behavior  
+**Component:** Railties, Autoloading
+**Impact:** High - Changes autoloading behavior
 **Type:** Breaking - may load unexpected files
 
 **OLD (Rails 7.0):**
@@ -296,8 +215,8 @@ config.autoload_lib(ignore: %w(assets tasks))
 - Ignores `lib/assets` and `lib/tasks` by default
 - Classes in `lib/` now available without explicit require
 
-⚠️ **Custom Code Warning:** 
-- Check for name conflicts in `lib/` 
+**Custom Code Warning:**
+- Check for name conflicts in `lib/`
 - Files in `lib/` will now be autoloaded
 
 **Migration Steps:**
@@ -312,8 +231,8 @@ config.autoload_lib(ignore: %w(assets tasks))
 
 #### 6. **ActiveRecord Query Log Format**
 
-**Component:** ActiveRecord  
-**Impact:** Medium - Changes log format  
+**Component:** ActiveRecord
+**Impact:** Medium - Changes log format
 **Type:** Behavior change
 
 **OLD (Rails 7.0):**
@@ -345,8 +264,8 @@ config.active_record.query_log_tags_format = :legacy
 
 #### 7. **Content Security Policy (CSP) Updates**
 
-**Component:** ActionPack  
-**Impact:** Medium - Security configuration  
+**Component:** ActionPack
+**Impact:** Medium - Security configuration
 **Type:** Behavior change
 
 **OLD (Rails 7.0):**
@@ -359,11 +278,11 @@ end
 
 **NEW (Rails 7.1):**
 ```ruby
-# config/initializers/content_security_policy.rb  
+# config/initializers/content_security_policy.rb
 config.content_security_policy do |policy|
   # Can now pass arrays to style-src
   policy.style_src :self, :unsafe_inline
-  
+
   # unsafe_hashes now available as symbol
   policy.script_src :unsafe_hashes, "'sha256-abc123'"
 end
@@ -378,8 +297,8 @@ end
 
 #### 8. **Cache Format Version 7.1**
 
-**Component:** ActiveSupport::Cache  
-**Impact:** Medium - Performance improvement  
+**Component:** ActiveSupport::Cache
+**Impact:** Medium - Performance improvement
 **Type:** Opt-in enhancement
 
 **OLD (Rails 7.0):**
@@ -412,8 +331,8 @@ config.active_support.cache_format_version = 7.1
 
 #### 9. **Dockerfile Generated by Default**
 
-**Component:** Railties  
-**Impact:** Medium - New files  
+**Component:** Railties
+**Impact:** Medium - New files
 **Type:** Addition (non-breaking)
 
 **What Changed:**
@@ -437,8 +356,8 @@ config.active_support.cache_format_version = 7.1
 
 #### 10. **Verbose Active Job Enqueue Logs**
 
-**Component:** ActiveJob  
-**Impact:** Low - Logging enhancement  
+**Component:** ActiveJob
+**Impact:** Low - Logging enhancement
 **Type:** Opt-in feature
 
 **NEW (Rails 7.1):**
@@ -462,8 +381,8 @@ Enqueued SendEmailJob (Job ID: 123) to Sidekiq(default)
 
 #### 11. **Health Check Endpoint**
 
-**Component:** Railties  
-**Impact:** Low - New feature  
+**Component:** Railties
+**Impact:** Low - New feature
 **Type:** Addition (non-breaking)
 
 **NEW (Rails 7.1):**
@@ -486,8 +405,8 @@ get "up" => "rails/health#show", as: :rails_health_check
 
 #### 12. **Test Runner Improvements**
 
-**Component:** Railties  
-**Impact:** Low - Better testing experience  
+**Component:** Railties
+**Impact:** Low - Better testing experience
 **Type:** Enhancement
 
 **NEW Features:**
@@ -505,9 +424,9 @@ bin/rails routes --unused
 
 ---
 
-## 🔍 Custom Code Detection Patterns
+## Custom Code Detection Patterns
 
-The assistant will automatically scan for these patterns and flag them with ⚠️:
+The assistant will automatically scan for these patterns and flag them:
 
 ### 1. Database Configuration
 ```ruby
@@ -515,7 +434,7 @@ The assistant will automatically scan for these patterns and flag them with ⚠�
 database: db/
 
 # WILL FLAG:
-# ⚠️ Custom SQLite path detected - review database.yml
+# Custom SQLite path detected - review database.yml
 ```
 
 ### 2. SSL Middleware
@@ -524,7 +443,7 @@ database: db/
 middleware.use SomeSSLMiddleware
 
 # WILL FLAG:
-# ⚠️ Custom SSL middleware detected - review compatibility with force_ssl
+# Custom SSL middleware detected - review compatibility with force_ssl
 ```
 
 ### 3. Cache Configuration
@@ -533,7 +452,7 @@ middleware.use SomeSSLMiddleware
 cache_format_version =
 
 # WILL FLAG:
-# ⚠️ Explicit cache format detected - review compatibility
+# Explicit cache format detected - review compatibility
 ```
 
 ### 4. Autoloading Configuration
@@ -542,7 +461,7 @@ cache_format_version =
 config.autoload_paths <<
 
 # WILL FLAG:
-# ⚠️ Custom autoload_paths detected - review with new lib/ autoloading
+# Custom autoload_paths detected - review with new lib/ autoloading
 ```
 
 ### 5. CSP Configuration
@@ -551,12 +470,12 @@ config.autoload_paths <<
 unsafe_inline, unsafe_eval
 
 # WILL FLAG:
-# ⚠️ CSP with unsafe directives detected - review nonce generation
+# CSP with unsafe directives detected - review nonce generation
 ```
 
 ---
 
-## 📝 Step-by-Step Upgrade Process
+## Step-by-Step Upgrade Process
 
 ### Before You Begin
 
@@ -569,20 +488,20 @@ unsafe_inline, unsafe_eval
 - [ ] Documentation updated
 - [ ] Rails MCP server connected
 
-### Step 1: Analysis (5-10 minutes)
+### Step 1: Analysis
 
 1. Say: `"Analyze my Rails app for upgrade to 7.1"`
 2. Review the generated report
-3. Note all ⚠️ warnings
+3. Note all warnings
 4. Identify breaking changes affecting your app
 
-### Step 2: Gemfile Update (5 minutes)
+### Step 2: Gemfile Update
 
 ```ruby
 # OLD
 gem "rails", "~> 7.0.0"
 
-# NEW  
+# NEW
 gem "rails", "~> 7.1.6"
 ```
 
@@ -591,7 +510,7 @@ Run:
 bundle update rails
 ```
 
-### Step 3: Configuration Updates (30-60 minutes)
+### Step 3: Configuration Updates
 
 **Priority Order:**
 
@@ -612,7 +531,7 @@ bundle update rails
    ```ruby
    # Update load defaults
    config.load_defaults 7.1
-   
+
    # Add lib autoloading
    config.autoload_lib(ignore: %w(assets tasks))
    ```
@@ -625,7 +544,7 @@ bundle update rails
 
 5. **config/initializers/** (review each for compatibility)
 
-### Step 4: Database Migration (10 minutes)
+### Step 4: Database Migration
 
 ```bash
 # Move SQLite databases
@@ -639,7 +558,7 @@ rails db:migrate
 rails db:migrate:status
 ```
 
-### Step 5: Testing (1-2 hours)
+### Step 5: Testing
 
 ```bash
 # Run test suite
@@ -655,14 +574,14 @@ bin/rails server
 bin/rails test:system
 ```
 
-### Step 6: Staging Deployment (30 minutes)
+### Step 6: Staging Deployment
 
 1. Deploy to staging
 2. Run smoke tests
 3. Monitor logs for issues
 4. Test critical user paths
 
-### Step 7: Production Deployment (variable)
+### Step 7: Production Deployment
 
 **Rolling Deploy Strategy:**
 
@@ -681,7 +600,7 @@ bin/rails test:system
 
 ---
 
-## 🔄 Rollback Plan
+## Rollback Plan
 
 ### If Issues Arise
 
@@ -710,7 +629,7 @@ bin/rails test:system
 
 ---
 
-## ✅ Testing Checklist
+## Testing Checklist
 
 ### Functional Tests
 
@@ -746,157 +665,7 @@ bin/rails test:system
 
 ---
 
-## 🔧 Rails MCP Tool Integration
-
-### Available Tools
-
-This skill uses the following Rails MCP tools:
-
-1. **railsMcpServer:project_info**
-   - Gets Rails version
-   - Identifies directory structure
-   - Detects API-only mode
-
-2. **railsMcpServer:list_files**
-   - Lists configuration files
-   - Finds models and controllers
-   - Locates initializers
-
-3. **railsMcpServer:get_file**
-   - Reads configuration files
-   - Analyzes custom code
-   - Detects patterns
-
-4. **railsMcpServer:analyze_models**
-   - Understands data models
-   - Identifies associations
-   - Checks schema
-
-5. **railsMcpServer:get_schema**
-   - Reviews database structure
-   - Identifies migrations needed
-
-6. **railsMcpServer:get_routes**
-   - Maps application endpoints
-   - Identifies route conflicts
-
-### Tool Workflow
-
-```
-User Request
-    ↓
-railsMcpServer:project_info (understand project)
-    ↓
-railsMcpServer:list_files (find relevant files)
-    ↓
-railsMcpServer:get_file (read configurations)
-    ↓
-Analyze against CHANGELOGs
-    ↓
-Generate upgrade report
-    ↓
-(Optional) nvimMcpServer:update_buffer (apply changes)
-```
-
----
-
-## 📱 Neovim MCP Integration
-
-### Interactive Mode Workflow
-
-1. **Check Open Files:**
-   ```
-   nvimMcpServer:get_project_buffers
-   ```
-   Returns list of files open in Neovim
-
-2. **Show Proposed Changes:**
-   Assistant shows OLD vs NEW for each file
-
-3. **User Confirms:**
-   User says "yes" or "update that file"
-
-4. **Update Buffer:**
-   ```
-   nvimMcpServer:update_buffer
-   ```
-   Updates the file in Neovim with new content
-
-5. **File Auto-Reloads:**
-   Neovim detects change and reloads
-
-### Benefits of Interactive Mode
-
-- ✅ See changes immediately in your editor
-- ✅ Review before committing
-- ✅ Keep your workflow
-- ✅ No context switching
-- ✅ Instant feedback
-
-### Requirements
-
-- Neovim running with MCP server
-- Files open in Neovim
-- Project name specified
-- Socket at `/tmp/nvim-{project_name}.sock`
-
----
-
-## 🎯 Example Usage Scenarios
-
-### Scenario 1: First Time Upgrade
-
-**User Says:**
-> "I want to upgrade my Rails app from 7.0 to 7.1"
-
-**Assistant Response:**
-1. Analyzes project using Rails MCP
-2. Generates full upgrade report
-3. Shows all breaking changes
-4. Provides step-by-step instructions
-5. Offers to answer questions
-
-### Scenario 2: Specific Component Question
-
-**User Says:**
-> "What ActiveRecord changes are in Rails 7.1?"
-
-**Assistant Response:**
-1. Filters CHANGELOG for ActiveRecord
-2. Shows relevant changes
-3. Provides code examples
-4. Explains impact
-
-### Scenario 3: Interactive Upgrade
-
-**User Says:**
-> "Upgrade to Rails 7.1 in interactive mode, project name is 'blog'"
-
-**Assistant Response:**
-1. Checks Neovim buffers for project 'blog'
-2. Generates upgrade plan
-3. For each file needing changes:
-   - Shows OLD code
-   - Shows NEW code
-   - Asks for confirmation
-   - Updates buffer if approved
-4. Summarizes changes made
-
-### Scenario 4: Configuration Only
-
-**User Says:**
-> "Just show me configuration changes for Rails 7.1"
-
-**Assistant Response:**
-1. Filters for config/* file changes
-2. Shows environment file updates
-3. Shows application.rb updates
-4. Shows initializer changes
-5. Skips model/controller changes
-
----
-
-## 🚨 Common Issues & Solutions
+## Common Issues & Solutions
 
 ### Issue 1: SSL Redirects in Development
 
@@ -958,7 +727,7 @@ ActiveSupport::Deprecation.silenced = true
 
 ---
 
-## 📚 Official Resources
+## Official Resources
 
 ### Rails Guides
 - https://guides.rubyonrails.org/upgrading_ruby_on_rails.html
@@ -977,136 +746,3 @@ ActiveSupport::Deprecation.silenced = true
 - ActiveStorage: https://github.com/rails/rails/blob/v7.1.6/activestorage/CHANGELOG.md
 - ActiveSupport: https://github.com/rails/rails/blob/v7.1.6/activesupport/CHANGELOG.md
 - Railties: https://github.com/rails/rails/blob/v7.1.6/railties/CHANGELOG.md
-
----
-
-## 🎓 Skill Capabilities Summary
-
-This skill can:
-
-✅ Analyze any Rails 7.0 project structure
-✅ Identify all breaking changes affecting the project
-✅ Detect custom code requiring manual review
-✅ Generate comprehensive upgrade reports
-✅ Provide OLD vs NEW code examples
-✅ Show step-by-step migration instructions
-✅ Offer rollback procedures
-✅ Include comprehensive testing checklists
-✅ Integrate with Neovim for interactive updates
-✅ Answer specific questions about changes
-✅ Filter information by Rails component
-✅ Explain impact of each change
-
-This skill cannot:
-
-❌ Automatically upgrade your code without permission
-❌ Modify files without explicit confirmation
-❌ Guarantee all custom code will work
-❌ Test your application automatically
-❌ Make architectural decisions for you
-❌ Replace careful code review
-❌ Deploy your application
-
----
-
-## 🔐 Safety Features
-
-1. **Read-Only by Default:** Reports only, no modifications
-2. **Explicit Permission:** Interactive mode requires confirmation
-3. **Custom Code Warnings:** All customizations marked with ⚠️
-4. **Rollback Plans:** Complete rollback procedures provided
-5. **Testing Checklists:** Comprehensive test coverage guidance
-6. **Official Sources:** All info from Rails GitHub CHANGELOGs
-7. **Conservative Approach:** Warns about edge cases
-
----
-
-## 💡 Best Practices
-
-### Before Upgrading
-
-1. ✅ Read the full upgrade report
-2. ✅ Review all ⚠️ warnings carefully
-3. ✅ Create a staging environment
-4. ✅ Ensure tests are comprehensive
-5. ✅ Document custom configurations
-6. ✅ Plan for rollback scenarios
-
-### During Upgrade
-
-1. ✅ Upgrade one component at a time
-2. ✅ Test after each change
-3. ✅ Commit frequently
-4. ✅ Monitor deprecation warnings
-5. ✅ Keep notes of issues found
-6. ✅ Ask questions when uncertain
-
-### After Upgrade
-
-1. ✅ Run full test suite
-2. ✅ Deploy to staging first
-3. ✅ Monitor production closely
-4. ✅ Keep rollback plan ready
-5. ✅ Document any workarounds
-6. ✅ Share learnings with team
-
----
-
-## 📞 Getting Help
-
-### From This Skill
-
-Ask specific questions like:
-- "What ActionPack changes affect me?"
-- "Show me SSL configuration changes"
-- "What's the migration path for [feature]?"
-- "How do I rollback this change?"
-
-### From Claude
-
-Claude can:
-- Explain breaking changes in detail
-- Show more code examples
-- Troubleshoot specific errors
-- Suggest testing strategies
-- Review your custom code
-
-### From Rails Community
-
-- Rails Forum: https://discuss.rubyonrails.org
-- Rails GitHub Issues
-- Stack Overflow (tag: ruby-on-rails)
-- Rails Discord server
-
----
-
-## 🎉 Skill Version Information
-
-**Version:** 1.0
-**Last Updated:** November 1, 2025  
-**Rails Coverage:** 7.0.x → 7.1.6  
-**CHANGELOG Sources:** Official Rails GitHub (v7.1.6 tag)
-
-**Includes:**
-- 12 official Rails component CHANGELOGs
-- File diff analysis from rails-new-output
-- Interactive Neovim editing support
-- Rails MCP tool integration
-- Custom code detection patterns
-- Step-by-step workflows
-
----
-
-**Ready to upgrade? Just say:**
-```
-"Upgrade my Rails app to 7.1"
-```
-
-**Or for interactive mode:**
-```
-"Upgrade to Rails 7.1 in interactive mode with project 'myapp'"
-```
-
----
-
-*This skill is designed to work with Claude's Projects feature, Rails MCP server, and optional Neovim MCP server. All recommendations are based on official Rails CHANGELOGs and best practices from the Rails core team.*

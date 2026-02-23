@@ -57,6 +57,8 @@ Note all `{PLACEHOLDER}` variables that need replacement.
 Determine upgrade path and load appropriate guide:
 
 ```
+From 6.0 → 6.1: version-guides/upgrade-6.0-to-6.1.md
+From 6.1 → 7.0: version-guides/upgrade-6.1-to-7.0.md
 From 7.0 → 7.1: version-guides/upgrade-7.0-to-7.1.md
 From 7.1 → 7.2: version-guides/upgrade-7.1-to-7.2.md
 From 7.2 → 8.0: version-guides/upgrade-7.2-to-8.0.md
@@ -112,12 +114,8 @@ Replace all placeholders with actual values:
 - `{TO_VERSION}` → "8.1.1"
 - `{GENERATION_DATE}` → Current date
 - `{PROJECT_NAME}` → Detected project name
-- `{UPGRADE_TYPE}` → "Single-hop" or "Multi-hop (hop X of Y)"
 
 **Metrics:**
-- `{COMPLEXITY_STARS}` → ⭐ to ⭐⭐⭐⭐⭐ (based on breaking changes count)
-- `{TIME_ESTIMATE}` → "2-4 hours" (based on complexity)
-- `{RISK_LEVEL}` → "Low", "Medium", "High", "Very High"
 - `{BREAKING_CHANGES_COUNT}` → Count from version guide
 - `{CUSTOM_WARNINGS_COUNT}` → Count of detected customizations
 - `{HIGH_COUNT}`, `{MEDIUM_COUNT}`, `{LOW_COUNT}` → By priority
@@ -281,7 +279,34 @@ Rollback immediately if:
 
 ---
 
-### Step 11: Quality Check
+### Step 11: Generate Configuration Changes Preview
+
+This section is part of the unified upgrade report (not a separate deliverable).
+
+**Identify configuration files affected by `rails app:update`:**
+
+1. Read user's actual config files:
+   - `config/application.rb`
+   - `config/environments/production.rb`
+   - `config/environments/development.rb`
+   - `config/environments/test.rb`
+   - `Gemfile`
+   - `config/boot.rb`
+
+2. For each affected file, generate OLD vs NEW diff showing:
+   - Impact level (HIGH/MEDIUM/LOW)
+   - What changed and why
+   - Custom configuration warnings
+
+3. List any new files the target version introduces (e.g., Solid Cache/Queue/Cable configs for 8.0, PWA files for 7.2)
+
+4. List any removed files
+
+Populate the template's Configuration Changes section with these diffs.
+
+---
+
+### Step 12: Quality Check
 
 Before delivering, verify:
 
@@ -291,28 +316,28 @@ Before delivering, verify:
 - [ ] Used user's actual code (not generic)
 - [ ] Testing checklist included
 - [ ] Rollback plan included
+- [ ] Configuration changes preview included with real diffs
 - [ ] Resources section completed
 
 **Full Checklist:** See `reference/quality-checklist.md`
 
 ---
 
-### Step 12: Deliver Report
+### Step 13: Deliver Report
 
 Present the complete report as markdown with:
 
-1. Executive summary at top
+1. Summary at top
 2. Breaking changes prominently displayed
 3. Custom warnings clearly flagged
-4. Step-by-step migration guide
-5. Testing checklist
+4. Configuration changes (app:update preview)
+5. Migration checklist
 6. Rollback plan
+7. Resources
 
 **Format:**
 ```markdown
 # Rails Upgrade Report: {FROM_VERSION} → {TO_VERSION}
-
-[Complete 50-page report here]
 ```
 
 ---
@@ -334,7 +359,6 @@ Present the complete report as markdown with:
 
 | Variable | Example | When to Use |
 |----------|---------|-------------|
-| `{UPGRADE_TYPE}` | "Multi-hop (hop 2 of 4)" | Multi-hop only |
 | `{TESTS_COUNT}` | "1,247" | If detectable |
 | `{FILES_COUNT}` | "8" | From analysis |
 
@@ -342,13 +366,13 @@ Present the complete report as markdown with:
 
 ## Common Pitfalls
 
-❌ **Don't:**
+**Don't:**
 - Use generic code examples
 - Skip custom code detection
 - Leave {PLACEHOLDERS} unreplaced
 - Copy/paste from version guide verbatim
 
-✅ **Do:**
+**Do:**
 - Use user's actual code
 - Flag all customizations
 - Provide clear OLD→NEW examples
@@ -361,28 +385,28 @@ Present the complete report as markdown with:
 ```markdown
 # Rails Upgrade Report: 8.0.4 → 8.1.1
 
-## Executive Summary
-[TL;DR with key findings]
-
-## Project Analysis
-[User's specific project details]
+## Summary
+[Project details and metrics table]
 
 ## Breaking Changes (2)
-### 🔴 HIGH: SSL Configuration Changes
+### HIGH: SSL Configuration Changes
 [OLD code] → [NEW code]
 
 ## Custom Code Warnings (3)
-⚠️ Custom middleware detected
-⚠️ Manual Redis configuration
+Custom middleware detected
+Manual Redis configuration
 
-## Migration Guide
-[8 phases with checkboxes]
+## Configuration Changes (app:update preview)
+### Modified Files
+[Diffs for each config file]
+### New Files
+[Any new files introduced]
 
-## Testing Checklist
-[Comprehensive testing plan]
+## Migration Checklist
+[Single checklist with checkboxes]
 
-## Rollback Plan
-[When and how to rollback]
+## Rollback
+[4-line rollback procedure]
 
 ## Resources
 [Official Rails documentation]

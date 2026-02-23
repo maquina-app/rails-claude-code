@@ -1,10 +1,10 @@
 ---
 title: "Rails Upgrade Assistant - Documentation Package"
-description: "Complete guide for using the modular Rails Upgrade Assistant skill for Rails 7.0 through 8.1 upgrades"
+description: "Complete guide for using the modular Rails Upgrade Assistant skill for Rails 6.0 through 8.1 upgrades"
 type: "documentation-index"
 audience: "users"
 purpose: "navigation-overview"
-rails_versions: "7.0.x to 8.1.1"
+rails_versions: "6.0.x to 8.1.1"
 read_time: "5-10 minutes"
 tags:
   - documentation
@@ -20,7 +20,7 @@ copyright: Copyright (c) 2025 [Mario Alberto Chávez Cárdenas]
 
 # 📚 Rails Upgrade Assistant Skill - Documentation Package
 
-Complete guide for upgrading Ruby on Rails applications from version 7.0 through 8.1.1 using Claude's intelligent, modular upgrade assistant.
+Complete guide for upgrading Ruby on Rails applications from version 6.0 through 8.1.1 using Claude's intelligent, modular upgrade assistant.
 
 ---
 
@@ -76,17 +76,20 @@ rails-upgrade-assistant/
 │       └── Troubleshooting
 │
 ├── version-guides/          📋 Rails version specifics
+│   ├── upgrade-6.0-to-6.1.md
+│   ├── upgrade-6.1-to-7.0.md
 │   ├── upgrade-7.0-to-7.1.md
 │   ├── upgrade-7.1-to-7.2.md
 │   ├── upgrade-7.2-to-8.0.md
 │   └── upgrade-8.0-to-8.1.md
 │
 ├── templates/               📄 Report templates
-│   ├── upgrade-report-template.md
-│   └── app-update-preview-template.md
+│   └── upgrade-report-template.md
 │
 └── detection-scripts/       🔍 Pattern definitions
     ├── patterns/
+    │   ├── rails-61-patterns.yml
+    │   ├── rails-70-patterns.yml
     │   ├── rails-72-patterns.yml
     │   ├── rails-80-patterns.yml
     │   └── rails-81-patterns.yml
@@ -180,19 +183,22 @@ Claude will:
 
 ## 📊 Supported Upgrade Paths
 
-| From | To | Hops | Breaking Changes | Difficulty | Time | Key Changes |
-|------|----|----|-----------------|------------|------|-------------|
-| 8.0.x | 8.1.1 | 1 | 8 changes | ⭐ Easy | 2-4 hours | SSL config, bundler-audit |
-| 7.2.x | 8.0.4 | 1 | 13 changes | ⭐⭐⭐ Hard | 6-8 hours | Propshaft, Solid gems |
-| 7.1.x | 7.2.3 | 1 | 38 changes | ⭐⭐ Medium | 4-6 hours | Transaction jobs, PWA |
-| 7.0.x | 7.1.6 | 1 | 12 changes | ⭐⭐ Medium | 3-5 hours | cache_classes, SSL |
-| 7.0.x | 8.1.1 | 4 | All 71 changes | ⭐⭐⭐⭐ Very Hard | 2-3 weeks | Multi-hop required |
+| From | To | Hops | Breaking Changes | Difficulty | Key Changes |
+|------|----|----|-----------------|------------|-------------|
+| 8.0.x | 8.1.1 | 1 | 8 changes | ⭐ Easy | SSL config, bundler-audit |
+| 7.2.x | 8.0.4 | 1 | 13 changes | ⭐⭐⭐ Hard | Propshaft, Solid gems |
+| 7.1.x | 7.2.3 | 1 | 38 changes | ⭐⭐ Medium | Transaction jobs, PWA |
+| 7.0.x | 7.1.6 | 1 | 12 changes | ⭐⭐ Medium | cache_classes, SSL |
+| 6.1.x | 7.0.0 | 1 | 17 changes | ⭐⭐⭐ Hard | Webpacker, framework defaults |
+| 6.0.x | 6.1.0 | 1 | 18 changes | ⭐⭐ Medium | Active Storage, per-db connections |
+| 6.0.x | 8.1.1 | 6 | All 106 changes | ⭐⭐⭐⭐ Very Hard | Multi-hop required |
 
 ### 🚨 Important: No Version Skipping!
 
 Rails upgrades MUST be sequential:
 ```
-✅ Correct: 7.0 → 7.1 → 7.2 → 8.0 → 8.1
+✅ Correct: 6.0 → 6.1 → 7.0 → 7.1 → 7.2 → 8.0 → 8.1
+❌ Wrong:   6.0 → 7.0 (skips 6.1)
 ❌ Wrong:   7.0 → 8.0 (skips 7.1, 7.2)
 ```
 
@@ -245,8 +251,7 @@ The skill automatically handles this by:
 1. README.md → Quick Start (5 min)
 2. QUICK-REFERENCE.md → Commands (2 min)
 
-**Say:** "Upgrade my Rails app to 8.1"  
-**Time:** 7 minutes prep + 2-4 hours execution
+**Say:** "Upgrade my Rails app to 8.1"
 
 #### Multi-Hop Upgrade (7.0 → 8.1)
 **Read:**
@@ -254,15 +259,13 @@ The skill automatically handles this by:
 2. USAGE-GUIDE.md → Multi-Hop Workflow (15 min)
 3. Review: `examples/multi-hop-upgrade.md` in skill
 
-**Say:** "Help me upgrade from Rails 7.0 to 8.1"  
-**Time:** 25 minutes prep + 2-3 weeks execution
+**Say:** "Help me upgrade from Rails 6.0 to 8.1"
 
 #### Risk Assessment Only
 **Read:**
 1. QUICK-REFERENCE.md → Breaking Changes (5 min)
 
-**Say:** "Assess upgrade impact from [version] to [version]"  
-**Time:** 5 minutes prep + 1-2 hours analysis
+**Say:** "Assess upgrade impact from [version] to [version]"
 
 ---
 
@@ -506,14 +509,14 @@ Full troubleshooting in USAGE-GUIDE.md and `reference/reference-files-package.md
 - **Workflows:** 3 files (~1,200 lines)
 - **Examples:** 4 files (~1,000 lines)
 - **References:** 1 package file (~250 lines)
-- **Version Guides:** 4 files (~320 KB)
+- **Version Guides:** 6 files (~400 KB)
 - **Templates:** 2 files
-- **Patterns:** 3 YAML files
+- **Patterns:** 5 YAML files
 - **Total:** ~550 KB of comprehensive, modular documentation
 
 ### Coverage
-- **Rails Versions:** 7.0.x through 8.1.1 (5 versions)
-- **Breaking Changes:** 71 documented across all versions
+- **Rails Versions:** 6.0.x through 8.1.1 (7 versions)
+- **Breaking Changes:** 106 documented across all versions
 - **Code Examples:** 150+ OLD/NEW comparisons
 - **Commands:** 50+ ready-to-use commands
 - **Warnings:** 100+ custom code detection patterns
@@ -658,12 +661,12 @@ Just ask! Examples:
 - Workflows (3 files)
 - Examples (4 files)
 - References (1 package)
-- Version Guides (4 files)
+- Version Guides (6 files)
 - Templates (2 files)
 - Patterns (3 files)
 
 **Rails Support:**
-- Versions: 7.0.x through 8.1.1
+- Versions: 6.0.x through 8.1.1
 - Components: All 12 Rails components covered
 - Based on: Official GitHub CHANGELOGs
 

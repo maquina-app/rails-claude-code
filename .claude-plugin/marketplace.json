@@ -25,8 +25,8 @@
     {
       "name": "rails-upgrade-assistant",
       "source": "./rails-upgrade-assistant",
-      "description": "Analyzes Rails applications and generates comprehensive upgrade reports with breaking changes, deprecations, and step-by-step migration guides for Rails 7.0 through 8.1.1",
-      "version": "1.0.0",
+      "description": "Analyzes Rails applications and generates comprehensive upgrade reports with breaking changes, deprecations, and step-by-step migration guides for Rails 6.0 through 8.1.1",
+      "version": "1.1.0",
       "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"

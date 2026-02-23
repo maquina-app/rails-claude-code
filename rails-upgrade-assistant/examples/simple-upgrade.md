@@ -31,7 +31,6 @@ Read: templates/upgrade-report-template.md
 Read: version-guides/upgrade-8.0-to-8.1.md
 Read: detection-scripts/patterns/rails-81-patterns.yml
 Read: detection-scripts/templates/detection-script-template.sh
-Read: templates/app-update-preview-template.md
 ```
 
 ### Step 3: Analyze Project

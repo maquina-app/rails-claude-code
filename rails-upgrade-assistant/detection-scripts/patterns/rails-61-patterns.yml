@@ -1,0 +1,148 @@
+version: "6.1"
+description: "Breaking change patterns for Rails 6.0 → 6.1 upgrade"
+
+breaking_changes:
+  high_priority:
+    - name: "where.not multi-key"
+      pattern: 'where\.not\(\s*\w+:\s*.*,\s*\w+:'
+      exclude: ""
+      search_paths:
+        - "app/models/"
+        - "app/controllers/"
+        - "app/services/"
+        - "lib/"
+      explanation: "where.not with multiple keys changed from NOR to NAND semantics"
+      fix: "Chain separate where.not calls for NOR behavior: where.not(a: x).where.not(b: y)"
+      variable_name: "WHERE_NOT"
+
+    - name: "form_with without local/remote"
+      pattern: 'form_with\('
+      exclude: "local:|remote:"
+      search_paths:
+        - "app/views/"
+        - "app/helpers/"
+      explanation: "form_with now generates non-remote forms by default (local: true)"
+      fix: "Add local: false to forms that need AJAX submission, or set config.action_view.form_with_generates_remote_forms = true"
+      variable_name: "FORM_WITH"
+
+    - name: "config_for string key access"
+      pattern: 'config_for.*\["\w+"\]|config_for.*\["'
+      exclude: ""
+      search_paths:
+        - "app/"
+        - "config/"
+        - "lib/"
+      explanation: "config_for now returns OrderedOptions with Symbol-only key access"
+      fix: "Replace config[\"key\"] with config[:key] or config.key"
+      variable_name: "CONFIG_FOR"
+
+    - name: "update_attributes usage"
+      pattern: '\.update_attributes[!\(]'
+      exclude: ""
+      search_paths:
+        - "app/"
+        - "lib/"
+        - "test/"
+        - "spec/"
+      explanation: "update_attributes and update_attributes! are removed in Rails 6.1"
+      fix: "Replace with update and update!"
+      variable_name: "UPDATE_ATTRS"
+
+    - name: "errors.to_hash usage"
+      pattern: 'errors\.to_hash'
+      exclude: ""
+      search_paths:
+        - "app/"
+        - "lib/"
+        - "test/"
+        - "spec/"
+      explanation: "ActiveModel::Errors#to_hash behavior changed with new Error objects API"
+      fix: "Use errors.messages for same format or errors.group_by_attribute for richer data"
+      variable_name: "ERRORS_HASH"
+
+    - name: "content_type comparison"
+      pattern: 'content_type\s*==\s*["\x27]'
+      exclude: "media_type"
+      search_paths:
+        - "app/controllers/"
+        - "app/middleware/"
+        - "lib/"
+      explanation: "request.content_type now returns full header including charset"
+      fix: "Use request.media_type for MIME type comparison"
+      variable_name: "CONTENT_TYPE"
+
+  medium_priority:
+    - name: "halted_callback_hook override"
+      pattern: 'def halted_callback_hook'
+      exclude: ""
+      search_paths:
+        - "app/models/"
+        - "app/controllers/"
+        - "lib/"
+      explanation: "halted_callback_hook now receives a second argument (callback chain name)"
+      fix: "Update method signature to accept two arguments: filter, name"
+      variable_name: "HALTED_CALLBACK"
+
+    - name: "image variant usage without image_processing"
+      pattern: '\.variant\(|\.preview\('
+      exclude: ""
+      search_paths:
+        - "app/"
+        - "lib/"
+      explanation: "ActiveStorage now requires the image_processing gem for variants"
+      fix: "Add gem 'image_processing', '~> 1.2' to Gemfile and update variant API calls"
+      variable_name: "IMAGE_VARIANTS"
+
+    - name: "errors direct manipulation"
+      pattern: 'errors\[:\w+\]\s*<<'
+      exclude: ""
+      search_paths:
+        - "app/models/"
+        - "app/validators/"
+        - "lib/"
+      explanation: "Direct manipulation of errors array is deprecated"
+      fix: "Use errors.add(:attribute, :invalid, message: 'msg') instead"
+      variable_name: "ERRORS_PUSH"
+
+    - name: "fixture_file_upload with path prefix"
+      pattern: 'fixture_file_upload\('
+      exclude: ""
+      search_paths:
+        - "test/"
+        - "spec/"
+      explanation: "fixture_file_upload now resolves paths relative to file_fixture_path"
+      fix: "Verify file paths resolve correctly with new relative resolution"
+      variable_name: "FIXTURE_UPLOAD"
+
+    - name: "SameSite cookie configuration"
+      pattern: 'same_site|SameSite'
+      exclude: ""
+      search_paths:
+        - "config/"
+        - "app/controllers/"
+      explanation: "Cookies now default to SameSite=Lax"
+      fix: "For cross-site cookies, set same_site: :none, secure: true explicitly"
+      variable_name: "SAMESITE"
+
+    - name: "resize string syntax in variants"
+      pattern: 'resize:\s*["\x27]\d'
+      exclude: "resize_to"
+      search_paths:
+        - "app/"
+        - "lib/"
+      explanation: "Old mini_magick resize syntax deprecated in favor of image_processing methods"
+      fix: "Replace resize: 'WxH' with resize_to_limit: [W, H]"
+      variable_name: "RESIZE_SYNTAX"
+
+dependencies:
+  image_processing:
+    check: true
+    gem_name: "image_processing"
+    message: "image_processing gem is required for ActiveStorage variants in Rails 6.1"
+    url: "https://github.com/janko/image_processing"
+
+file_checks:
+  - path: "config/initializers/new_framework_defaults_6_1.rb"
+    should_exist: true
+    message: "Run rails app:update to generate new_framework_defaults_6_1.rb"
+    priority: "MEDIUM"

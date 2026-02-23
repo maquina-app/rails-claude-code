@@ -5,7 +5,6 @@ type: "version-guide"
 rails_from: "8.0.4"
 rails_to: "8.1.1"
 difficulty: "easy"
-estimated_time: "2-4 hours"
 breaking_changes: 8
 priority_high: 3
 priority_medium: 3
@@ -31,57 +30,12 @@ last_updated: "2025-11-01"
 copyright: Copyright (c) 2025 [Mario Alberto Chávez Cárdenas]
 ---
 
-# Rails Upgrade Assistant Skill: 8.0.4 → 8.1.1
+# Rails 8.0 → 8.1 Upgrade Guide
 
-**Version:** 1.0 
-**Created:** November 1, 2025
-**Source:** Official Rails CHANGELOGs from GitHub
+## Supported Upgrade Path
 
----
-
-## Overview
-
-This skill helps upgrade Ruby on Rails applications from version 8.0.4 to 8.1.1, using official CHANGELOG data and the Rails MCP server to analyze your project intelligently.
-
-### Key Features
-- ✅ Uses Rails MCP tools to analyze your actual project
-- ✅ Detects custom configurations automatically
-- ✅ Based on official Rails CHANGELOGs from GitHub
-- ✅ Neovim integration for live file updates
-- ✅ Preserves your custom code with warnings
-- ✅ Component-by-component change tracking
-
----
-
-## How to Use This Skill
-
-### Mode 1: Report-Only (Default - Safest)
-```
-"Analyze my Rails 8.0.4 app for upgrade to 8.1.1"
-```
-I'll generate a comprehensive report with all changes needed. You review and apply manually.
-
-### Mode 2: Interactive with Neovim (Advanced)
-```
-"Upgrade my Rails app to 8.1.1 in interactive mode"
-```
-I'll:
-1. Get your project's open buffers from Neovim
-2. Show you each change before applying
-3. Update files in Neovim when you approve
-4. Preserve all custom configurations
-
-**Prerequisites for Interactive Mode:**
-- Neovim running with socket at `/tmp/nvim-{project_name}.sock`
-- Files open in Neovim buffers
-- Rails MCP server connected
-
----
-
-## Upgrade Path: 8.0.4 → 8.1.1
-
-**Complexity:** ⭐⭐ Medium
-**Estimated Time:** 3-5 hours
+**Rails 8.0.4 → 8.1.1**
+**Difficulty:** Easy
 **Risk Level:** Medium (config changes, some deprecations)
 
 ### What Changed
@@ -95,7 +49,7 @@ I'll:
 
 ## Critical Breaking Changes
 
-### 🚨 HIGH PRIORITY - Action Required
+### HIGH PRIORITY - Action Required
 
 #### 1. SSL Configuration Changes (Railties 8.1.1)
 **Impact:** Production deployment configuration
@@ -116,8 +70,7 @@ config.force_ssl = true
 # config.force_ssl = true
 ```
 
-**⚠️ Custom Code Warning:**
-If you have custom SSL middleware or manual SSL enforcement, review this change carefully.
+**Warning:** If you have custom SSL middleware or manual SSL enforcement, review this change carefully.
 
 **Migration Steps:**
 1. Check if you're using Kamal: `grep -r "kamal" config/`
@@ -158,8 +111,7 @@ default: &default
   timeout: 5000
 ```
 
-**⚠️ Custom Code Warning:**
-If you have database initializers or custom connection pool logic, update them.
+**Warning:** If you have database initializers or custom connection pool logic, update them.
 
 **Migration Steps:**
 1. Open config/database.yml
@@ -205,11 +157,7 @@ ActionDispatch::ParamBuilder.from_query_string("[foo]=bar")
 # => { "[foo]" => "bar" }
 ```
 
-**⚠️ Custom Code Warning:**
-Check your codebase for:
-- Manual URL parsing with semicolons
-- Parameter parsing that expects bracket stripping
-- API integrations that might send semicolon-separated params
+**Warning:** Check your codebase for manual URL parsing with semicolons, parameter parsing that expects bracket stripping, and API integrations that might send semicolon-separated params.
 
 **Migration Steps:**
 1. Search codebase: `grep -r ";" app/ | grep "params\|query"`
@@ -221,15 +169,14 @@ Check your codebase for:
 
 #### 4. Routes to Missing Controllers (ActionPack 8.1.0)
 **Impact:** Error handling
-**Status:** Behavior change (404 → 500)
+**Status:** Behavior change (404 -> 500)
 
 **Before:** Missing controller returned 404 Not Found
 **After:** Missing controller returns 500 Internal Server Error
 
 **Reason:** Non-existent controllers are programming errors, not routing errors.
 
-**⚠️ Custom Code Warning:**
-If you have error handling that specifically catches 404s for missing controllers, update it.
+**Warning:** If you have error handling that specifically catches 404s for missing controllers, update it.
 
 **Migration Steps:**
 1. Audit routes: `bin/rails routes | grep "#"`
@@ -280,8 +227,7 @@ If you're using Azure storage, you need to:
 1. Switch to a different storage service (S3, GCS, or Disk)
 2. Or use the `azure-storage-blob` gem directly with a custom service
 
-**⚠️ Custom Code Warning:**
-Check your storage.yml for azure configuration.
+**Warning:** Check your storage.yml for azure configuration.
 
 ---
 
@@ -340,7 +286,7 @@ config.load_defaults 8.1
 ```ruby
 class ApplicationController < ActionController::Base
   allow_browser versions: :modern
-  
+
   # NEW in 8.1.1 - invalidates etag when importmap changes
   stale_when_importmap_changes
 end
@@ -483,13 +429,13 @@ Make executable: `chmod +x bin/ci`
 
 CI.run do
   step "Setup", "bin/setup --skip-server"
-  
+
   step "Style: Ruby", "bin/rubocop"
-  
+
   step "Security: Gem audit", "bin/bundler-audit"
   step "Security: Importmap vulnerability audit", "bin/importmap audit"
   step "Security: Brakeman code analysis", "bin/brakeman --quiet --no-pager"
-  
+
   step "Tests: Rails", "bin/rails test"
   step "Tests: System", "bin/rails test:system"
   step "Tests: Seeds", "env RAILS_ENV=test bin/rails db:seed:replant"
@@ -517,7 +463,7 @@ config.assets.quiet = true
 ```ruby
 # config/initializers/content_security_policy.rb
 
-# Automatically add nonce to javascript_tag, javascript_include_tag, 
+# Automatically add nonce to javascript_tag, javascript_include_tag,
 # and stylesheet_link_tag if corresponding directives are specified
 # config.content_security_policy_nonce_auto = true
 ```
@@ -528,7 +474,7 @@ config.assets.quiet = true
 ```ruby
 # config/puma.rb
 
-# You can set WEB_CONCURRENCY to 'auto' to automatically start 
+# You can set WEB_CONCURRENCY to 'auto' to automatically start
 # a worker for each available processor
 ```
 
@@ -555,37 +501,6 @@ config.assets.quiet = true
 # Change to "debug" to log everything (including PII!).
 config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
 ```
-
----
-
-## Error Pages - Dark Mode Support
-
-All error pages now support dark mode:
-- public/400.html
-- public/404.html
-- public/406-unsupported-browser.html
-- public/422.html
-- public/500.html
-
-**Changes:**
-- Uses `100dvh` instead of `100vh` (mobile viewport)
-- Dark mode CSS added with `@media (prefers-color-scheme: dark)`
-- SVG elements styled separately for light/dark themes
-
-**No action required** - files regenerated automatically with `rails app:update`
-
----
-
-## Application Layout Changes
-
-### app/views/layouts/application.html.erb
-
-**New meta tag:**
-```html
-<meta name="application-name" content="Railsdiff">
-```
-
-This helps Progressive Web Apps identify the application name.
 
 ---
 
@@ -709,7 +624,7 @@ end
 class PagesController < ActionController::Base
   def show
     @page = Page.find(params[:id])
-    
+
     respond_to do |format|
       format.html
       format.md { render markdown: @page }
@@ -755,7 +670,7 @@ def show
   else
     @article = Article.find(params[:id])
   end
-  
+
   render :show
 end
 ```
@@ -900,14 +815,14 @@ url_for(host: "https://example.com", ...)
 - [ ] Update Gemfile to Rails 8.1.1
 - [ ] Run `bundle update rails`
 - [ ] Update config/application.rb (load_defaults 8.1)
-- [ ] Update database.yml (pool → max_connections)
+- [ ] Update database.yml (pool -> max_connections)
 - [ ] Add image_processing gem
 - [ ] Add bundler-audit gem
 - [ ] Create bin/bundler-audit script
 - [ ] Create config/bundler-audit.yml
 - [ ] Create bin/ci script
 - [ ] Create config/ci.rb
-- [ ] Update .gitignore (master.key → *.key)
+- [ ] Update .gitignore (master.key -> *.key)
 - [ ] Update ApplicationController (add stale_when_importmap_changes)
 - [ ] Review SSL config in production.rb
 - [ ] Update GitHub Actions workflow
@@ -1115,130 +1030,3 @@ Update API clients to use `&` instead of `;`:
 - **Rails 8.1 Release Notes:** https://guides.rubyonrails.org/8_1_release_notes.html
 - **Rails GitHub:** https://github.com/rails/rails
 - **CHANGELOGs:** https://github.com/rails/rails/tree/v8.1.1
-
----
-
-## Using This Skill with Rails MCP & Neovim
-
-### Step 1: Analyze Your Project
-
-```
-"Analyze my Rails project for upgrade to 8.1.1"
-```
-
-I will:
-1. Use `railsMcpServer:project_info` to understand your setup
-2. Use `railsMcpServer:get_file` to read your configs
-3. Use `railsMcpServer:analyze_models` to check your models
-4. Detect custom configurations automatically
-5. Generate a report with ⚠️ warnings for your custom code
-
-### Step 2: Review Changes
-
-I'll show you:
-- What files need to be changed
-- What your current configuration is
-- What the new configuration should be
-- Where you have custom code that needs attention
-
-### Step 3: Apply Changes (Interactive Mode)
-
-```
-"Update my files with the changes"
-```
-
-I will:
-1. Use `nvimMcpServer:get_project_buffers` to see your open files
-2. Show you each change before applying
-3. Use `nvimMcpServer:update_buffer` to update files in Neovim
-4. Verify changes with you
-
-### Step 4: Verify
-
-```
-"Check my upgrade status"
-```
-
-I'll verify:
-- All required files updated
-- No syntax errors
-- All custom code preserved
-- Tests still pass
-
----
-
-## Custom Code Detection
-
-I automatically detect and warn about:
-
-### Configuration Customizations
-- ⚠️ Custom SSL middleware
-- ⚠️ Manual database pool configuration  
-- ⚠️ Custom query parameter parsing
-- ⚠️ ActiveJob adapter customizations
-- ⚠️ Custom storage services
-
-### Code Patterns
-- ⚠️ Semicolon URL separators
-- ⚠️ Leading bracket parameter assumptions
-- ⚠️ Error handling for missing controllers
-- ⚠️ Time zone conversion code
-- ⚠️ Unsigned type usage
-
-### Integration Points
-- ⚠️ Custom Sidekiq configuration
-- ⚠️ Azure storage integration
-- ⚠️ Custom serialization logic
-- ⚠️ Rate limiting customizations
-
----
-
-## Success Criteria
-
-Your upgrade is successful when:
-
-✅ All tests pass
-✅ No deprecation warnings
-✅ All custom code warnings addressed
-✅ Staging deployment successful
-✅ Production deployment successful
-✅ No unexpected errors in error tracking
-✅ Performance metrics stable or improved
-
----
-
-## Support & Troubleshooting
-
-### If You Get Stuck
-
-1. **Check this guide** for your specific error
-2. **Search CHANGELOGs** for component-specific issues
-3. **Review diff** between 8.0.4 and 8.1.1
-4. **Check Rails guides** for detailed explanations
-5. **Ask me** for help interpreting errors
-
-### Getting More Help
-
-```
-"I'm seeing this error after upgrade: [error message]"
-"How do I handle custom [feature] during upgrade?"
-"What does this deprecation warning mean?"
-```
-
----
-
-## Appendix: Full File Diff Reference
-
-See the attached diff document for complete file-by-file changes between Rails 8.0.4 and 8.1.1 generated by railsdiff.org.
-
----
-
-**End of Skill**
-
-This skill is based on official Rails CHANGELOGs and the railsdiff.org diff output.
-All recommendations follow Rails core team guidance and best practices.
-
-**Version:** 1.0 
-**Last Updated:** November 1, 2025
-**Rails Versions:** 8.0.4 → 8.1.1
-

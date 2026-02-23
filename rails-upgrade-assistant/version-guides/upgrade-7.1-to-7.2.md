@@ -1,15 +1,14 @@
 ---
 title: "Rails 7.1.6 → 7.2.3 Upgrade Guide"
-description: "Complete upgrade guide from Rails 7.1.6 to 7.2.3 featuring transaction-aware jobs and 38 breaking changes - the most complex upgrade in this series"
+description: "Complete upgrade guide from Rails 7.1.6 to 7.2.3 featuring transaction-aware jobs and 39 breaking changes"
 type: "version-guide"
 rails_from: "7.1.6"
 rails_to: "7.2.3"
 difficulty: "hard"
-estimated_time: "4-8 hours"
-breaking_changes: 38
+breaking_changes: 39
 priority_high: 5
 priority_medium: 12
-priority_low: 21
+priority_low: 22
 major_changes:
   - Transaction-aware job enqueuing (CRITICAL)
   - show_exceptions now symbols only
@@ -32,112 +31,25 @@ last_updated: "2025-11-01"
 copyright: Copyright (c) 2025 [Mario Alberto Chávez Cárdenas]
 ---
 
-# Rails Upgrade Skill: 7.1.6 → 7.2.3
+# Rails 7.1 → 7.2 Upgrade Guide
 
-**Skill Version:** 1.0  
-**Last Updated:** November 1, 2025  
-**Rails Source Version:** 7.1.6  
-**Rails Target Version:** 7.2.3  
-**Complexity:** ⭐⭐ Medium  
-**Estimated Time:** 4-8 hours  
+## Supported Upgrade Path
 
----
+**Source:** Rails 7.1.6
+**Target:** Rails 7.2.3
+**Difficulty:** Hard
 
-## 📋 Skill Overview
-
-This skill teaches Claude how to upgrade any Ruby on Rails application from version 7.1.6 to version 7.2.3. All information is based on official Rails CHANGELOGs from the Rails GitHub repository and the official rails diff.
-
-### What This Skill Does
-
-When a user asks to upgrade their Rails application from 7.1.6 to 7.2.3, Claude will:
-
-1. ✅ Analyze the project using Rails MCP tools
-2. ✅ Identify breaking changes affecting the specific application
-3. ✅ Generate a comprehensive upgrade report
-4. ✅ Provide step-by-step migration instructions
-5. ✅ Detect custom code that needs attention
-6. ✅ Optionally update files via Neovim MCP integration
-
-### When to Use This Skill
-
-- User says: "Upgrade my Rails app from 7.1 to 7.2"
-- User says: "Update Rails to 7.2.3"
-- User says: "What do I need to change for Rails 7.2?"
-- User explicitly mentions upgrading from Rails 7.1.x to 7.2.x
+> **CRITICAL WARNING:** Transaction-aware job enqueuing is now the default behavior. Jobs enqueued inside database transactions wait for the transaction to commit before being sent to the queue. Test job timing extensively before deploying.
 
 ---
 
-## 🎯 Upgrade Process Workflow
+## Breaking Changes Reference
 
-### Step 1: Project Analysis
-
-**Always start by analyzing the project:**
-
-```
-1. Use railsMcpServer:project_info to get current Rails version
-2. Use railsMcpServer:get_file to read key configuration files:
-   - Gemfile
-   - config/application.rb
-   - config/environments/*.rb
-3. Use railsMcpServer:list_files to understand project structure
-```
-
-### Step 2: Generate Upgrade Report
-
-**Create a comprehensive report with these sections:**
-
-1. **Executive Summary**
-   - Current version
-   - Target version
-   - Complexity rating
-   - Time estimate
-   - Breaking changes count
-
-2. **Critical Breaking Changes** (High Impact)
-   - List all breaking changes that WILL cause errors
-   - Mark each with ⚠️
-   - Provide OLD/NEW code examples
-   - Indicate which files in THEIR project are affected
-
-3. **Medium Impact Changes**
-   - Deprecations that should be fixed
-   - Behavior changes
-   - Configuration updates
-
-4. **New Features** (Optional)
-   - New Rails 7.2 features they can adopt
-   - Mark as optional
-
-5. **Step-by-Step Migration Plan**
-   - Phase by phase breakdown
-   - Estimated time per phase
-   - Testing checkpoints
-
-6. **Project-Specific Warnings**
-   - Custom code detection
-   - Mark with ⚠️ WARNING
-   - Files that need manual review
-
-### Step 3: Offer Interactive Updates
-
-**If user wants file updates:**
-
-```
-1. Use nvimMcpServer:get_project_buffers to see open files
-2. Ask user to open the file they want to update
-3. Use nvimMcpServer:update_buffer to apply changes
-4. Provide clear before/after explanations
-```
-
----
-
-## 📊 Rails 7.2.3 Breaking Changes Reference
-
-### CRITICAL: ActionPack Changes
+### ActionPack Changes
 
 #### 1. Browser Version Enforcement (NEW FEATURE)
 
-**Impact:** HIGH - May block users  
+**Impact:** HIGH - May block users
 **Status:** New default behavior
 
 Rails 7.2 adds `allow_browser` to ApplicationController by default:
@@ -169,7 +81,7 @@ end
 class ApplicationController < ActionController::Base
   # Allow only modern browsers
   allow_browser versions: :modern
-  
+
   # OR customize per browser
   allow_browser versions: { safari: 16.4, firefox: 121, chrome: 119 }
 end
@@ -183,18 +95,15 @@ end
 
 #### 2. Removed Deprecated show_exceptions Configuration
 
-**Impact:** HIGH - BREAKING  
+**Impact:** HIGH - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
-# config/environments/production.rb
 # OLD (NO LONGER WORKS)
 config.action_dispatch.show_exceptions = true
 config.action_dispatch.show_exceptions = false
 ```
 
-**Migration:**
 ```ruby
 # NEW (Required)
 config.action_dispatch.show_exceptions = :all      # Show all exceptions (like true)
@@ -216,10 +125,9 @@ grep -r "show_exceptions.*true\|show_exceptions.*false" config/
 
 #### 3. Removed Deprecated return_only_request_media_type_on_content_type
 
-**Impact:** MEDIUM - BREAKING  
+**Impact:** MEDIUM - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 config.action_dispatch.return_only_request_media_type_on_content_type = false
@@ -237,10 +145,9 @@ grep -r "return_only_request_media_type" config/
 
 #### 4. Removed Comparison Between ActionController::Parameters and Hash
 
-**Impact:** HIGH - BREAKING  
+**Impact:** HIGH - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 if params == { name: "John" }
@@ -252,7 +159,6 @@ if { name: "John" } == params
 end
 ```
 
-**Migration:**
 ```ruby
 # NEW (Use .to_h)
 if params.to_h == { name: "John" }
@@ -279,10 +185,9 @@ grep -rn "==.*params" app/controllers/
 
 #### 5. Removed AbstractController::Helpers::MissingHelperError
 
-**Impact:** LOW - BREAKING  
+**Impact:** LOW - BREAKING
 **Status:** Removed constant
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 rescue AbstractController::Helpers::MissingHelperError
@@ -290,7 +195,6 @@ rescue AbstractController::Helpers::MissingHelperError
 end
 ```
 
-**Migration:**
 ```ruby
 # NEW (Use the correct constant)
 rescue AbstractController::Helpers::MissingHelper
@@ -307,10 +211,9 @@ grep -r "MissingHelperError" app/
 
 #### 6. Removed ActionDispatch::IllegalStateError
 
-**Impact:** LOW - BREAKING  
+**Impact:** LOW - BREAKING
 **Status:** Removed constant
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 rescue ActionDispatch::IllegalStateError
@@ -330,10 +233,9 @@ grep -r "IllegalStateError" app/
 
 #### 7. New Rate Limiting API (NEW FEATURE)
 
-**Impact:** NONE - Optional  
+**Impact:** NONE - Optional
 **Status:** New feature
 
-**New capability:**
 ```ruby
 class SessionsController < ApplicationController
   rate_limit to: 10, within: 3.minutes, only: :create
@@ -341,33 +243,26 @@ end
 
 class SignupsController < ApplicationController
   rate_limit to: 1000, within: 10.seconds,
-    by: -> { request.domain }, 
-    with: -> { redirect_to busy_controller_url, alert: "Too many signups!" }, 
+    by: -> { request.domain },
+    with: -> { redirect_to busy_controller_url, alert: "Too many signups!" },
     only: :new
 end
 ```
 
-**When to mention:**
-- User has API controllers
-- User asks about new features
-- User mentions rate limiting
-
 ---
 
-### CRITICAL: ActionMailer Changes
+### ActionMailer Changes
 
 #### 8. Removed assert_enqueued_email_with :args Parameter
 
-**Impact:** MEDIUM - BREAKING  
+**Impact:** MEDIUM - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 assert_enqueued_email_with UserMailer, :welcome, args: [user]
 ```
 
-**Migration:**
 ```ruby
 # NEW (Use params)
 assert_enqueued_email_with UserMailer, :welcome, params: { user: user }
@@ -386,17 +281,14 @@ grep -r "assert_enqueued_email_with.*:args" spec/ test/
 
 #### 9. Removed config.action_mailer.preview_path
 
-**Impact:** MEDIUM - BREAKING  
+**Impact:** MEDIUM - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
-# config/environments/development.rb
 # OLD (NO LONGER WORKS)
 config.action_mailer.preview_path = "test/mailers/previews"
 ```
 
-**Migration:**
 ```ruby
 # NEW (Use preview_paths array)
 config.action_mailer.preview_paths << "test/mailers/previews"
@@ -412,14 +304,13 @@ grep -r "preview_path[^s]" config/
 
 ---
 
-### CRITICAL: ActiveJob Changes
+### ActiveJob Changes
 
 #### 10. Transaction-Aware Job Enqueuing (BEHAVIOR CHANGE)
 
-**Impact:** VERY HIGH - BREAKING BEHAVIOR CHANGE  
+**Impact:** VERY HIGH - BREAKING BEHAVIOR CHANGE
 **Status:** Default behavior changed
 
-**What changed:**
 Jobs enqueued inside database transactions now wait for the transaction to commit before being enqueued.
 
 ```ruby
@@ -475,35 +366,18 @@ grep -r "perform_later\|perform_now" app/models/ | head -20
 - Models that enqueue jobs in callbacks
 - Service objects that use transactions
 
-**Warning for users:**
-```
-⚠️ CRITICAL BEHAVIOR CHANGE: Jobs enqueued inside transactions now wait for commit.
-
-Your application has X job classes. Review any jobs enqueued inside database 
-transactions. In most cases, the new behavior is safer and prevents race conditions.
-
-Files to review:
-- [List specific job files found in their project]
-- [List models with transaction + perform_later patterns]
-
-Test thoroughly: Any specs that assert on job queue immediately after a 
-transaction may need updating.
-```
-
 ---
 
 #### 11. Removed :exponentially_longer Value for :wait in retry_on
 
-**Impact:** MEDIUM - BREAKING  
+**Impact:** MEDIUM - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 retry_on SomeError, wait: :exponentially_longer
 ```
 
-**Migration:**
 ```ruby
 # NEW (Use custom proc)
 retry_on SomeError, wait: ->(executions) { executions * 2 }
@@ -518,16 +392,14 @@ grep -r "exponentially_longer" app/jobs/
 
 #### 12. Removed Support to Set Numeric Values to scheduled_at
 
-**Impact:** LOW - BREAKING  
+**Impact:** LOW - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 job.scheduled_at = 1234567890  # Unix timestamp
 ```
 
-**Migration:**
 ```ruby
 # NEW (Use Time object)
 job.scheduled_at = Time.at(1234567890)
@@ -542,10 +414,9 @@ grep -r "scheduled_at\s*=\s*[0-9]" app/jobs/
 
 #### 13. Removed Primitive BigDecimal Serializer
 
-**Impact:** LOW - BREAKING  
+**Impact:** LOW - BREAKING
 **Status:** Removed, deprecated config removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 config.active_job.use_big_decimal_serializer = false
@@ -561,20 +432,18 @@ grep -r "use_big_decimal_serializer" config/
 
 ---
 
-### CRITICAL: ActiveRecord Changes
+### ActiveRecord Changes
 
 #### 14. Deprecated ActiveRecord::Base.connection
 
-**Impact:** VERY HIGH - SOFT DEPRECATION  
+**Impact:** VERY HIGH - SOFT DEPRECATION
 **Status:** Deprecated (still works, but discouraged)
 
-**What's deprecated:**
 ```ruby
 # OLD (Deprecated, but still works)
 ActiveRecord::Base.connection.execute("SELECT 1")
 ```
 
-**Migration:**
 ```ruby
 # NEW - Option 1: Use with_connection for block scope (RECOMMENDED)
 ActiveRecord::Base.with_connection do |conn|
@@ -604,27 +473,13 @@ grep -rn "\.connection[^_]" app/ lib/ | grep -v "with_connection\|lease_connecti
 - Scripts in `scripts/` or `lib/tasks/`
 - Migrations (usually okay in migrations)
 
-**Warning for users:**
-```
-⚠️ IMPORTANT: ActiveRecord::Base.connection is deprecated.
-
-Found X occurrences in your project. While these still work, they can cause 
-connection pool exhaustion. Consider migrating to:
-- with_connection (for block-scoped operations) 
-- lease_connection (for explicit leasing)
-
-Files affected:
-[List files with .connection calls]
-```
-
 ---
 
 #### 15. Removed Multiple Deprecated Connection Pool Methods
 
-**Impact:** HIGH - BREAKING  
+**Impact:** HIGH - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 ActiveRecord::Base.clear_active_connections!
@@ -635,7 +490,6 @@ ActiveRecord::Base.connection_pool_list     # without role argument
 ActiveRecord::Base.active_connections?      # without role argument
 ```
 
-**Migration:**
 ```ruby
 # NEW (Must specify role)
 ActiveRecord::Base.clear_active_connections!(:writing)
@@ -656,16 +510,14 @@ grep -r "clear_active_connections!\|clear_reloadable_connections!\|clear_all_con
 
 #### 16. Removed #all_connection_pools
 
-**Impact:** MEDIUM - BREAKING  
+**Impact:** MEDIUM - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 ActiveRecord::Base.all_connection_pools
 ```
 
-**Migration:**
 ```ruby
 # NEW
 ActiveRecord::Base.connection_handler.all_connection_pools
@@ -680,10 +532,9 @@ grep -r "all_connection_pools" app/ lib/
 
 #### 17. Removed serialize with Old Signature
 
-**Impact:** MEDIUM - BREAKING  
+**Impact:** MEDIUM - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 serialize :metadata, Hash
@@ -691,7 +542,6 @@ serialize :metadata, JSON
 serialize :metadata, coder: JSON
 ```
 
-**Migration:**
 ```ruby
 # NEW (Use type: parameter)
 serialize :metadata, type: Hash
@@ -711,17 +561,15 @@ grep -r "serialize\s*:" app/models/ | grep -v "type:"
 
 #### 18. Removed read_attribute(:id) Custom Primary Key Support
 
-**Impact:** MEDIUM - BREAKING  
+**Impact:** MEDIUM - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # For models with custom primary key
 # OLD (NO LONGER WORKS)
 model.read_attribute(:id)  # Returned custom primary key value
 ```
 
-**Migration:**
 ```ruby
 # NEW
 model.read_attribute(model.class.primary_key)  # Explicit primary key
@@ -738,16 +586,14 @@ grep -r 'read_attribute.*:id\|read_attribute.*"id"' app/models/
 
 #### 19. Removed TestFixtures.fixture_path
 
-**Impact:** LOW - BREAKING  
+**Impact:** LOW - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 ActiveSupport::TestCase.fixture_path
 ```
 
-**Migration:**
 ```ruby
 # NEW
 ActiveSupport::TestCase.fixture_paths  # Note: plural
@@ -762,17 +608,15 @@ grep -r "fixture_path[^s]" spec/ test/
 
 #### 20. Removed Support for Singular Association Name Reference
 
-**Impact:** MEDIUM - BREAKING  
+**Impact:** MEDIUM - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # Given: has_many :posts
 # OLD (NO LONGER WORKS)
 user.post  # Referring to has_many by singular name
 ```
 
-**Migration:**
 ```ruby
 # NEW (Use correct plural name)
 user.posts
@@ -789,10 +633,9 @@ This is hard to detect automatically. Look for association definitions and check
 
 #### 21. Removed allow_deprecated_singular_associations_name Config
 
-**Impact:** LOW - BREAKING  
+**Impact:** LOW - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 config.active_record.allow_deprecated_singular_associations_name = false
@@ -810,16 +653,14 @@ grep -r "allow_deprecated_singular_associations_name" config/
 
 #### 22. Removed ActiveRecord::Migration.check_pending!
 
-**Impact:** LOW - BREAKING  
+**Impact:** LOW - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 ActiveRecord::Migration.check_pending!
 ```
 
-**Migration:**
 ```ruby
 # NEW
 ActiveRecord::Migration.check_pending!(ActiveRecord::Base.connection_pool)
@@ -834,10 +675,9 @@ grep -r "Migration\.check_pending!" app/ lib/
 
 #### 23. Removed Multiple LogSubscriber Methods
 
-**Impact:** LOW - BREAKING  
+**Impact:** LOW - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 ActiveRecord::LogSubscriber.runtime
@@ -857,16 +697,14 @@ grep -r "LogSubscriber\.runtime\|LogSubscriber\.reset_runtime" app/ lib/
 
 #### 24. Query Constraints Deprecation
 
-**Impact:** MEDIUM - DEPRECATION  
+**Impact:** MEDIUM - DEPRECATION
 **Status:** Deprecated in favor of foreign_key
 
-**What's deprecated:**
 ```ruby
 # OLD (Deprecated)
 has_many :posts, query_constraints: [:user_id, :tenant_id]
 ```
 
-**Migration:**
 ```ruby
 # NEW (Use foreign_key for composite keys)
 has_many :posts, foreign_key: [:user_id, :tenant_id]
@@ -879,14 +717,13 @@ grep -r "query_constraints" app/models/
 
 ---
 
-### CRITICAL: ActiveStorage Changes
+### ActiveStorage Changes
 
 #### 25. Removed silence_invalid_content_types_warning
 
-**Impact:** LOW - BREAKING  
+**Impact:** LOW - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 config.active_storage.silence_invalid_content_types_warning = true
@@ -904,10 +741,9 @@ grep -r "silence_invalid_content_types_warning" config/
 
 #### 26. Removed replace_on_assign_to_many
 
-**Impact:** LOW - BREAKING  
+**Impact:** LOW - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 config.active_storage.replace_on_assign_to_many = false
@@ -923,14 +759,13 @@ grep -r "replace_on_assign_to_many" config/
 
 ---
 
-### CRITICAL: ActiveSupport Changes
+### ActiveSupport Changes
 
 #### 27. Removed ActiveSupport::Notifications::Event#children and #parent_of?
 
-**Impact:** LOW - BREAKING  
+**Impact:** LOW - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 event.children
@@ -949,17 +784,15 @@ grep -r "\.children\|\.parent_of?" app/ lib/
 
 #### 28. Removed Deprecation Methods Without Deprecator
 
-**Impact:** MEDIUM - BREAKING  
+**Impact:** MEDIUM - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 deprecate :old_method
 ActiveSupport::Deprecation.new.deprecate_methods(self, old: :new)
 ```
 
-**Migration:**
 ```ruby
 # NEW (Must pass deprecator)
 deprecate :old_method, deprecator: Rails.deprecator
@@ -975,16 +808,14 @@ grep -r "deprecate " app/ lib/ | grep -v "deprecator:"
 
 #### 29. Removed SafeBuffer#clone_empty
 
-**Impact:** LOW - BREAKING  
+**Impact:** LOW - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 buffer.clone_empty
 ```
 
-**Migration:**
 ```ruby
 # NEW
 buffer.class.new
@@ -999,10 +830,9 @@ grep -r "clone_empty" app/ lib/
 
 #### 30. Removed #to_default_s from Array, Date, DateTime, Time
 
-**Impact:** LOW - BREAKING  
+**Impact:** LOW - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 [1, 2, 3].to_default_s
@@ -1010,7 +840,6 @@ Date.today.to_default_s
 Time.now.to_default_s
 ```
 
-**Migration:**
 ```ruby
 # NEW (Use to_s directly)
 [1, 2, 3].to_s
@@ -1027,16 +856,14 @@ grep -r "to_default_s" app/ lib/
 
 #### 31. Removed Dalli::Client Support in MemCacheStore
 
-**Impact:** MEDIUM - BREAKING  
+**Impact:** MEDIUM - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 config.cache_store = :mem_cache_store, Dalli::Client.new('localhost')
 ```
 
-**Migration:**
 ```ruby
 # NEW (Pass server addresses directly)
 config.cache_store = :mem_cache_store, 'localhost:11211'
@@ -1049,20 +876,18 @@ grep -r "Dalli::Client" config/
 
 ---
 
-### CRITICAL: Railties Changes
+### Railties Changes
 
 #### 32. Removed Rails.application.secrets
 
-**Impact:** HIGH - BREAKING  
+**Impact:** HIGH - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 Rails.application.secrets.api_key
 ```
 
-**Migration:**
 ```ruby
 # NEW (Use credentials)
 Rails.application.credentials.api_key
@@ -1083,10 +908,9 @@ grep -r "Rails\.application\.secrets" app/ lib/ config/
 
 #### 33. Removed find_cmd_and_exec Console Helper
 
-**Impact:** LOW - BREAKING  
+**Impact:** LOW - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS - in rails console)
 >> find_cmd_and_exec
@@ -1099,10 +923,9 @@ This internal helper is removed. Use standard shell commands or Ruby equivalents
 
 #### 34. Removed enable_dependency_loading Config
 
-**Impact:** LOW - BREAKING  
+**Impact:** LOW - BREAKING
 **Status:** Removed
 
-**What was removed:**
 ```ruby
 # OLD (NO LONGER WORKS)
 config.enable_dependency_loading = true
@@ -1118,11 +941,11 @@ grep -r "enable_dependency_loading" config/
 
 ---
 
-### New Features Worth Mentioning
+### New Features
 
 #### 35. PWA (Progressive Web App) Support
 
-**Impact:** NONE - Optional  
+**Impact:** NONE - Optional
 **Status:** New feature
 
 Rails 7.2 includes built-in PWA support with:
@@ -1130,16 +953,11 @@ Rails 7.2 includes built-in PWA support with:
 - Service worker: `app/views/pwa/service-worker.js`
 - Default routes for PWA files
 
-**When to mention:**
-- User asks about new features
-- User mentions mobile/offline support
-- User wants to add PWA capabilities
-
 ---
 
 #### 36. Improved Docker Configuration
 
-**Impact:** NONE - Optional  
+**Impact:** NONE - Optional
 **Status:** New defaults
 
 Rails 7.2 includes better Docker defaults:
@@ -1147,16 +965,11 @@ Rails 7.2 includes better Docker defaults:
 - Numeric UID/GID for Kubernetes
 - Better `.dockerignore` patterns
 
-**When to mention:**
-- User has a `Dockerfile`
-- User mentions Docker/Kubernetes
-- User asks about deployment
-
 ---
 
 #### 37. GitHub CI/CD by Default
 
-**Impact:** NONE - Optional  
+**Impact:** NONE - Optional
 **Status:** New defaults
 
 Rails 7.2 includes:
@@ -1165,44 +978,29 @@ Rails 7.2 includes:
 - Brakeman for security scanning
 - RuboCop with rails-omakase rules
 
-**When to mention:**
-- User has `.github/` directory
-- User mentions CI/CD
-- User asks about testing/security
-
 ---
 
 #### 38. Dev Container Support
 
-**Impact:** NONE - Optional  
+**Impact:** NONE - Optional
 **Status:** New feature
 
 Rails 7.2 can generate `.devcontainer/` configuration for development containers.
-
-**When to mention:**
-- User mentions Docker/development environment
-- User asks about new features
 
 ---
 
 #### 39. Better System Test Defaults
 
-**Impact:** NONE - Optional  
+**Impact:** NONE - Optional
 **Status:** New defaults
 
 Rails 7.2 uses headless Chrome by default for system tests.
 
-**When to mention:**
-- User has system tests
-- User asks about testing changes
-
 ---
 
-## 🔧 File-Specific Migration Patterns
+## File-Specific Migration Patterns
 
 ### Pattern 1: Updating Gemfile
-
-**Always update Gemfile first:**
 
 ```ruby
 # Before
@@ -1222,8 +1020,6 @@ gem "stimulus-rails", "~> 1.3"
 
 ### Pattern 2: Updating config/application.rb
 
-**Find and replace load_defaults:**
-
 ```ruby
 # Before
 config.load_defaults 7.1
@@ -1232,7 +1028,7 @@ config.load_defaults 7.1
 config.load_defaults 7.2
 ```
 
-**Also update autoload_lib if present:**
+Also update autoload_lib if present:
 
 ```ruby
 # Before (Rails 7.1)
@@ -1292,8 +1088,6 @@ config.action_mailer.default_url_options = { host: "www.example.com" }
 
 ### Pattern 4: Updating config/puma.rb
 
-**Rails 7.2 simplifies Puma configuration:**
-
 ```ruby
 # Before (Rails 7.1)
 max_threads_count = ENV.fetch("RAILS_MAX_THREADS") { 5 }
@@ -1335,8 +1129,6 @@ pidfile ENV["PIDFILE"] if ENV["PIDFILE"]
 
 ### Pattern 5: Updating Controllers
 
-**Check ApplicationController for allow_browser:**
-
 ```ruby
 # app/controllers/application_controller.rb
 
@@ -1346,7 +1138,7 @@ pidfile ENV["PIDFILE"] if ENV["PIDFILE"]
 class ApplicationController < ActionController::Base
   # If user wants browser restrictions, ADD:
   # allow_browser versions: :modern
-  
+
   # If user wants to support old browsers, DON'T ADD IT
 end
 ```
@@ -1355,7 +1147,7 @@ end
 
 ### Pattern 6: Updating Models
 
-**Fix serialize syntax if needed:**
+Fix serialize syntax if needed:
 
 ```ruby
 # Before (old syntax)
@@ -1367,7 +1159,7 @@ serialize :metadata, type: Hash
 serialize :settings, coder: JSON
 ```
 
-**Fix association query_constraints:**
+Fix association query_constraints:
 
 ```ruby
 # Before (deprecated)
@@ -1381,13 +1173,11 @@ has_many :posts, foreign_key: [:user_id, :tenant_id]
 
 ### Pattern 7: Updating Jobs
 
-**Review transaction-aware enqueuing:**
-
 ```ruby
 # If job must enqueue immediately (old behavior):
 class MyJob < ApplicationJob
   self.enqueue_after_transaction_commit = :never
-  
+
   def perform
     # ...
   end
@@ -1396,7 +1186,7 @@ end
 # If job should wait for commit (new default, recommended):
 class MyJob < ApplicationJob
   # No change needed - this is the new default
-  
+
   def perform
     # ...
   end
@@ -1407,7 +1197,7 @@ end
 
 ### Pattern 8: Updating Tests/Specs
 
-**Fix mailer test assertions:**
+Fix mailer test assertions:
 
 ```ruby
 # Before
@@ -1417,7 +1207,7 @@ assert_enqueued_email_with UserMailer, :welcome, args: [user]
 assert_enqueued_email_with UserMailer, :welcome, params: { user: user }
 ```
 
-**Update fixture_path to fixture_paths:**
+Update fixture_path to fixture_paths:
 
 ```ruby
 # Before
@@ -1429,99 +1219,7 @@ self.fixture_paths << "spec/fixtures"
 
 ---
 
-## 🎯 Step-by-Step Upgrade Instructions
-
-When a user asks to upgrade, follow this exact process:
-
-### Phase 1: Initial Analysis (5 minutes)
-
-1. **Gather project information:**
-```
-Use railsMcpServer:project_info
-Record: Rails version, API-only status, project structure
-```
-
-2. **Read key files:**
-```
-Use railsMcpServer:get_file for:
-- Gemfile (check Rails version, gems used)
-- config/application.rb (check load_defaults)
-- config/environments/production.rb (check show_exceptions)
-- config/environments/development.rb (check configs)
-```
-
-3. **Understand job usage:**
-```
-Use railsMcpServer:list_files with pattern: app/jobs/*.rb
-Count jobs for transaction-aware warning
-```
-
-4. **Understand model usage:**
-```
-Use railsMcpServer:list_files with pattern: app/models/*.rb
-Check for ActiveRecord usage
-```
-
-### Phase 2: Generate Report (10 minutes)
-
-5. **Create comprehensive report with:**
-   - Executive Summary
-   - Critical Breaking Changes (personalized to their project)
-   - Medium Impact Changes
-   - New Features (optional)
-   - Step-by-Step Migration Plan
-   - Project-Specific Warnings
-   - Testing Checklist
-
-6. **Mark each breaking change with:**
-   - ⚠️ for critical issues
-   - Impact level (HIGH/MEDIUM/LOW)
-   - Detection pattern used
-   - Files in THEIR project affected
-   - OLD/NEW code examples
-   - Clear migration instructions
-
-### Phase 3: Provide Migration Guide (15 minutes)
-
-7. **Create step-by-step plan with:**
-   - Phase 1: Preparation
-   - Phase 2: Gemfile Updates
-   - Phase 3: Configuration Updates
-   - Phase 4: Code Updates
-   - Phase 5: Testing
-   - Phase 6: Deployment
-
-8. **For each phase, provide:**
-   - Estimated time
-   - Commands to run
-   - Files to update
-   - Testing checkpoints
-
-### Phase 4: Offer Interactive Updates (Variable)
-
-9. **If user wants file updates:**
-```
-1. Use nvimMcpServer:get_project_buffers(project_name: "their-project")
-2. List files they have open in Neovim
-3. Ask: "Which file would you like me to update?"
-4. Use nvimMcpServer:update_buffer to apply changes
-5. Explain what changed and why
-```
-
-10. **Update files in this order:**
-```
-1. Gemfile
-2. config/application.rb
-3. config/environments/*.rb
-4. Controllers (if allow_browser needed)
-5. Models (if serialize or associations need updates)
-6. Jobs (if transaction behavior needs customization)
-7. Tests (if assertions need updates)
-```
-
----
-
-## 🚨 Critical Detection Patterns
+## Critical Detection Patterns
 
 Use these bash commands to detect issues in the user's project:
 
@@ -1566,376 +1264,35 @@ grep -r "MissingHelperError\|IllegalStateError" app/
 
 ---
 
-## 💬 Communication Guidelines
-
-### How to Present the Upgrade Report
-
-1. **Start with Executive Summary:**
-   - Be encouraging but realistic
-   - State complexity clearly
-   - Give time estimate
-   - Highlight biggest risks
-
-2. **Present Breaking Changes:**
-   - Start with highest impact first
-   - Use ⚠️ emoji for critical items
-   - Show OLD/NEW code side by side
-   - Be specific about THEIR files affected
-
-3. **Provide Clear Migration Path:**
-   - Number steps clearly
-   - Group related changes
-   - Provide copy-paste commands
-   - Include testing checkpoints
-
-4. **Warn About Custom Code:**
-   - Mark with ⚠️ WARNING
-   - Explain why manual review needed
-   - List specific files to check
-   - Provide detection commands
-
-5. **Offer Interactive Help:**
-   - "I can update these files for you"
-   - "Just open the file in Neovim and let me know"
-   - "I'll apply the changes and explain each one"
-
-### What NOT to Do
-
-- ❌ Don't apply changes without user approval
-- ❌ Don't update files that aren't open in Neovim (unless explicitly requested)
-- ❌ Don't skip warnings about custom code
-- ❌ Don't assume their testing strategy
-- ❌ Don't make assumptions about their deployment process
-- ❌ Don't downplay breaking changes
-- ❌ Don't forget to mention transaction-aware job enqueuing
-
-### Tone and Style
-
-- ✅ Be clear and direct
-- ✅ Use technical terms (users upgrading Rails are experienced)
-- ✅ Provide specific file names and line numbers
-- ✅ Give copy-paste commands
-- ✅ Explain WHY changes are needed
-- ✅ Acknowledge complexity honestly
-- ✅ Celebrate when upgrade is done!
-
----
-
-## 📊 Example Report Template
-
-When generating a report, use this structure:
-
-```markdown
-# Rails Upgrade Report: 7.1.6 → 7.2.3
-
-**Project:** [Project Name]
-**Current Version:** [Detected Version]
-**Target Version:** 7.2.3
-**Complexity:** ⭐⭐ Medium
-**Estimated Time:** 4-8 hours
-**Date:** [Current Date]
-
----
-
-## 📋 Executive Summary
-
-Your Rails application can be upgraded from 7.1.6 to 7.2.3. This is a medium-complexity upgrade with [X] breaking changes that require attention.
-
-**Key Highlights:**
-- ✅ No major architectural changes
-- ⚠️ [X] breaking changes found in your project
-- ⚠️ Transaction-aware job enqueuing will change behavior
-- ✅ Many new features available
-- ⚠️ Estimated [X] hours for completion
-
-**Biggest Risks:**
-1. [List top 3 risks specific to their project]
-
----
-
-## 🚨 CRITICAL BREAKING CHANGES
-
-### 1. [Breaking Change Title]
-**Impact:** HIGH  
-**Status:** BREAKING CHANGE  
-**Detected in your project:** [Yes/No]
-
-[Explanation]
-
-**Your files affected:**
-- [List specific files from their project]
-
-**Current code (will break):**
-```ruby
-[Their code example]
-```
-
-**Updated code (required):**
-```ruby
-[Fixed code example]
-```
-
-**Detection command:**
-```bash
-[Command they can run]
-```
-
-[Repeat for each breaking change]
-
----
-
-## 📝 MEDIUM IMPACT CHANGES
-
-[List medium priority items]
-
----
-
-## 🆕 NEW FEATURES (Optional)
-
-[List new features they might want]
-
----
-
-## 📋 STEP-BY-STEP MIGRATION PLAN
-
-### Phase 1: Preparation (30 minutes)
-[Steps]
-
-### Phase 2: Gemfile Updates (15 minutes)
-[Steps]
-
-[Continue for all phases]
-
----
-
-## ⚠️ PROJECT-SPECIFIC WARNINGS
-
-### ⚠️ Warning 1: [Specific Issue]
-[Detailed explanation of what they need to check manually]
-
-[Repeat for each warning]
-
----
-
-## ✅ TESTING CHECKLIST
+## Testing Checklist
 
 Before deploying to production:
 
-- [ ] All unit tests pass
+- [ ] All unit tests pass with no deprecation warnings
 - [ ] All integration tests pass
-- [ ] [Project-specific critical paths]
-- [ ] Background jobs process correctly
-- [ ] [Other critical functionality]
+- [ ] Background jobs enqueue and process correctly (transaction-aware behavior)
+- [ ] Jobs enqueued inside transactions fire after commit
+- [ ] No connection pool exhaustion under load
+- [ ] `show_exceptions` uses symbol values in all environments
+- [ ] `Rails.application.secrets` calls replaced with `credentials`
+- [ ] `serialize` calls use `type:` parameter
+- [ ] Mailer previews work with `preview_paths` (plural)
+- [ ] System tests run with headless Chrome defaults
+- [ ] Browser enforcement (if enabled) does not block intended users
 
 ---
 
-## 🚀 READY TO START?
+## Common Issues
 
-I can help you update files interactively using Neovim. Just:
-1. Open the file you want to update in Neovim
-2. Tell me: "Update [filename]"
-3. I'll show you the changes and apply them
+### Tests failing with NoMethodError
 
-Or you can do it manually using this guide.
+**Likely cause:** Using removed methods or constants (`MissingHelperError`, `IllegalStateError`, `fixture_path`, `to_default_s`, etc.)
 
-Would you like me to start with updating the Gemfile?
-```
+**Solution:** Check the error message for the method name and find the corresponding breaking change above for the migration pattern.
 
----
+### Jobs not processing
 
-## 🔄 Interactive File Update Process
-
-When user wants interactive updates:
-
-### Step 1: Check Available Files
-
-```
-1. Call nvimMcpServer:get_project_buffers(project_name: "user-project-name")
-2. List files user has open
-3. If target file not open, ask user to open it
-```
-
-### Step 2: Read Current Content
-
-```
-1. Parse buffer list from get_project_buffers
-2. Identify file path
-3. Prepare changes
-```
-
-### Step 3: Show Changes
-
-```
-1. Show BEFORE code block
-2. Show AFTER code block
-3. Explain what's changing and why
-4. Ask for confirmation
-```
-
-### Step 4: Apply Changes
-
-```
-1. Get user approval
-2. Call nvimMcpServer:update_buffer with:
-   - project_name: [from user]
-   - file_path: [from buffer list]
-   - content: [full new content]
-3. Confirm update succeeded
-```
-
-### Step 5: Verify
-
-```
-1. Ask user to review changes in Neovim
-2. Ask if they want to update another file
-3. Keep track of what's been updated
-```
-
----
-
-## 🎓 Teaching Moments
-
-When appropriate, explain the reasoning:
-
-### Why Transaction-Aware Jobs Matter
-
-```
-"The new transaction-aware job enqueuing prevents race conditions. 
-
-Before: Job could run before the transaction commits, causing it to 
-fail when looking for records that don't exist yet.
-
-After: Job waits for commit, guaranteeing data exists.
-
-In most cases, this is safer and you want this behavior."
-```
-
-### Why .connection is Deprecated
-
-```
-"ActiveRecord::Base.connection leases a connection for the entire 
-request/job, which can exhaust your connection pool.
-
-.with_connection returns the connection to the pool immediately 
-after your block, making better use of limited connections.
-
-This is especially important in apps with many threads/workers."
-```
-
-### Why allow_browser is Added
-
-```
-"Rails 7.2 adds optional browser version enforcement to ensure users 
-have modern features like:
-- WebP images
-- Web push notifications  
-- Import maps
-- CSS nesting
-
-For existing apps, this is opt-in. For new apps, it's on by default."
-```
-
----
-
-## 🔍 Quality Checklist
-
-Before sending report, verify:
-
-- [ ] Used railsMcpServer:project_info to get actual Rails version
-- [ ] Read Gemfile to check which gems are used
-- [ ] Read config files to detect deprecated settings
-- [ ] Listed specific files in THEIR project affected
-- [ ] Provided OLD/NEW code examples for each change
-- [ ] Explained WHY each change is needed
-- [ ] Gave detection commands they can run
-- [ ] Estimated time per phase
-- [ ] Warned about transaction-aware job enqueuing
-- [ ] Warned about .connection deprecation
-- [ ] Provided testing checklist
-- [ ] Offered interactive update help
-- [ ] Used appropriate ⚠️ warnings
-- [ ] Maintained encouraging but realistic tone
-
----
-
-## 📚 Official Resources
-
-Always reference:
-
-- **Rails 7.2 Release Notes:** https://edgeguides.rubyonrails.org/7_2_release_notes.html
-- **Upgrading Guide:** https://guides.rubyonrails.org/upgrading_ruby_on_rails.html
-- **Rails Diff:** https://railsdiff.org/7.1.6/7.2.3
-- **Rails GitHub CHANGELOGs:** https://github.com/rails/rails/tree/v7.2.3
-
----
-
-## 🎯 Success Criteria
-
-Upgrade is successful when:
-
-- ✅ Gemfile updated to Rails 7.2.3
-- ✅ config.load_defaults changed to 7.2
-- ✅ All deprecated configurations removed
-- ✅ All breaking code patterns fixed
-- ✅ All tests passing
-- ✅ No deprecation warnings in logs
-- ✅ Application runs correctly in all environments
-- ✅ Background jobs process correctly
-- ✅ No connection pool issues
-
----
-
-## 🎉 Completion Message
-
-When upgrade is done:
-
-```markdown
-🎉 Congratulations! Your Rails 7.2.3 upgrade is complete!
-
-**What was done:**
-- ✅ Updated Gemfile
-- ✅ Updated configuration files
-- ✅ Fixed [X] breaking changes
-- ✅ Updated [X] deprecated patterns
-- ✅ All tests passing
-
-**Next Steps:**
-1. Deploy to staging first
-2. Monitor for:
-   - Background job processing
-   - Connection pool usage
-   - Error rates
-   - Performance metrics
-3. Deploy to production when staging looks good
-
-**Watch Out For:**
-- Transaction-aware job behavior changes
-- Deprecated .connection usage warnings
-- Any custom code that needs review
-
-Great job! 🚀
-```
-
----
-
-## 🔧 Troubleshooting
-
-If user reports issues after upgrade:
-
-### Issue: Tests failing with NoMethodError
-
-**Likely cause:** Using removed methods
-
-**Solution:**
-```
-1. Check error message for method name
-2. Search this skill for that method
-3. Provide migration pattern
-```
-
-### Issue: Jobs not processing
-
-**Likely cause:** Transaction-aware enqueuing
+**Likely cause:** Transaction-aware enqueuing changed job timing.
 
 **Solution:**
 ```ruby
@@ -1947,134 +1304,27 @@ end
 # Then debug why the new behavior causes issues
 ```
 
-### Issue: Connection pool exhausted
+### Connection pool exhausted
 
-**Likely cause:** Still using deprecated .connection
+**Likely cause:** Still using deprecated `.connection` which leases connections for the entire request/job lifecycle.
 
-**Solution:**
-```
-1. Search for remaining .connection calls
-2. Migrate to with_connection
-3. Monitor connection pool metrics
-```
+**Solution:** Migrate to `with_connection` (block-scoped) or `lease_connection` (explicit lease). Monitor connection pool metrics after migration.
 
-### Issue: Browser blocked errors
+### Browser blocked errors (HTTP 406)
 
-**Likely cause:** allow_browser added
+**Likely cause:** `allow_browser versions: :modern` was added to ApplicationController.
 
 **Solution:**
 ```ruby
-# In ApplicationController:
-# Remove or customize:
+# Remove or customize in ApplicationController:
 allow_browser versions: { safari: 13, chrome: 90, firefox: 88 }
 ```
 
 ---
 
-## 📝 Skill Usage Examples
+## Official Resources
 
-### Example 1: Basic Upgrade Request
-
-**User:** "Upgrade my Rails app from 7.1 to 7.2"
-
-**Claude Response:**
-```
-I'll help you upgrade your Rails application from 7.1 to 7.2. Let me analyze 
-your project first.
-
-[Calls railsMcpServer:project_info]
-[Calls railsMcpServer:get_file for key files]
-
-[Generates comprehensive report with]:
-- Executive summary
-- Breaking changes specific to their project
-- Step-by-step plan
-- Warnings about custom code
-- Testing checklist
-
-Would you like me to help update files interactively via Neovim?
-```
-
-### Example 2: Specific File Update
-
-**User:** "Update my Gemfile for Rails 7.2"
-
-**Claude Response:**
-```
-I'll update your Gemfile. Let me check if you have it open in Neovim.
-
-[Calls nvimMcpServer:get_project_buffers]
-
-I see you have these files open:
-- Gemfile ✅
-
-Here are the changes I'll make to your Gemfile:
-
-[Shows BEFORE/AFTER comparison]
-
-Shall I apply these changes?
-```
-
-### Example 3: Breaking Change Query
-
-**User:** "What breaking changes do I need to worry about?"
-
-**Claude Response:**
-```
-For Rails 7.1.6 → 7.2.3, here are the critical breaking changes:
-
-1. ⚠️ Transaction-Aware Job Enqueuing
-   [Detailed explanation specific to their project]
-   
-2. ⚠️ Removed ActiveRecord::Base.connection
-   [Explanation with their specific files]
-
-[Continue for all high-impact changes]
-
-Would you like me to analyze your project to see which of these affect you?
-```
-
----
-
-## ⚙️ Configuration
-
-This skill integrates with:
-
-- **Rails MCP Server** - For project analysis
-- **Neovim MCP Server** - For interactive file updates
-
-**Required Tools:**
-- `railsMcpServer:project_info`
-- `railsMcpServer:get_file`
-- `railsMcpServer:list_files`
-- `nvimMcpServer:get_project_buffers`
-- `nvimMcpServer:update_buffer`
-
----
-
-## 📄 Skill Metadata
-
-**Skill Name:** Rails Upgrade 7.1.6 to 7.2.3  
-**Skill Type:** Rails Framework Upgrade  
-**Complexity:** Medium  
-**Prerequisites:** Rails MCP Server, Neovim MCP Server (optional)  
-**Target Audience:** Rails developers upgrading from 7.1.x to 7.2.x  
-**Maintenance:** Update when new Rails 7.2.x versions released  
-
----
-
-## 🎓 Learning Resources for Users
-
-Point users to:
-
-- Rails 7.2 Release Notes
-- Official Upgrade Guide
-- Rails Diff website
-- Component CHANGELOGs on GitHub
-
----
-
-## ✨ Skill End
-
-This skill provides comprehensive guidance for upgrading Rails applications from 7.1.6 to 7.2.3, based on official Rails CHANGELOGs and community best practices. Use it to generate personalized upgrade reports and help users migrate safely.
-
+- **Rails 7.2 Release Notes:** https://edgeguides.rubyonrails.org/7_2_release_notes.html
+- **Upgrading Guide:** https://guides.rubyonrails.org/upgrading_ruby_on_rails.html
+- **Rails Diff:** https://railsdiff.org/7.1.6/7.2.3
+- **Rails GitHub CHANGELOGs:** https://github.com/rails/rails/tree/v7.2.3

@@ -1,10 +1,10 @@
 ---
 title: "Rails Upgrade Assistant - Getting Started Guide"
-description: "Complete user documentation for using the Rails Upgrade Assistant skill, including installation, learning paths, and upgrade guidance for Rails 7.0 through 8.1"
+description: "Complete user documentation for using the Rails Upgrade Assistant skill, including installation, learning paths, and upgrade guidance for Rails 6.0 through 8.1"
 type: "user-documentation"
 audience: "users"
 purpose: "getting-started"
-rails_versions: "7.0.x to 8.1.1"
+rails_versions: "6.0.x to 8.1.1"
 read_time: "15-20 minutes"
 tags:
   - documentation
@@ -23,13 +23,13 @@ copyright: Copyright (c) 2025 [Mario Alberto Chávez Cárdenas]
 
 **Version:** 1.0
 **Created:** November 1, 2025  
-**Rails Support:** 7.0.x through 8.1.1
+**Rails Support:** 6.0.x through 8.1.1
 
 ---
 
 ## 👋 Welcome!
 
-This is a **unified, intelligent Rails upgrade skill** that helps you upgrade Ruby on Rails applications through any version from **7.0 to 8.1.1**. Built on official Rails CHANGELOGs and integrated with MCP tools for automatic project analysis.
+This is a **unified, intelligent Rails upgrade skill** that helps you upgrade Ruby on Rails applications through any version from **6.0 to 8.1.1**. Built on official Rails CHANGELOGs and integrated with MCP tools for automatic project analysis.
 
 ---
 
@@ -83,6 +83,8 @@ rails-upgrade-assistant/
 
 ```
 version-guides/
+├── upgrade-6.0-to-6.1.md        Rails 6.0.x → 6.1.x (18 changes)
+├── upgrade-6.1-to-7.0.md        Rails 6.1.x → 7.0.x (17 changes)
 ├── upgrade-7.0-to-7.1.md        Rails 7.0.x → 7.1.x (12 changes)
 ├── upgrade-7.1-to-7.2.md        Rails 7.1.x → 7.2.x (38 changes)
 ├── upgrade-7.2-to-8.0.md        Rails 7.2.x → 8.0.x (13 changes)
@@ -149,25 +151,27 @@ Claude will:
 
 ## 📊 Supported Upgrade Paths
 
-| From | To | Hops | Breaking Changes | Difficulty | Time | Key Changes |
-|------|----|----|-----------------|------------|------|-------------|
-| 8.0.x | 8.1.1 | 1 | 8 changes | ⭐ Easy | 2-4 hours | SSL config, bundler-audit |
-| 7.2.x | 8.0.4 | 1 | 13 changes | ⭐⭐⭐ Hard | 6-8 hours | Propshaft, Solid gems |
-| 7.1.x | 7.2.3 | 1 | 38 changes | ⭐⭐ Medium | 4-6 hours | Transaction jobs, PWA |
-| 7.0.x | 7.1.6 | 1 | 12 changes | ⭐⭐ Medium | 3-5 hours | cache_classes, SSL |
-| 7.0.x | 8.1.1 | 4 | All 71 changes | ⭐⭐⭐⭐ Very Hard | 2-3 weeks | Multi-hop required |
+| From | To | Hops | Breaking Changes | Difficulty | Key Changes |
+|------|----|----|-----------------|------------|-------------|
+| 8.0.x | 8.1.1 | 1 | 8 changes | ⭐ Easy | SSL config, bundler-audit |
+| 7.2.x | 8.0.4 | 1 | 13 changes | ⭐⭐⭐ Hard | Propshaft, Solid gems |
+| 7.1.x | 7.2.3 | 1 | 38 changes | ⭐⭐ Medium | Transaction jobs, PWA |
+| 7.0.x | 7.1.6 | 1 | 12 changes | ⭐⭐ Medium | cache_classes, SSL |
+| 6.1.x | 7.0.0 | 1 | 17 changes | ⭐⭐⭐ Hard | Webpacker, framework defaults |
+| 6.0.x | 6.1.0 | 1 | 18 changes | ⭐⭐ Medium | Active Storage, per-db connections |
+| 6.0.x | 8.1.1 | 6 | All 106 changes | ⭐⭐⭐⭐ Very Hard | Multi-hop required |
 
 ### 🚨 Important: No Version Skipping!
 
 Rails upgrades MUST be sequential:
 
 ```
-✅ Correct: 7.0 → 7.1 → 7.2 → 8.0 → 8.1
+✅ Correct: 6.0 → 6.1 → 7.0 → 7.1 → 7.2 → 8.0 → 8.1
+❌ Wrong:   6.0 → 7.0 (skips 6.1)
 ❌ Wrong:   7.0 → 8.0 (skips 7.1, 7.2)
-❌ Wrong:   7.1 → 8.0 (skips 7.2)
 ```
 
-If you request a multi-hop upgrade (e.g., 7.0 → 8.1), Claude will:
+If you request a multi-hop upgrade (e.g., 6.0 → 8.1), Claude will:
 - Explain the sequential requirement
 - Plan all intermediate hops
 - Generate separate reports for each hop
@@ -435,7 +439,7 @@ Maps:
 - Query parsing changes (semicolons removed)
 - Some job adapters moved to gems
 
-**Time:** 2-4 hours | **Difficulty:** ⭐ Easy
+**Difficulty:** ⭐ Easy
 
 ---
 
@@ -451,7 +455,7 @@ Maps:
 - Health check endpoint added
 - Development SSL changes
 
-**Time:** 6-8 hours | **Difficulty:** ⭐⭐⭐ Hard
+**Difficulty:** ⭐⭐⭐ Hard
 
 ---
 
@@ -468,7 +472,7 @@ Maps:
 - Browser version checking
 - Multiple ActionMailer/ActiveRecord deprecations
 
-**Time:** 4-6 hours | **Difficulty:** ⭐⭐ Medium
+**Difficulty:** ⭐⭐ Medium
 
 ---
 
@@ -484,13 +488,13 @@ Maps:
 - ActionMailer preview path plural
 - Query log format changed
 
-**Time:** 3-5 hours | **Difficulty:** ⭐⭐ Medium
+**Difficulty:** ⭐⭐ Medium
 
 ---
 
-### Rails 7.0 → 8.1 (Multi-Hop: All 71 Changes)
+### Rails 6.0 → 8.1 (Multi-Hop: All 106 Changes)
 
-**REQUIRES:** 4 sequential hops (7.0→7.1→7.2→8.0→8.1)
+**REQUIRES:** 6 sequential hops (6.0→6.1→7.0→7.1→7.2→8.0→8.1)
 
 **CUMULATIVE IMPACT:**
 - All breaking changes from each version
@@ -498,7 +502,7 @@ Maps:
 - Significant architectural changes
 - Extensive testing required
 
-**Time:** 2-3 weeks | **Difficulty:** ⭐⭐⭐⭐ Very Hard
+**Difficulty:** ⭐⭐⭐⭐ Very Hard
 
 See: `reference/multi-hop-strategy.md` for detailed planning
 
@@ -852,10 +856,12 @@ This is the Sprockets → Propshaft migration. See:
 **Location:** `version-guides/`
 
 **Files:**
-- `upgrade-7.0-to-7.1.md` (70+ pages)
-- `upgrade-7.1-to-7.2.md` (90+ pages)
-- `upgrade-7.2-to-8.0.md` (85+ pages)
-- `upgrade-8.0-to-8.1.md` (85+ pages)
+- `upgrade-6.0-to-6.1.md`
+- `upgrade-6.1-to-7.0.md`
+- `upgrade-7.0-to-7.1.md`
+- `upgrade-7.1-to-7.2.md`
+- `upgrade-7.2-to-8.0.md`
+- `upgrade-8.0-to-8.1.md`
 
 **Contents:**
 - Complete CHANGELOG analysis
@@ -1039,6 +1045,8 @@ https://discord.gg/rails
 ### Version 1.0 (November 1, 2025)
 
 **Coverage:**
+- Rails 6.0.x → 6.1.0
+- Rails 6.1.x → 7.0.0
 - Rails 7.0.x → 7.1.6
 - Rails 7.1.x → 7.2.3
 - Rails 7.2.x → 8.0.4
@@ -1057,8 +1065,8 @@ https://discord.gg/rails
 
 ### Total Coverage
 
-- **Rails Versions:** 7.0.x through 8.1.1 (5 versions)
-- **Breaking Changes:** 71 documented across all versions
+- **Rails Versions:** 6.0.x through 8.1.1 (7 versions)
+- **Breaking Changes:** 106 documented across all versions
 - **Code Examples:** 150+ OLD/NEW comparisons
 - **Commands:** 50+ ready-to-use commands
 - **Warnings:** 100+ custom code warnings
@@ -1066,20 +1074,10 @@ https://discord.gg/rails
 ### Documentation Size
 
 - **Core Files:** 5 files (~50 KB)
-- **Version Guides:** 4 files (~320 KB)
+- **Version Guides:** 6 files (~400 KB)
 - **Reference Materials:** 4 files (~30 KB)
 - **Examples:** 3 files (~20 KB)
 - **Total:** ~420 KB of documentation
-
-### Time Estimates
-
-| Upgrade Path | Read Time | Prep Time | Execution | Testing | Total |
-|--------------|-----------|-----------|-----------|---------|-------|
-| 8.0 → 8.1 | 30 min | 30 min | 2-4 hrs | 2-3 hrs | 5-8 hrs |
-| 7.2 → 8.0 | 45 min | 1 hr | 6-8 hrs | 3-4 hrs | 11-14 hrs |
-| 7.1 → 7.2 | 30 min | 45 min | 4-6 hrs | 2-3 hrs | 7-10 hrs |
-| 7.0 → 7.1 | 30 min | 30 min | 3-5 hrs | 2-3 hrs | 6-9 hrs |
-| 7.0 → 8.1 | 2 hrs | 2 hrs | 2-3 wks | 1 wk | 3-4 wks |
 
 ---
 

@@ -1,0 +1,157 @@
+version: "7.0"
+description: "Breaking change patterns for Rails 6.1 → 7.0 upgrade"
+
+breaking_changes:
+  high_priority:
+    - name: "classic autoloader config"
+      pattern: 'config\.autoloader\s*=\s*:classic|autoloader.*classic'
+      exclude: ""
+      search_paths:
+        - "config/"
+      explanation: "Classic autoloader is completely removed in Rails 7.0 - Zeitwerk is mandatory"
+      fix: "Remove config.autoloader = :classic and ensure all code follows Zeitwerk conventions"
+      variable_name: "CLASSIC_AUTOLOADER"
+
+    - name: "require_dependency usage"
+      pattern: 'require_dependency'
+      exclude: ""
+      search_paths:
+        - "app/"
+        - "lib/"
+        - "config/"
+      explanation: "require_dependency is a no-op in Rails 7.0 (Zeitwerk handles autoloading)"
+      fix: "Remove all require_dependency calls - Zeitwerk autoloads constants automatically"
+      variable_name: "REQUIRE_DEPENDENCY"
+
+    - name: "autoloading during initialization"
+      pattern: '^\s*[A-Z][A-Za-z0-9:]+\.'
+      exclude: "Rails\.|ActiveRecord\.|ActiveSupport\.|ActionController\.|ActionView\.|ActiveJob\.|ActionMailer\.|ActiveStorage\.|ActionCable\.|ActionText\.|ActionMailbox\.|OpenSSL\.|URI\.|ENV\.|File\.|Dir\.|Kernel\.|IO\.|Logger\.|Pathname\.|Thread\.|Mutex\.|Socket\.|Bundler\."
+      search_paths:
+        - "config/initializers/"
+      explanation: "Autoloading application code during initialization raises an error in Rails 7.0"
+      fix: "Wrap in Rails.application.config.to_prepare or after_initialize block"
+      variable_name: "INIT_AUTOLOAD"
+
+    - name: "button_to without method"
+      pattern: 'button_to\s'
+      exclude: "method:"
+      search_paths:
+        - "app/views/"
+        - "app/helpers/"
+      explanation: "button_to now defaults to HTTP PATCH instead of POST"
+      fix: "Add explicit method: :post where POST behavior is needed"
+      variable_name: "BUTTON_TO"
+
+    - name: "sprockets in Gemfile"
+      pattern: 'sprockets-rails|sprockets'
+      exclude: ""
+      search_paths:
+        - "Gemfile"
+      explanation: "Sprockets is now optional in Rails 7.0 - consider importmap-rails or jsbundling-rails"
+      fix: "Keep sprockets-rails if needed, or migrate to importmap-rails/jsbundling-rails"
+      variable_name: "SPROCKETS"
+
+    - name: "ActiveSupport::Dependencies usage"
+      pattern: 'ActiveSupport::Dependencies\.'
+      exclude: ""
+      search_paths:
+        - "app/"
+        - "lib/"
+        - "config/"
+      explanation: "ActiveSupport::Dependencies private API is deleted in Rails 7.0"
+      fix: "Use Zeitwerk API: Rails.autoloaders.main for autoloader access"
+      variable_name: "AS_DEPENDENCIES"
+
+  medium_priority:
+    - name: "cache_store config for format"
+      pattern: 'cache_format_version|cache_store'
+      exclude: ""
+      search_paths:
+        - "config/"
+      explanation: "Cache serialization format changed - new version 7.0 available"
+      fix: "Set config.active_support.cache_format_version = 6.1 initially, then migrate to 7.0"
+      variable_name: "CACHE_FORMAT"
+
+    - name: "show_exceptions boolean"
+      pattern: 'show_exceptions\s*=\s*(true|false)'
+      exclude: ""
+      search_paths:
+        - "config/environments/"
+      explanation: "Boolean values for show_exceptions are deprecated in favor of symbols"
+      fix: "Use :all (was true), :none (was false), or :rescuable"
+      variable_name: "SHOW_EXCEPTIONS"
+
+    - name: "to_s with format argument"
+      pattern: '\.to_s\(:\w+\)'
+      exclude: ""
+      search_paths:
+        - "app/"
+        - "lib/"
+        - "test/"
+        - "spec/"
+      explanation: "#to_s(:format) is deprecated for Date, Time, DateTime"
+      fix: "Use .to_fs(:format) instead of .to_s(:format)"
+      variable_name: "TO_S_FORMAT"
+
+    - name: "mini_magick variant processor"
+      pattern: 'variant_processor.*mini_magick|:mini_magick'
+      exclude: ""
+      search_paths:
+        - "config/"
+      explanation: "Default variant processor changed from :mini_magick to :vips"
+      fix: "Set config.active_storage.variant_processor = :mini_magick to keep old behavior, or install libvips"
+      variable_name: "MINI_MAGICK"
+
+    - name: "return/break in transaction"
+      pattern: '\.transaction\s+(do|\{)'
+      exclude: ""
+      search_paths:
+        - "app/"
+        - "lib/"
+      explanation: "return/break/throw inside transaction now triggers rollback instead of commit"
+      fix: "Restructure code to avoid early return in transaction blocks"
+      variable_name: "TRANSACTION_RETURN"
+
+    - name: "bare require for app code"
+      pattern: '^require\s+["\x27]((?!rails|active|action|bundler|rake|minitest|test_helper|spec_helper|webmock|vcr|simplecov|factory|faker|capybara|selenium|rack|puma|webrick|byebug|debug|pry|irb)[a-z])'
+      exclude: ""
+      search_paths:
+        - "app/"
+        - "lib/"
+        - "config/"
+      explanation: "Autoloaded paths removed from $LOAD_PATH - bare require for app code fails"
+      fix: "Remove unnecessary require calls (Zeitwerk autoloads) or use require_relative"
+      variable_name: "BARE_REQUIRE"
+
+    - name: "key generator digest class"
+      pattern: 'key_generator_hash_digest_class|hash_digest_class'
+      exclude: ""
+      search_paths:
+        - "config/"
+      explanation: "Key generator default changed from SHA1 to SHA256 - affects cookies, sessions, encrypted data"
+      fix: "Set config.active_support.key_generator_hash_digest_class = OpenSSL::Digest::SHA1 during transition"
+      variable_name: "KEY_GENERATOR"
+
+dependencies:
+  zeitwerk:
+    check: true
+    gem_name: "zeitwerk"
+    message: "Zeitwerk is mandatory in Rails 7.0 - ensure it is properly configured"
+    url: "https://github.com/fxn/zeitwerk"
+
+  spring:
+    check: true
+    gem_name: "spring"
+    message: "Spring 3.0.0+ is required for Rails 7.0 compatibility"
+    url: "https://github.com/rails/spring"
+
+file_checks:
+  - path: "config/initializers/new_framework_defaults_7_0.rb"
+    should_exist: true
+    message: "Run rails app:update to generate new_framework_defaults_7_0.rb"
+    priority: "MEDIUM"
+
+  - path: "config/application.rb"
+    should_exist: true
+    message: "Check config/application.rb for classic autoloader config and autoloading during init"
+    priority: "HIGH"

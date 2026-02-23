@@ -1,11 +1,11 @@
 ---
 title: "Breaking Changes by Version - Quick Reference"
-description: "Comprehensive comparison table of all 71 breaking changes across Rails 7.0 through 8.1, organized by version and severity"
+description: "Comprehensive comparison table of all 106 breaking changes across Rails 6.0 through 8.1, organized by version and severity"
 type: "reference-material"
 reference_type: "comparison-table"
-rails_versions: "7.0.x to 8.1.1"
-breaking_changes_total: 71
-versions_covered: 4
+rails_versions: "6.0.x to 8.1.1"
+breaking_changes_total: 106
+versions_covered: 6
 content_includes:
   - summary-statistics
   - priority-matrix
@@ -27,26 +27,101 @@ print_friendly: true
 last_updated: "2025-11-01"
 ---
 
-# 🔥 Breaking Changes by Version - Quick Reference
+# Breaking Changes by Version - Quick Reference
 
-**Complete comparison table for Rails 7.0 → 8.1**  
+**Complete comparison table for Rails 6.0 → 8.1**
 **Last Updated:** November 1, 2025
 
 ---
 
-## 📊 Summary Statistics
+## Summary Statistics
 
-| Version               | Total Changes | HIGH   | MEDIUM | LOW    | Difficulty     | Time Estimate |
-| --------------------- | ------------- | ------ | ------ | ------ | -------------- | ------------- |
-| **7.0 → 7.1**         | 12            | 5      | 4      | 3      | ⭐⭐ Medium      | 2-4 hours     |
-| **7.1 → 7.2**         | 38            | 5      | 12     | 21     | ⭐⭐⭐ Hard       | 4-8 hours     |
-| **7.2 → 8.0**         | 13            | 5      | 4      | 4      | ⭐⭐⭐⭐ Very Hard | 6-12 hours    |
-| **8.0 → 8.1**         | 8             | 3      | 3      | 2      | ⭐ Easy         | 2-4 hours     |
-| **TOTAL (7.0 → 8.1)** | **71**        | **18** | **23** | **30** | ⭐⭐⭐⭐⭐          | **2-3 weeks** |
+| Version               | Total Changes | HIGH   | MEDIUM | LOW    | Difficulty     |
+| --------------------- | ------------- | ------ | ------ | ------ | -------------- |
+| **6.0 → 6.1**         | 18            | 6      | 8      | 4      | Medium         |
+| **6.1 → 7.0**         | 17            | 5      | 8      | 4      | Hard           |
+| **7.0 → 7.1**         | 12            | 5      | 4      | 3      | Medium         |
+| **7.1 → 7.2**         | 38            | 5      | 12     | 21     | Hard           |
+| **7.2 → 8.0**         | 13            | 5      | 4      | 4      | Very Hard      |
+| **8.0 → 8.1**         | 8             | 3      | 3      | 2      | Easy           |
+| **TOTAL (6.0 → 8.1)** | **106**       | **29** | **39** | **38** |                |
 
 ---
 
-## 🎯 Rails 7.1 Breaking Changes (from 7.0)
+## Rails 6.1 Breaking Changes (from 6.0)
+
+### 🔴 HIGH PRIORITY (6)
+
+| #    | Change                                    | Impact                  | Files Affected                       | Action Required                             |
+| ---- | ----------------------------------------- | ----------------------- | ------------------------------------ | ------------------------------------------- |
+| 1    | **where.not NAND semantics**              | All multi-key where.not | `app/models/*.rb`, scopes            | Audit all multi-key where.not, chain if NOR |
+| 2    | **form_with non-remote default**          | All form_with views     | `app/views/**/*.erb`                 | Add local: false or set config              |
+| 3    | **config_for Symbol-only keys**           | Config access code      | `app/`, `config/`, `lib/`            | Replace string keys with symbols            |
+| 4    | **ActiveModel::Error new API**            | Error handling code     | `app/models/`, `app/validators/`     | Replace hash manipulation with errors.add   |
+| 5    | **SameSite=Lax cookie default**           | Cross-site requests     | `config/`, OAuth/payment integrations | Set same_site: :none for cross-site cookies |
+| 6    | **Content-Type full header**              | Content-Type checks     | `app/controllers/`, middleware       | Use request.media_type for MIME comparison  |
+
+### 🟡 MEDIUM PRIORITY (8)
+
+| #    | Change                              | Impact                  | Files Affected                         | Action Required                           |
+| ---- | ----------------------------------- | ----------------------- | -------------------------------------- | ----------------------------------------- |
+| 7    | **halted_callback_hook signature**  | Custom callback code    | `app/models/`, `lib/`                  | Add second parameter to override          |
+| 8    | **HTTPS redirect 308**              | SSL redirect behavior   | Middleware, proxies                     | Test with older HTTP clients              |
+| 9    | **image_processing gem required**   | ActiveStorage variants  | `Gemfile`, variant code                | Add image_processing gem, update API      |
+| 10   | **respond_to#any Content-Type**     | API responses           | `app/controllers/`                     | Verify Content-Type in API tests          |
+| 11   | **fixture_file_upload paths**       | Test files              | `test/`, `spec/`                       | Verify file path resolution               |
+| 12   | **helper loading constantize**      | Helper modules          | `app/helpers/`                         | Ensure naming conventions match           |
+| 13   | **update_attributes removed**       | All model updates       | `app/`, `lib/`, `test/`               | Replace with update/update!               |
+| 14   | **errors.to_hash changed**          | Error serialization     | `app/`, `lib/`                         | Use errors.messages instead               |
+
+### 🟢 LOW PRIORITY (4)
+
+| #    | Change                              | Impact              | Files Affected                       | Action Required                    |
+| ---- | ----------------------------------- | ------------------- | ------------------------------------ | ---------------------------------- |
+| 15   | **Permissions-Policy rename**       | Security headers    | `config/initializers/`               | Update header references           |
+| 16   | **Duration iso8601 sign**           | Duration formatting | Code parsing ISO 8601 durations      | Update parsing logic if needed     |
+| 17   | **Partial renders DEBUG level**     | Log monitoring      | Log parsers                          | Set DEBUG level if parsing partials |
+| 18   | **ActionMailer queue change**       | Job configuration   | `config/`, mailer code               | Update delivery_job references     |
+
+---
+
+## Rails 7.0 Breaking Changes (from 6.1)
+
+### 🔴 HIGH PRIORITY (5)
+
+| #    | Change                                    | Impact                   | Files Affected                         | Action Required                              |
+| ---- | ----------------------------------------- | ------------------------ | -------------------------------------- | -------------------------------------------- |
+| 1    | **Zeitwerk mandatory (classic removed)**  | ENTIRE application       | `config/application.rb`, all app code  | Run zeitwerk:check, fix all naming issues    |
+| 2    | **Key generator SHA1 → SHA256**           | Sessions, cookies, encryption | `config/application.rb`           | Keep SHA1 during transition, plan rotation   |
+| 3    | **button_to defaults to PATCH**           | All button_to views      | `app/views/**/*.erb`                   | Add explicit method: :post where needed      |
+| 4    | **Sprockets optional**                    | Asset pipeline           | `Gemfile`, asset config                | Keep sprockets-rails or migrate to importmap |
+| 5    | **Autoloading during init errors**        | Initializers             | `config/initializers/*.rb`             | Wrap app code refs in to_prepare block       |
+
+### 🟡 MEDIUM PRIORITY (8)
+
+| #    | Change                                    | Impact                 | Files Affected                          | Action Required                            |
+| ---- | ----------------------------------------- | ---------------------- | --------------------------------------- | ------------------------------------------ |
+| 6    | **AS::Dependencies private API deleted**  | Internal API usage     | `app/`, `lib/`, `config/`              | Use Zeitwerk API: Rails.autoloaders.main   |
+| 7    | **Autoloaded paths off $LOAD_PATH**       | Bare require calls     | `app/`, `lib/`, `config/`              | Remove bare require, use constants directly |
+| 8    | **request.content_type full header**      | API content checks     | `app/controllers/`, middleware          | Use request.media_type                     |
+| 9    | **Cache serialization format**            | Cache compatibility    | `config/application.rb`                 | Keep 6.1 format initially, migrate later   |
+| 10   | **AS variant processor → vips**           | Image processing       | `config/application.rb`                 | Set :mini_magick or install libvips        |
+| 11   | **Transaction rollback on early return**  | Transaction code       | `app/models/`, `app/services/`          | Restructure to avoid return in transactions |
+| 12   | **show_exceptions values changed**        | Environment config     | `config/environments/*.rb`              | Replace booleans with symbols              |
+| 13   | **#to_s format deprecated**               | Date/Time formatting   | `app/`, `lib/`                          | Replace .to_s(:fmt) with .to_fs(:fmt)      |
+
+### 🟢 LOW PRIORITY (4)
+
+| #    | Change                              | Impact               | Files Affected                        | Action Required                     |
+| ---- | ----------------------------------- | -------------------- | ------------------------------------- | ----------------------------------- |
+| 14   | **AS::Digest SHA256**               | Cache keys, ETags    | Internal                              | Cache entries regenerate automatically |
+| 15   | **AS video preview FFmpeg**         | Video file handling  | System dependencies                   | Install FFmpeg if using video previews |
+| 16   | **Schema dump Rails version**       | Schema file          | `db/schema.rb`                        | Run db:schema:dump to regenerate    |
+| 17   | **Spring 3.0.0+ required**         | Development          | `Gemfile`                             | Update Spring or remove it          |
+
+---
+
+## Rails 7.1 Breaking Changes (from 7.0)
 
 ### 🔴 HIGH PRIORITY (5)
 
@@ -77,7 +152,7 @@ last_updated: "2025-11-01"
 
 ---
 
-## 🎯 Rails 7.2 Breaking Changes (from 7.1)
+## Rails 7.2 Breaking Changes (from 7.1)
 
 ### 🔴 HIGH PRIORITY (5)
 
@@ -114,7 +189,7 @@ last_updated: "2025-11-01"
 
 ---
 
-## 🎯 Rails 8.0 Breaking Changes (from 7.2)
+## Rails 8.0 Breaking Changes (from 7.2)
 
 ### 🔴 HIGH PRIORITY (5)
 
@@ -146,7 +221,7 @@ last_updated: "2025-11-01"
 
 ---
 
-## 🎯 Rails 8.1 Breaking Changes (from 8.0)
+## Rails 8.1 Breaking Changes (from 8.0)
 
 ### 🔴 HIGH PRIORITY (3)
 
@@ -173,39 +248,43 @@ last_updated: "2025-11-01"
 
 ---
 
-## 📈 Cumulative Impact Analysis
+## Cumulative Impact Analysis
 
-### If Upgrading 7.0 → 8.1 (All 4 Hops)
+### If Upgrading 6.0 → 8.1 (All 6 Hops)
 
 **Critical Changes You'll Face:**
 
-| Priority | Count | Examples                                                     |
-| -------- | ----- | ------------------------------------------------------------ |
-| 🔴 HIGH   | 18    | Transaction jobs, asset pipeline, SSL configs, database configs |
-| 🟡 MEDIUM | 23    | Connection pools, serialize syntax, mailer tests, adapters   |
-| 🟢 LOW    | 30    | Optional features, deprecations, enhancements                |
+| Priority | Count | Examples                                                        |
+| -------- | ----- | --------------------------------------------------------------- |
+| 🔴 HIGH   | 29    | Zeitwerk, where.not, transaction jobs, asset pipeline, SSL      |
+| 🟡 MEDIUM | 39    | Key generator, connection pools, serialize syntax, adapters     |
+| 🟢 LOW    | 38    | Optional features, deprecations, enhancements                   |
 
-**Top 10 Most Impactful (Across All Versions):**
+**Top 12 Most Impactful (Across All Versions):**
 
-1. 🔴 **Transaction-aware jobs** (7.2) - Behavior change affecting job timing
-2. 🔴 **Sprockets → Propshaft** (8.0) - Complete asset pipeline replacement
-3. 🔴 **cache_classes → enable_reloading** (7.1) - Inverted boolean in ALL envs
-4. 🔴 **Multi-database config** (8.0) - Database.yml restructure
-5. 🔴 **show_exceptions symbols** (7.2) - Breaking config change
-6. 🔴 **ActiveRecord.connection deprecated** (7.2) - Common pattern change
-7. 🔴 **params comparison removed** (7.2) - Controller code breaks
-8. 🔴 **SSL configuration changes** (7.1, 8.0, 8.1) - Evolving security setup
-9. 🔴 **pool → max_connections** (8.1) - Database config rename
-10. 🔴 **Rails.application.secrets removed** (7.2) - API completely removed
+1. 🔴 **Zeitwerk mandatory** (7.0) - Classic autoloader completely removed
+2. 🔴 **where.not NAND semantics** (6.1) - Silent query behavior change
+3. 🔴 **Transaction-aware jobs** (7.2) - Behavior change affecting job timing
+4. 🔴 **Sprockets → Propshaft** (8.0) - Complete asset pipeline replacement
+5. 🔴 **Key generator SHA1 → SHA256** (7.0) - Invalidates sessions/cookies
+6. 🔴 **cache_classes → enable_reloading** (7.1) - Inverted boolean in ALL envs
+7. 🔴 **Multi-database config** (8.0) - Database.yml restructure
+8. 🔴 **show_exceptions symbols** (7.2) - Breaking config change
+9. 🔴 **ActiveRecord.connection deprecated** (7.2) - Common pattern change
+10. 🔴 **params comparison removed** (7.2) - Controller code breaks
+11. 🔴 **SSL configuration changes** (7.1, 8.0, 8.1) - Evolving security setup
+12. 🔴 **form_with non-remote default** (6.1) - AJAX form behavior changes
 
 ---
 
-## 🗺️ Migration Priority Matrix
+## Migration Priority Matrix
 
 ### Phase 1: Must Fix Before Deploy (Will Break App)
 
 | Version | Must Fix                                                    |
 | ------- | ----------------------------------------------------------- |
+| **6.1** | where.not queries, form_with remote, config_for keys        |
+| **7.0** | Zeitwerk migration, autoloading in initializers             |
 | **7.1** | cache_classes, SSL (if no SSL), preview_paths, SQLite paths |
 | **7.2** | show_exceptions, params comparison, secrets removal         |
 | **8.0** | Asset pipeline, database.yml                                |
@@ -215,6 +294,8 @@ last_updated: "2025-11-01"
 
 | Version | Should Fix                                            |
 | ------- | ----------------------------------------------------- |
+| **6.1** | SameSite cookies, image_processing gem, errors API    |
+| **7.0** | Key generator rotation, button_to methods, transactions |
 | **7.1** | lib/ autoload conflicts                               |
 | **7.2** | Transaction jobs, .connection usage, serialize syntax |
 | **8.0** | Solid gems setup, deprecated config removal           |
@@ -224,6 +305,8 @@ last_updated: "2025-11-01"
 
 | Version | Can Fix Later                                          |
 | ------- | ------------------------------------------------------ |
+| **6.1** | Permissions-Policy, Duration iso8601, log levels       |
+| **7.0** | Schema dump format, Spring update, AS::Digest          |
 | **7.1** | Cache format, query log format                         |
 | **7.2** | query_constraints, fixture_paths, browser restrictions |
 | **8.0** | PWA routes, form helper aliases                        |
@@ -231,7 +314,7 @@ last_updated: "2025-11-01"
 
 ---
 
-## 🎯 Quick Decision Guide
+## Quick Decision Guide
 
 ### "Should I upgrade?"
 
@@ -273,18 +356,22 @@ last_updated: "2025-11-01"
 
 ---
 
-## 📊 Breaking Changes by Component
+## Breaking Changes by Component
 
 ### Most Impacted Components
 
-| Component        | 7.1  | 7.2  | 8.0  | 8.1  | Total |
-| ---------------- | ---- | ---- | ---- | ---- | ----- |
-| **Railties**     | 5    | 8    | 6    | 4    | 23    |
-| **ActionPack**   | 2    | 10   | 3    | 2    | 17    |
-| **ActiveRecord** | 2    | 12   | 2    | 2    | 18    |
-| **ActionMailer** | 1    | 3    | 0    | 0    | 4     |
-| **ActiveJob**    | 0    | 3    | 1    | 2    | 6     |
-| **Other**        | 2    | 2    | 1    | 0    | 5     |
+| Component        | 6.1  | 7.0  | 7.1  | 7.2  | 8.0  | 8.1  | Total |
+| ---------------- | ---- | ---- | ---- | ---- | ---- | ---- | ----- |
+| **Railties**     | 2    | 5    | 5    | 8    | 6    | 4    | 30    |
+| **ActionPack**   | 4    | 2    | 2    | 10   | 3    | 2    | 23    |
+| **ActiveRecord** | 2    | 2    | 2    | 12   | 2    | 2    | 22    |
+| **ActiveModel**  | 2    | 0    | 0    | 1    | 0    | 0    | 3     |
+| **ActionView**   | 2    | 1    | 0    | 0    | 0    | 0    | 3     |
+| **ActiveSupport**| 2    | 4    | 0    | 2    | 0    | 0    | 8     |
+| **ActiveStorage**| 1    | 2    | 0    | 0    | 0    | 1    | 4     |
+| **ActionMailer** | 1    | 0    | 1    | 3    | 0    | 0    | 5     |
+| **ActiveJob**    | 0    | 0    | 0    | 3    | 1    | 2    | 6     |
+| **Other**        | 2    | 1    | 2    | 2    | 1    | 0    | 8     |
 
 ### Least Impacted Components
 
@@ -297,12 +384,14 @@ last_updated: "2025-11-01"
 
 ---
 
-## 🔍 Quick Search Index
+## Quick Search Index
 
 ### By Symptom
 
 **"My tests are failing with..."**
 
+- `Zeitwerk::NameError` → Rails 7.0, fix file/constant naming
+- `update_attributes` undefined → Rails 6.1, use `update` instead
 - `show_exceptions` error → Rails 7.2, change to symbols
 - `params ==` error → Rails 7.2, use params.to_h
 - `connection` deprecated → Rails 7.2, use with_connection
@@ -311,10 +400,13 @@ last_updated: "2025-11-01"
 
 **"I can't deploy because..."**
 
+- App won't boot, constant errors → Rails 7.0, Zeitwerk naming issues
+- Users logged out → Rails 7.0, key generator SHA1→SHA256 change
 - SSL redirect loop → Check force_ssl/assume_ssl in each version
 - Jobs not processing → Rails 7.2 transaction-aware jobs
 - Database connection errors → Check config structure (7.2, 8.0, 8.1)
 - Assets 404 → Rails 8.0 Propshaft migration incomplete
+- OAuth/SSO broken → Rails 6.1, SameSite=Lax cookie default
 
 **"The upgrade guide says to..."**
 
@@ -344,7 +436,7 @@ last_updated: "2025-11-01"
 
 ---
 
-## 📝 Notes
+## Notes
 
 ### Using This Reference
 
@@ -352,7 +444,7 @@ last_updated: "2025-11-01"
 
 1. Find your current version
 2. Scan HIGH priority changes for target version
-3. Estimate time using difficulty rating
+3. Assess difficulty using rating
 4. Plan for multi-hop if needed
 
 **For Implementation:**
@@ -373,6 +465,8 @@ last_updated: "2025-11-01"
 
 This reference is based on:
 
+- Rails 6.1.0 (December 2020)
+- Rails 7.0.0 (December 2021)
 - Rails 7.1.6 (October 2023)
 - Rails 7.2.3 (Latest 7.2)
 - Rails 8.0.4 (Latest 8.0)
@@ -383,11 +477,11 @@ When new versions release:
 - Review official CHANGELOGs
 - Add new breaking changes
 - Update statistics
-- Revise time estimates
+- Revise difficulty ratings
 
 ---
 
-## 🔗 Related References
+## Related References
 
 - **Multi-Hop Strategy:** `reference/multi-hop-strategy.md`
 - **Testing Checklist:** `reference/testing-checklist.md`
@@ -397,8 +491,8 @@ When new versions release:
 
 ---
 
-**Last Updated:** November 1, 2025  
-**Rails Versions:** 7.0.x → 8.1.1  
-**Total Breaking Changes:** 71 documented
+**Last Updated:** November 1, 2025
+**Rails Versions:** 6.0.x → 8.1.1
+**Total Breaking Changes:** 106 documented
 
 **For detailed information on each change, see the version-specific guides in `version-guides/` directory.**

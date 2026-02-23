@@ -3,7 +3,7 @@ title: "Multi-Hop Upgrade Strategy Guide"
 description: "Complete planning guide for upgrading across multiple Rails versions with timeline templates, checklists, and risk assessment"
 type: "reference-material"
 reference_type: "planning-guide"
-rails_versions: "7.0.x to 8.1.1"
+rails_versions: "6.0.x to 8.1.1"
 timeline_templates: 3
 content_includes:
   - why-sequential-required
@@ -28,14 +28,14 @@ best_for:
 last_updated: "2025-11-01"
 ---
 
-# 🔄 Multi-Hop Upgrade Strategy Guide
+# Multi-Hop Upgrade Strategy Guide
 
 **Complete planning guide for upgrading across multiple Rails versions**  
 **Last Updated:** November 1, 2025
 
 ---
 
-## 📖 Table of Contents
+## Table of Contents
 
 1. [What is Multi-Hop Upgrading?](#what-is-multi-hop-upgrading)
 2. [Why You Can't Skip Versions](#why-you-cant-skip-versions)
@@ -48,7 +48,7 @@ last_updated: "2025-11-01"
 
 ---
 
-## 🎯 What is Multi-Hop Upgrading?
+## What is Multi-Hop Upgrading?
 
 **Multi-hop upgrading** is the process of upgrading through multiple Rails versions sequentially, deploying to production between each version.
 
@@ -57,32 +57,38 @@ last_updated: "2025-11-01"
 **2-Hop Upgrade:**
 
 ```
-7.1 → 7.2 [deploy] → 8.0
+6.0 → 6.1 [deploy] → 7.0
 ```
 
 **3-Hop Upgrade:**
 
 ```
-7.0 → 7.1 [deploy] → 7.2 [deploy] → 8.0
+6.0 → 6.1 [deploy] → 7.0 [deploy] → 7.1
 ```
 
 **4-Hop Upgrade:**
 
 ```
-7.0 → 7.1 [deploy] → 7.2 [deploy] → 8.0 [deploy] → 8.1
+6.0 → 6.1 [deploy] → 7.0 [deploy] → 7.1 [deploy] → 7.2
+```
+
+**6-Hop Upgrade:**
+
+```
+6.0 → 6.1 [deploy] → 7.0 [deploy] → 7.1 [deploy] → 7.2 [deploy] → 8.0 [deploy] → 8.1
 ```
 
 ### Key Principles
 
 ✅ **Sequential:** Must upgrade through each version  
 ✅ **Deploy Between:** Deploy to production after each hop  
-✅ **Monitor:** Watch production 48+ hours between hops  
+✅ **Monitor:** Monitor production between hops
 ✅ **Complete:** Fully finish each hop before next  
 ✅ **Document:** Track issues and solutions  
 
 ---
 
-## 🚫 Why You Can't Skip Versions
+## Why You Can't Skip Versions
 
 ### Technical Reasons
 
@@ -91,22 +97,23 @@ last_updated: "2025-11-01"
 Rails follows a clear deprecation process:
 
 ```
-Version 7.0: Feature works, no warnings
-Version 7.1: Feature deprecated (warnings added)
-Version 7.2: Feature removed (causes errors)
+Version 6.0: Feature works, no warnings
+Version 6.1: Feature deprecated (warnings added)
+Version 7.0: Feature removed (causes errors)
 ```
 
 **Example:**
 
 ```ruby
-# Rails 7.0 → 7.1: Deprecation introduced
-config.cache_classes = false  # Still works, but warning
+# Rails 6.0 → 6.1: Deprecation introduced
+require_dependency "my_class"  # Still works, but discouraged
 
-# Rails 7.1 → 7.2: Must be updated
-config.enable_reloading = true  # Required, cache_classes removed
+# Rails 6.1 → 7.0: Must be updated
+# require_dependency is a no-op, Zeitwerk handles autoloading
+MyClass  # Just use the constant directly
 ```
 
-If you skip 7.1:
+If you skip 6.1:
 
 - ❌ You miss the deprecation warning
 - ❌ You go straight to breaking error
@@ -117,12 +124,14 @@ If you skip 7.1:
 Breaking changes build on each other:
 
 ```
+6.0 → 6.1: where.not NAND, form_with local, config_for symbols
+6.1 → 7.0: Zeitwerk mandatory, key generator SHA256
 7.0 → 7.1: cache_classes → enable_reloading
 7.1 → 7.2: show_exceptions now requires symbols
 7.2 → 8.0: Asset pipeline changes
 ```
 
-Skipping versions means dealing with 3 major changes at once instead of one at a time.
+Skipping versions means dealing with multiple major changes at once instead of one at a time.
 
 **3. Gem Compatibility**
 
@@ -175,9 +184,9 @@ Skipped:    Team overwhelmed with changes
 
 ---
 
-## 📋 Planning Your Multi-Hop Upgrade
+## Planning Your Multi-Hop Upgrade
 
-### Phase 1: Assessment (Week 1)
+### Phase 1: Assessment
 
 #### 1.1 Determine Upgrade Path
 
@@ -186,6 +195,8 @@ Current Version: _______
 Target Version:  _______
 
 Hops Required:
+[ ] 6.0 → 6.1
+[ ] 6.1 → 7.0
 [ ] 7.0 → 7.1
 [ ] 7.1 → 7.2
 [ ] 7.2 → 8.0
@@ -203,17 +214,18 @@ Hop 1 (__ → __):
   HIGH Priority:    ____ changes
   MEDIUM Priority:  ____ changes
   LOW Priority:     ____ changes
-  Estimated Time:   ____ hours
 
 [Repeat for each hop]
 
 Total Breaking Changes: ____
-Total Estimated Time:   ____ hours
 ```
 
 #### 1.3 Identify Risk Areas
 
 ```
+[ ] Multi-key where.not queries (6.0 → 6.1)
+[ ] Zeitwerk naming compliance (6.1 → 7.0)
+[ ] Key generator/session rotation (6.1 → 7.0)
 [ ] Jobs enqueued in transactions (7.1 → 7.2)
 [ ] Custom Sprockets processors (7.2 → 8.0)
 [ ] Custom SSL middleware
@@ -229,7 +241,6 @@ Total Estimated Time:   ____ hours
 
 ```
 Team Size:           ____
-Available Hours/Week: ____
 Availability Period:  ____
 
 Roles:
@@ -242,41 +253,12 @@ Roles:
 
 #### 2.2 Timeline Estimation
 
-Use this formula:
-
-```
-Base Time = Sum of all hop estimates
-Overhead = Base Time × 0.3 (30% overhead)
-Buffer = Base Time × 0.2 (20% buffer)
-
-Total Time = Base Time + Overhead + Buffer
-
-Example for 7.0 → 8.1:
-  Hop 1 (7.0→7.1): 4 hours
-  Hop 2 (7.1→7.2): 8 hours
-  Hop 3 (7.2→8.0): 12 hours
-  Hop 4 (8.0→8.1): 4 hours
-  Base Time: 28 hours
-  
-  Overhead (30%): 8.4 hours
-  Buffer (20%): 5.6 hours
-  
-  Total: 42 hours
-  
-  Weeks (20h/week): 2.1 weeks
-  Round up: 3 weeks minimum
-```
+Reference the difficulty ratings in `reference/breaking-changes-by-version.md` to gauge relative effort per hop. Hops with higher difficulty ratings need more time for implementation, testing, and monitoring.
 
 #### 2.3 Budget Planning
 
-```
-Developer Hours:        ____ × $____/hr = $______
-Testing Hours:          ____ × $____/hr = $______
-DevOps Hours:          ____ × $____/hr = $______
-Infrastructure Costs:                    $______
-Contingency (20%):                       $______
-                                Total:   $______
-```
+Plan based on team capacity and the difficulty rating for each hop.
+See `reference/breaking-changes-by-version.md` for difficulty ratings.
 
 ### Phase 3: Detailed Project Plan
 
@@ -286,16 +268,16 @@ Contingency (20%):                       $______
 MILESTONE 1: Hop 1 (__ → __)
   Start Date:    ____
   Deadline:      ____
-  
+
   Tasks:
-  [ ] Analysis (__ hours)
-  [ ] Implementation (__ hours)
-  [ ] Testing (__ hours)
-  [ ] Code Review (__ hours)
-  [ ] Staging Deploy (__ hours)
-  [ ] Production Deploy (__ hours)
-  [ ] Monitoring (48 hours)
-  
+  [ ] Analysis
+  [ ] Implementation
+  [ ] Testing
+  [ ] Code Review
+  [ ] Staging Deploy
+  [ ] Production Deploy
+  [ ] Monitor production between hops
+
   Owner: ____________
   Reviewer: ____________
 
@@ -307,11 +289,11 @@ MILESTONE 1: Hop 1 (__ → __)
 ```
 Hop 1 → Completion required before Hop 2
    ↓
-Monitoring Period (48h minimum)
+Monitoring Period
    ↓
 Hop 2 → Completion required before Hop 3
    ↓
-Monitoring Period (48h minimum)
+Monitoring Period
    ↓
 [Continue...]
 ```
@@ -380,72 +362,40 @@ After Upgrade:
 
 ---
 
-## 📅 Timeline Templates
+## Timeline Templates
 
-### Template 1: 2-Hop Upgrade (2-3 weeks)
+### Template 1: 2-Hop Upgrade
 
-**Example: 7.1 → 7.2 → 8.0**
+**Example: 6.0 → 6.1 → 7.0**
 
 ```
-WEEK 1: Hop 1 (7.1 → 7.2)
-  Monday
-    09:00-12:00 | Analysis & Planning
-    13:00-17:00 | Begin Implementation
-  
-  Tuesday
-    09:00-12:00 | Continue Implementation
-    13:00-17:00 | Complete Implementation
-  
-  Wednesday
-    09:00-12:00 | Testing (unit, integration)
-    13:00-17:00 | Testing (system, manual)
-  
-  Thursday
-    09:00-12:00 | Code Review & Fixes
-    13:00-15:00 | Staging Deployment
-    15:00-17:00 | Staging Testing
-  
-  Friday
-    09:00-11:00 | Pre-production checks
-    11:00-12:00 | Production Deployment
-    13:00-17:00 | Production Monitoring
-  
-  Weekend
-    Continuous monitoring
-    On-call support ready
+WEEK 1: Hop 1 (6.0 → 6.1)
+  Analysis & Planning
+  Implementation
+  Testing (unit, integration, system, manual)
+  Code Review & Fixes
+  Staging Deployment & Testing
+  Production Deployment
+  Production Monitoring
 
 WEEK 2: Stabilization & Hop 2 Prep
-  Monday-Tuesday
-    Monitor production metrics
-    Address any issues
-    Team retrospective
-  
-  Wednesday-Friday
-    Plan Hop 2 (7.2 → 8.0)
-    Review breaking changes
-    Prepare implementation strategy
-    Especially: Asset pipeline migration
+  Monitor production metrics
+  Address any issues
+  Team retrospective
+  Plan Hop 2 (6.1 → 7.0)
+  Review breaking changes
+  Prepare implementation strategy
+  Especially: Zeitwerk migration
 
-WEEK 3: Hop 2 (7.2 → 8.0)
-  Monday-Tuesday
-    Asset pipeline migration
-    Database config updates
-    Solid gems decisions
-  
-  Wednesday
-    Complete implementation
-    Begin testing
-  
-  Thursday
-    Complete testing
-    Staging deployment
-  
-  Friday
-    Production deployment
-    Intensive monitoring
-  
-  Weekend
-    Extended monitoring period
+WEEK 3: Hop 2 (6.1 → 7.0)
+  Zeitwerk migration
+  Key generator config
+  Initializer autoloading fixes
+  Complete implementation
+  Testing
+  Staging deployment
+  Production deployment
+  Monitor production
 
 WEEK 4: Final Stabilization
   Monitor and verify all systems
@@ -453,72 +403,90 @@ WEEK 4: Final Stabilization
   Team debrief
 ```
 
-### Template 2: 3-Hop Upgrade (4-5 weeks)
+### Template 2: 3-Hop Upgrade
 
-**Example: 7.0 → 7.1 → 7.2 → 8.0**
+**Example: 6.0 → 6.1 → 7.0 → 7.1**
 
 ```
-WEEK 1: Hop 1 (7.0 → 7.1)
-  Days 1-2:   Implementation
-  Day 3:      Testing
-  Day 4:      Staging
-  Day 5:      Production deploy
-  Weekend:    Monitoring
+WEEK 1: Hop 1 (6.0 → 6.1)
+  Implementation
+  Testing (watch where.not queries!)
+  Staging deploy
+  Production deploy
+  Monitor production
 
 WEEK 2: Stabilization & Hop 2 Prep
-  Days 1-2:   Monitor production
-  Days 3-5:   Plan Hop 2
-              Review transaction-aware jobs!
+  Monitor production
+  Plan Hop 2
+  Run bin/rails zeitwerk:check!
 
-WEEK 3: Hop 2 (7.1 → 7.2)
-  Days 1-3:   Implementation
-              Extra time for job testing
-  Day 4:      Staging deploy & testing
-  Day 5:      Production deploy
-  Weekend:    Monitoring
+WEEK 3: Hop 2 (6.1 → 7.0)
+  Implementation (Zeitwerk migration focus)
+  Staging deploy & testing
+  Production deploy
+  Monitor production
 
 WEEK 4: Stabilization & Hop 3 Prep
-  Days 1-2:   Monitor production
-  Days 3-5:   Plan Hop 3
-              Asset pipeline strategy
+  Monitor production
+  Plan Hop 3
+  Review cache_classes and SSL changes
 
-WEEK 5: Hop 3 (7.2 → 8.0)
-  Days 1-3:   Implementation
-              Asset migration
-  Day 4:      Testing
-  Day 5:      Staging deploy
-  Weekend:    Extended staging testing
+WEEK 5: Hop 3 (7.0 → 7.1)
+  Implementation & config updates
+  Testing
+  Staging deploy
 
 WEEK 6: Final Deployment & Stabilization
-  Day 1:      Production deploy
-  Days 2-5:   Monitoring & verification
+  Production deploy
+  Monitoring & verification
 ```
 
-### Template 3: 4-Hop Upgrade (6-8 weeks)
+### Template 3: 6-Hop Upgrade
 
-**Example: 7.0 → 7.1 → 7.2 → 8.0 → 8.1**
+**Example: 6.0 → 6.1 → 7.0 → 7.1 → 7.2 → 8.0 → 8.1**
 
 ```
-WEEK 1: Hop 1 (7.0 → 7.1)
+Hop 1 (6.0 → 6.1)
   Implementation, testing, deploy
-  
-WEEK 2: Stabilization
-  Monitoring, issue fixes
-  
-WEEK 3: Hop 2 (7.1 → 7.2)
+  Focus: where.not, form_with, config_for, cookies
+  Monitor production
+
+Stabilization
+  Monitor production, fix issues
+  Prepare Zeitwerk migration
+
+Hop 2 (6.1 → 7.0)
+  Zeitwerk migration, key generator, autoloading fixes
+  Monitor production
+
+Stabilization
+  Monitor production (key generator, sessions)
+
+Hop 3 (7.0 → 7.1)
+  Implementation, testing, deploy
+  Focus: cache_classes, force_ssl, lib/ autoload
+  Monitor production
+
+Stabilization
+  Monitor production, fix issues
+
+Hop 4 (7.1 → 7.2)
   Implementation with job testing
-  
-WEEK 4: Stabilization
-  Extended job monitoring
-  
-WEEK 5-6: Hop 3 (7.2 → 8.0)
-  Week 5: Asset migration
-  Week 6: Testing & deployment
-  
-WEEK 7: Hop 4 (8.0 → 8.1)
+  Monitor production
+
+Stabilization
+  Monitor job processing
+
+Hop 5 (7.2 → 8.0)
+  Asset migration
+  Testing & deployment
+  Monitor production
+
+Hop 6 (8.0 → 8.1)
   Quick hop, simpler changes
-  
-WEEK 8: Final Stabilization
+  Monitor production
+
+Final Stabilization
   Complete monitoring
   Documentation updates
   Team retrospective
@@ -526,7 +494,7 @@ WEEK 8: Final Stabilization
 
 ---
 
-## ✅ Between-Hop Checklists
+## Between-Hop Checklists
 
 ### Critical Between-Hop Checklist
 
@@ -535,7 +503,7 @@ WEEK 8: Final Stabilization
 #### Production Health
 
 ```
-[ ] Zero production errors in last 48 hours
+[ ] Zero recent production errors
 [ ] Performance metrics within normal range
 [ ] No user complaints or support tickets
 [ ] Database query performance normal
@@ -583,7 +551,6 @@ WEEK 8: Final Stabilization
 [ ] Hop completion documented
 [ ] Issues log updated
 [ ] Solutions database updated
-[ ] Time tracking updated
 [ ] Git tagged appropriately
 ```
 
@@ -591,8 +558,8 @@ WEEK 8: Final Stabilization
 
 **Days 1-2: Intensive Monitoring**
 
-- Check error tracking every 2 hours
-- Review performance metrics every 4 hours
+- Check error tracking regularly
+- Review performance metrics frequently
 - Monitor user feedback channels
 - Watch for edge cases
 
@@ -612,7 +579,7 @@ WEEK 8: Final Stabilization
 
 ---
 
-## 🎯 Risk Assessment
+## Risk Assessment
 
 ### Risk Matrix
 
@@ -665,20 +632,20 @@ Overall Risk Score: _________
 **🟢 LOW RISK:**
 
 - Follow standard procedures
-- 48-hour monitoring between hops
+- Monitor production between hops
 - Basic documentation
 
 **🟡 MEDIUM RISK:**
 
 - Extra staging testing
-- 72-hour monitoring between hops
+- Extended monitoring between hops
 - Detailed documentation
 - Code review by 2+ people
 
 **🟠 HIGH RISK:**
 
 - Extensive testing (unit + integration + manual)
-- 1-week monitoring between hops
+- Longer monitoring between hops
 - Comprehensive documentation
 - External code review
 - Pair programming
@@ -688,14 +655,14 @@ Overall Risk Score: _________
 
 - Consider delaying upgrade
 - Hire Rails consultant
-- 2-week monitoring between hops
+- Maximum monitoring between hops
 - Complete test suite before starting
 - Practice full upgrade in staging 2x before production
 - Have 24/7 support ready
 
 ---
 
-## 👥 Team Coordination
+## Team Coordination
 
 ### Team Roles & Responsibilities
 
@@ -708,8 +675,6 @@ Responsibilities:
 - Risk management
 - Stakeholder communication
 - Final decisions
-
-Time Commitment: 100% during active hops
 ```
 
 #### Developers (2-3 people)
@@ -720,8 +685,6 @@ Responsibilities:
 - Writing tests
 - Code review
 - Bug fixes
-
-Time Commitment: 80% during active hops
 ```
 
 #### QA/Testing (1-2 people)
@@ -732,8 +695,6 @@ Responsibilities:
 - Manual testing
 - Automated test review
 - Issue reporting
-
-Time Commitment: 60% during active hops
 ```
 
 #### DevOps (1 person)
@@ -744,8 +705,6 @@ Responsibilities:
 - Monitoring setup
 - Rollback procedures
 - Performance tracking
-
-Time Commitment: 40% during active hops
 ```
 
 ### Meeting Schedule
@@ -800,60 +759,19 @@ Weekly Check-in (30 min)
 
 ---
 
-## 💰 Budget & Resource Planning
+## Budget & Resource Planning
 
-### Cost Estimation Template
+### Cost Estimation
 
-```
-LABOR COSTS
-Developer Hours:       ____ × $____/hr = $______
-QA Hours:             ____ × $____/hr = $______
-DevOps Hours:         ____ × $____/hr = $______
-Management Hours:     ____ × $____/hr = $______
-                      Subtotal Labor: $______
-
-INFRASTRUCTURE COSTS
-Staging environment:                  $______/month × ___ = $______
-Additional monitoring:                $______/month × ___ = $______
-Performance testing tools:                                  $______
-                      Subtotal Infrastructure:            $______
-
-EXTERNAL COSTS (if applicable)
-Consultant fees:                                           $______
-Training:                                                   $______
-External code review:                                       $______
-                      Subtotal External:                   $______
-
-CONTINGENCY (20%)
-                      Contingency:                         $______
-
-                      GRAND TOTAL:                         $______
-```
+Allocate resources based on team size and number of hops.
 
 ### Resource Planning
 
-**Time Allocation Example (4-Hop Upgrade):**
-
-```
-Week 1: Hop 1
-- 2 developers × 20 hours = 40 hours
-- 1 QA × 10 hours = 10 hours
-- 1 DevOps × 5 hours = 5 hours
-Total: 55 hours
-
-Week 2: Monitoring
-- 1 developer × 5 hours = 5 hours
-- 1 DevOps × 5 hours = 5 hours
-Total: 10 hours
-
-[Repeat for each hop + monitoring week]
-
-Total Project: ___ hours
-```
+Distribute work across hops, with monitoring periods between each.
 
 ---
 
-## 📝 Templates & Checklists
+## Templates & Checklists
 
 ### Pre-Hop Checklist
 
@@ -896,7 +814,7 @@ Total Project: ___ hours
 
 ---
 
-## 🎓 Lessons from Successful Multi-Hop Upgrades
+## Lessons from Successful Multi-Hop Upgrades
 
 ### What Works
 
@@ -964,7 +882,7 @@ Total Project: ___ hours
 
 ---
 
-## 🔗 Related Resources
+## Related Resources
 
 - **Breaking Changes:** `reference/breaking-changes-by-version.md`
 - **Testing Checklist:** `reference/testing-checklist.md`
@@ -974,7 +892,7 @@ Total Project: ___ hours
 
 ---
 
-**Last Updated:** November 1, 2025  
-**Rails Versions:** 7.0.x → 8.1.1
+**Last Updated:** November 1, 2025
+**Rails Versions:** 6.0.x → 8.1.1
 
 **Remember:** Multi-hop upgrades are marathons, not sprints. Take your time, test thoroughly, and deploy between each hop. Your future self will thank you! 🚀

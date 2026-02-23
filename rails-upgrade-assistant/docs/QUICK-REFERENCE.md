@@ -1,12 +1,12 @@
 ---
 title: "Rails Upgrade Quick Reference - All Versions"
-description: "Fast lookup reference for Rails upgrades covering commands, breaking changes, troubleshooting, and multi-hop strategies for versions 7.0 through 8.1"
+description: "Fast lookup reference for Rails upgrades covering commands, breaking changes, troubleshooting, and multi-hop strategies for versions 6.0 through 8.1"
 type: "quick-reference"
 audience: "users"
 purpose: "fast-lookup"
-rails_versions: "7.0.x to 8.1.1"
+rails_versions: "6.0.x to 8.1.1"
 read_time: "10-15 minutes"
-breaking_changes_total: 71
+breaking_changes_total: 106
 tags:
   - quick-reference
   - commands
@@ -23,7 +23,7 @@ copyright: Copyright (c) 2025 [Mario Alberto Chávez Cárdenas]
 
 # ⚡ Rails Upgrade Quick Reference
 
-**Quick Reference for Rails 7.0 → 8.1**  
+**Quick Reference for Rails 6.0 → 8.1**  
 **Version:** 1.0 | **Last Updated:** November 1, 2025
 
 ---
@@ -33,6 +33,8 @@ copyright: Copyright (c) 2025 [Mario Alberto Chávez Cárdenas]
 This quick reference contains commands, checklists, and breaking changes for all supported Rails upgrades. Jump directly to your target version section:
 
 - **[Common Commands](#-common-commands-all-versions)** - Works for any version
+- **[Rails 6.1](#-upgrading-to-rails-61-from-60)** - 6.0 → 6.1 Quick Ref
+- **[Rails 7.0](#-upgrading-to-rails-70-from-61)** - 6.1 → 7.0 Quick Ref
 - **[Rails 7.1](#-upgrading-to-rails-71-from-70)** - 7.0 → 7.1 Quick Ref
 - **[Rails 7.2](#-upgrading-to-rails-72-from-71)** - 7.1 → 7.2 Quick Ref
 - **[Rails 8.0](#-upgrading-to-rails-80-from-72)** - 7.2 → 8.0 Quick Ref
@@ -153,9 +155,231 @@ psql myapp_development < backup.sql
 
 ---
 
+## 🎯 Upgrading to Rails 6.1 (from 6.0)
+
+**Difficulty:** ⭐⭐ Medium | **Breaking Changes:** 18
+
+### Top 5 Breaking Changes
+
+#### 1. Active Storage Default Service
+
+```ruby
+# config/storage.yml + config/environments/*.rb
+
+# NEW ✅ (required)
+config.active_storage.service = :local  # Must be explicitly set
+```
+
+**Action:** Ensure `active_storage.service` is set in all environments.
+
+---
+
+#### 2. Per-Database Connection Handling
+
+```ruby
+# config/database.yml
+
+# NEW ✅ Multi-database support improved
+production:
+  primary:
+    <<: *default
+    database: myapp_production
+  replica:
+    <<: *default
+    database: myapp_production
+    replica: true
+```
+
+**Action:** Review database configuration for multi-database support.
+
+---
+
+#### 3. `form_with` Generates Remote Forms by Default
+
+```ruby
+# config/application.rb
+
+# Rails 6.1: form_with generates local forms by default
+config.action_view.form_with_generates_remote_forms = false
+```
+
+**Action:** Verify form behavior; `form_with` now defaults to `local: true`.
+
+---
+
+#### 4. Active Record `where.not` Changes
+
+```ruby
+# OLD ❌ (Rails 6.0 - generates NOR)
+User.where.not(role: "admin", active: true)
+
+# NEW ✅ (Rails 6.1 - generates NAND)
+User.where.not(role: "admin").where.not(active: true)
+```
+
+**Action:** Review `where.not` with multiple conditions for logic changes.
+
+---
+
+#### 5. Autoloading with Zeitwerk
+
+```ruby
+# config/application.rb
+
+# NEW ✅ (required in 6.1)
+config.autoloader = :zeitwerk
+```
+
+**Action:** Ensure classic autoloader references are removed; Zeitwerk is now required.
+
+---
+
+### Detection Commands (6.0 → 6.1)
+
+```bash
+# Find classic autoloader references
+grep -r "classic" config/ | grep autoload
+
+# Find form_with remote usage
+grep -r "form_with.*remote" app/views/
+
+# Find where.not with multiple conditions
+grep -rn "where\.not(" app/models/
+
+# Find Active Storage service config
+grep -r "active_storage.service" config/
+```
+
+### Key Takeaways (6.0 → 6.1)
+
+1. **Zeitwerk autoloader** required (no more classic)
+2. **form_with** defaults to `local: true`
+3. **where.not** logic changed (NOR to NAND)
+4. **Active Storage** service must be explicitly configured
+5. **Per-database connection** handling improved
+
+---
+
+## 🎯 Upgrading to Rails 7.0 (from 6.1)
+
+**Difficulty:** ⭐⭐⭐ Hard | **Breaking Changes:** 17
+
+### Top 5 Breaking Changes
+
+#### 1. Webpacker Removed, Import Maps Default
+
+```ruby
+# Gemfile
+
+# OLD ❌ REMOVE
+gem "webpacker"
+
+# NEW ✅ (choose one)
+gem "importmap-rails"    # Default
+gem "jsbundling-rails"   # If you need bundling
+gem "cssbundling-rails"  # If you need CSS bundling
+```
+
+**Action:** Migrate from Webpacker to importmap-rails or jsbundling-rails.
+
+---
+
+#### 2. New Framework Defaults
+
+```ruby
+# config/application.rb
+
+# NEW ✅
+config.load_defaults 7.0
+```
+
+**Key changes with 7.0 defaults:**
+- `config.action_controller.raise_on_open_redirects = true`
+- `config.active_support.key_generator_hash_digest_class = OpenSSL::Digest::SHA256`
+- `config.active_support.hash_digest_class = OpenSSL::Digest::SHA256`
+
+**Action:** Review all 7.0 defaults carefully; some may break existing behavior.
+
+---
+
+#### 3. Spring Removed from Default
+
+```ruby
+# Gemfile
+
+# OLD ❌ (no longer default)
+gem "spring"
+gem "spring-watcher-listen"
+
+# NEW ✅
+# Spring removed from default Gemfile
+# Can still use if desired
+```
+
+**Action:** Remove Spring gems unless explicitly needed.
+
+---
+
+#### 4. ActionDispatch::Response#content_type Now Includes Charset
+
+```ruby
+# OLD ❌ (Rails 6.1)
+response.content_type  #=> "text/html"
+
+# NEW ✅ (Rails 7.0)
+response.content_type  #=> "text/html; charset=utf-8"
+```
+
+**Action:** Update any code comparing `content_type` to a plain MIME type.
+
+---
+
+#### 5. ActiveRecord::Base.connection_handlers Deprecated
+
+```ruby
+# OLD ❌ (deprecated)
+ActiveRecord::Base.connection_handlers
+
+# NEW ✅
+# Use connects_to and connected_to APIs instead
+```
+
+**Action:** Migrate to `connects_to` / `connected_to` for multi-database.
+
+---
+
+### Detection Commands (6.1 → 7.0)
+
+```bash
+# Find Webpacker usage
+grep -r "webpacker" Gemfile config/ app/
+
+# Find Spring references
+grep -r "spring" Gemfile bin/
+
+# Find content_type comparisons
+grep -rn "content_type.*==" app/ test/ spec/
+
+# Find connection_handlers usage
+grep -r "connection_handlers" app/ lib/ config/
+
+# Find open redirect patterns
+grep -rn "redirect_to.*params" app/controllers/
+```
+
+### Key Takeaways (6.1 → 7.0)
+
+1. **Webpacker removed** - migrate to importmap or jsbundling
+2. **Framework defaults** changed significantly
+3. **Spring** removed from default Gemfile
+4. **content_type** now includes charset
+5. **connection_handlers** deprecated for connects_to/connected_to
+
+---
+
 ## 🎯 Upgrading to Rails 7.1 (from 7.0)
 
-**Difficulty:** ⭐⭐ Medium | **Time:** 2-4 hours | **Breaking Changes:** 12
+**Difficulty:** ⭐⭐ Medium | **Breaking Changes:** 12
 
 ### Top 5 Breaking Changes
 
@@ -297,7 +521,7 @@ grep -r "force_ssl\|SSL" config/
 
 ## 🎯 Upgrading to Rails 7.2 (from 7.1)
 
-**Difficulty:** ⭐⭐⭐ Hard | **Time:** 4-6 hours | **Breaking Changes:** 38
+**Difficulty:** ⭐⭐⭐ Hard | **Breaking Changes:** 38
 
 ### Top 5 Breaking Changes
 
@@ -492,7 +716,7 @@ grep -r "fixture_path[^s]" spec/ test/
 
 ## 🎯 Upgrading to Rails 8.0 (from 7.2)
 
-**Difficulty:** ⭐⭐⭐⭐ Very Hard | **Time:** 6-8 hours | **Breaking Changes:** 13
+**Difficulty:** ⭐⭐⭐⭐ Very Hard | **Breaking Changes:** 13
 
 ### Top 5 Breaking Changes
 
@@ -717,7 +941,7 @@ grep -r "ConnectionPool#connection" app/ lib/
 
 ## 🎯 Upgrading to Rails 8.1 (from 8.0)
 
-**Difficulty:** ⭐ Easy | **Time:** 2-4 hours | **Breaking Changes:** 8
+**Difficulty:** ⭐ Easy | **Breaking Changes:** 8
 
 ### Top 5 Breaking Changes
 
@@ -977,9 +1201,9 @@ chmod +x bin/bundler-audit
 **You CANNOT skip versions!** Rails upgrades must be sequential:
 
 ```
-✅ Correct:  7.0 → 7.1 → 7.2 → 8.0 → 8.1
+✅ Correct:  6.0 → 6.1 → 7.0 → 7.1 → 7.2 → 8.0 → 8.1
+❌ Wrong:    6.0 → 7.0 (skips 6.1)
 ❌ Wrong:    7.0 → 8.0 (skips 7.1, 7.2)
-❌ Wrong:    7.1 → 8.0 (skips 7.2)
 ❌ Wrong:    7.0 → 7.2 (skips 7.1)
 ```
 
@@ -990,31 +1214,17 @@ chmod +x bin/bundler-audit
 3. **Monitor for 24-48 hours** before next hop
 4. **Test thoroughly** at each step
 
-### Example: 7.0 → 8.1 (4 Hops)
+### Example: 6.0 → 8.1 (6 Hops)
 
-**Timeline: 2-3 weeks**
+**Complete each hop fully before starting the next.**
 
 ```
-Week 1:
-  Day 1-2:   7.0 → 7.1 (implement + test)
-  Day 3:     Deploy to staging
-  Day 4-5:   Deploy to production + monitor
-
-Week 2:
-  Day 1-2:   7.1 → 7.2 (implement + test)
-  Day 3:     Deploy to staging
-  Day 4-5:   Deploy to production + monitor
-
-Week 3:
-  Day 1-3:   7.2 → 8.0 (implement + test, more complex)
-  Day 4:     Deploy to staging
-  Day 5:     Deploy to production + monitor
-
-Week 4:
-  Day 1:     8.0 → 8.1 (implement + test, easy)
-  Day 2:     Deploy to staging
-  Day 3:     Deploy to production + monitor
-  Day 4-5:   Final verification + documentation
+Hop 1: 6.0 → 6.1 (implement + test + deploy + monitor)
+Hop 2: 6.1 → 7.0 (implement + test + deploy + monitor)
+Hop 3: 7.0 → 7.1 (implement + test + deploy + monitor)
+Hop 4: 7.1 → 7.2 (implement + test + deploy + monitor)
+Hop 5: 7.2 → 8.0 (implement + test + deploy + monitor)
+Hop 6: 8.0 → 8.1 (implement + test + deploy + monitor)
 ```
 
 ### Multi-Hop Checklist
@@ -1262,6 +1472,8 @@ bin/rails test && echo "✅ All tests pass"
 
 ### Version-Specific Guides
 
+- **Rails 6.0 → 6.1:** `version-guides/upgrade-6.0-to-6.1.md`
+- **Rails 6.1 → 7.0:** `version-guides/upgrade-6.1-to-7.0.md`
 - **Rails 7.0 → 7.1:** `version-guides/upgrade-7.0-to-7.1.md`
 - **Rails 7.1 → 7.2:** `version-guides/upgrade-7.1-to-7.2.md`
 - **Rails 7.2 → 8.0:** `version-guides/upgrade-7.2-to-8.0.md`
@@ -1359,9 +1571,9 @@ After any upgrade, verify these items:
 ---
 
 **Quick Reference Version:** 1.0  
-**Rails Versions Covered:** 7.0.x → 8.1.1  
+**Rails Versions Covered:** 6.0.x → 8.1.1  
 **Last Updated:** November 1, 2025  
-**Created From:** 4 version-specific quick reference files
+**Created From:** 6 version-specific quick reference files
 
 ---
 

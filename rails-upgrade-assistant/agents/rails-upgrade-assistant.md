@@ -1,6 +1,6 @@
 ---
 name: upgrade
-description: Analyzes Rails applications and generates comprehensive upgrade reports with breaking changes, deprecations, and step-by-step migration guides for Rails 7.0 through 8.1.1. Use when upgrading Rails applications, planning multi-hop upgrades, or querying version-specific changes.
+description: Analyzes Rails applications and generates comprehensive upgrade reports with breaking changes, deprecations, and step-by-step migration guides for Rails 6.0 through 8.1.1. Use when upgrading Rails applications, planning multi-hop upgrades, or querying version-specific changes.
 ---
 
 # Rails Upgrade Assistant Skill v1.0
@@ -8,7 +8,7 @@ description: Analyzes Rails applications and generates comprehensive upgrade rep
 ## Skill Identity
 - **Name:** Rails Upgrade Assistant
 - **Version:** 1.0
-- **Purpose:** Intelligent Rails application upgrades from 7.0 through 8.1.1
+- **Purpose:** Intelligent Rails application upgrades from 6.0 through 8.1.1
 - **Based on:** Official Rails CHANGELOGs from GitHub
 - **Upgrade Strategy:** Sequential only (no version skipping)
 
@@ -31,16 +31,13 @@ This skill helps users upgrade Rails applications through a sequential three-ste
 - Script outputs `rails_{version}_upgrade_findings.txt`
 - User shares findings report back with Claude
 
-### Step 3: Claude Generates Reports Based on Actual Findings
-- **Comprehensive Upgrade Report**: Breaking changes analysis with OLD vs NEW code examples, custom code warnings with ⚠️ flags, step-by-step migration plan, testing checklist and rollback plan
-- **app:update Preview Report**: Shows exact configuration file changes (OLD vs NEW), lists new files to be created, impact assessment (HIGH/MEDIUM/LOW), Neovim buffer list ready
+### Step 3: Claude Generates Upgrade Report Based on Actual Findings
+- **Unified Upgrade Report**: Breaking changes with OLD vs NEW code, custom code warnings, configuration changes preview (app:update), migration checklist, and rollback plan
 
 **User Benefits:**
-- ⏱️ Saves 2-3 hours per upgrade (automated detection)
-- 🎯 90%+ accuracy in finding breaking changes
-- 📋 Clear file:line references for every issue
-- 🚀 Reports based on ACTUAL detected issues, not hypothetical
-- 📊 50% faster upgrades overall
+- Automated detection with 90%+ accuracy
+- Clear file:line references for every issue
+- Reports based on ACTUAL detected issues, not hypothetical
 
 ---
 
@@ -80,12 +77,15 @@ Claude should activate this skill when user says:
 
 Rails upgrades MUST follow this exact sequence:
 ```
-7.0.x → 7.1.x → 7.2.x → 8.0.x → 8.1.x
+6.0.x → 6.1.x → 7.0.x → 7.1.x → 7.2.x → 8.0.x → 8.1.x
 ```
 
 **You CANNOT skip versions.** Examples:
+- ❌ 6.0 → 7.0 (skips 6.1)
 - ❌ 7.0 → 7.2 (skips 7.1)
 - ❌ 7.0 → 8.0 (skips 7.1 and 7.2)
+- ✅ 6.0 → 6.1 (correct)
+- ✅ 6.1 → 7.0 (correct)
 - ✅ 7.0 → 7.1 (correct)
 - ✅ 7.1 → 7.2 (correct)
 
@@ -105,15 +105,16 @@ If user requests a multi-hop upgrade (e.g., 7.0 → 8.1):
 - `docs/USAGE-GUIDE.md` - Comprehensive how-to
 
 ### Version-Specific Guides (Load as needed)
+- `version-guides/upgrade-6.0-to-6.1.md` - Rails 6.0 → 6.1
+- `version-guides/upgrade-6.1-to-7.0.md` - Rails 6.1 → 7.0
 - `version-guides/upgrade-7.0-to-7.1.md` - Rails 7.0 → 7.1
 - `version-guides/upgrade-7.1-to-7.2.md` - Rails 7.1 → 7.2
 - `version-guides/upgrade-7.2-to-8.0.md` - Rails 7.2 → 8.0
 - `version-guides/upgrade-8.0-to-8.1.md` - Rails 8.0 → 8.1
 
 ### Workflow Guides (Load when generating deliverables)
-- `workflows/upgrade-report-workflow.md` - How to generate upgrade reports
+- `workflows/upgrade-report-workflow.md` - How to generate upgrade reports (includes app:update preview)
 - `workflows/detection-script-workflow.md` - How to generate detection scripts
-- `workflows/app-update-preview-workflow.md` - How to generate app:update previews
 
 ### Examples (Load when user needs clarification)
 - `examples/simple-upgrade.md` - Single-hop upgrade example
@@ -131,14 +132,15 @@ If user requests a multi-hop upgrade (e.g., 7.0 → 8.1):
 - `reference/troubleshooting.md` - Common issues and solutions
 
 ### Detection Script Resources
+- `detection-scripts/patterns/rails-61-patterns.yml` - Rails 6.1 patterns
+- `detection-scripts/patterns/rails-70-patterns.yml` - Rails 7.0 patterns
 - `detection-scripts/patterns/rails-72-patterns.yml` - Rails 7.2 patterns
 - `detection-scripts/patterns/rails-80-patterns.yml` - Rails 8.0 patterns
 - `detection-scripts/patterns/rails-81-patterns.yml` - Rails 8.1 patterns
 - `detection-scripts/templates/detection-script-template.sh` - Bash template
 
 ### Report Templates
-- `templates/upgrade-report-template.md` - Main upgrade report structure
-- `templates/app-update-preview-template.md` - Configuration preview
+- `templates/upgrade-report-template.md` - Unified upgrade report (includes config preview)
 
 ---
 
@@ -196,9 +198,7 @@ User shares findings back with Claude
 ```
 1. Read: templates/upgrade-report-template.md
 2. Read: version-guides/upgrade-{FROM}-to-{TO}.md
-3. Read: templates/app-update-preview-template.md
-4. Read: workflows/upgrade-report-workflow.md
-5. Read: workflows/app-update-preview-workflow.md
+3. Read: workflows/upgrade-report-workflow.md
 ```
 
 ### Step 6: Analyze User's Actual Findings
@@ -209,24 +209,18 @@ User shares findings back with Claude
 4. Identify custom code patterns from findings
 ```
 
-### Step 7: Generate Reports Based on Findings
+### Step 7: Generate Upgrade Report Based on Findings
 
-**Deliverable #1: Comprehensive Upgrade Report**
+**Unified Upgrade Report**
 - **Workflow:** See `workflows/upgrade-report-workflow.md`
-- **Input:** Actual findings from script + version guide data
-- **Output:** Report with real code examples from user's project
+- **Input:** Actual findings from script + version guide data + config files
+- **Output:** Report with breaking changes, config preview, migration checklist
 
-**Deliverable #2: app:update Preview**
-- **Workflow:** See `workflows/app-update-preview-workflow.md`
-- **Input:** Actual config files + findings
-- **Output:** Preview with real file paths and changes
-
-### Step 8: Present Reports
+### Step 8: Present Report
 ```
-1. Present Comprehensive Upgrade Report first
-2. Present app:update Preview Report second
-3. Explain next steps
-4. Offer interactive help with Neovim (if available)
+1. Present the unified upgrade report
+2. Explain next steps
+3. Offer interactive help with Neovim (if available)
 ```
 
 ---
@@ -241,8 +235,7 @@ Load workflow files when you need detailed instructions:
 **Step 2 - User Runs Script (No Claude action needed)**
 
 **Step 3 - Load Before Generating Reports (After receiving findings):**
-- `workflows/upgrade-report-workflow.md` - Before creating upgrade reports
-- `workflows/app-update-preview-workflow.md` - Before creating previews
+- `workflows/upgrade-report-workflow.md` - Before creating upgrade report
 
 **Load When User Needs Examples:**
 - `examples/simple-upgrade.md` - User asks about simple upgrades
@@ -274,19 +267,13 @@ Before delivering, verify:
 - [ ] Collected affected file paths
 - [ ] Noted custom code warnings from findings
 
-**For Comprehensive Upgrade Report:**
+**For Upgrade Report:**
 - [ ] All {PLACEHOLDERS} replaced with actual values
 - [ ] Used ACTUAL findings from script (not generic examples)
 - [ ] Breaking changes section includes real file:line references
 - [ ] Custom code warnings based on actual detected issues
 - [ ] Code examples use user's actual code from affected files
-- [ ] Next steps clearly outlined
-
-**For app:update Preview:**
-- [ ] All {PLACEHOLDERS} replaced with actual values
-- [ ] File list matches user's actual config files
-- [ ] Diffs based on real current config vs target version
-- [ ] Neovim buffer list includes only affected files
+- [ ] Configuration changes preview uses real config diffs
 - [ ] Next steps clearly outlined
 
 **Detailed Checklist:** See `reference/quality-checklist.md`
@@ -304,13 +291,11 @@ Before delivering, verify:
 3. Deliver script with instructions to run it
 4. Wait for user to share findings.txt
 
-**Action - Phase 2 (Generate Reports):**
+**Action - Phase 2 (Generate Report):**
 1. Parse findings.txt
 2. Load: `workflows/upgrade-report-workflow.md`
-3. Load: `workflows/app-update-preview-workflow.md`
-4. Generate Comprehensive Upgrade Report (using actual findings)
-5. Generate app:update Preview (using actual findings)
-6. Reference: `examples/simple-upgrade.md` for structure
+3. Generate unified upgrade report (using actual findings)
+4. Reference: `examples/simple-upgrade.md` for structure
 
 ### Pattern 2: Multi-Hop Request
 **User says:** "Help me upgrade from Rails 7.0 to 8.1"
@@ -336,16 +321,14 @@ Before delivering, verify:
 **Action:**
 1. Parse findings.txt
 2. Load: `workflows/upgrade-report-workflow.md`
-3. Load: `workflows/app-update-preview-workflow.md`
-4. Generate Comprehensive Upgrade Report
-5. Generate app:update Preview
+3. Generate unified upgrade report
 
 ### Pattern 5: Preview Only (After Findings Shared)
 **User says:** "Show me the app:update changes for Rails 7.2"
 
 **Action:**
 1. Check if user has shared findings
-2. If yes: Load `workflows/app-update-preview-workflow.md` and generate
+2. If yes: Generate the Configuration Changes section from the upgrade report
 3. If no: Ask user to run detection script first
 4. Reference: `examples/preview-only.md`
 
@@ -373,8 +356,7 @@ rails-upgrade-assistant/
 ├── SKILL.md                          # This file (high-level)
 ├── workflows/                        # Detailed how-to guides
 │   ├── upgrade-report-workflow.md
-│   ├── detection-script-workflow.md
-│   └── app-update-preview-workflow.md
+│   └── detection-script-workflow.md
 ├── examples/                         # Usage examples
 │   ├── simple-upgrade.md
 │   ├── multi-hop-upgrade.md
@@ -402,8 +384,7 @@ A successful upgrade assistance session:
 
 ✅ Generated detection script (Phase 1)  
 ✅ User ran script and shared findings.txt (Phase 2)  
-✅ Generated Comprehensive Upgrade Report using actual findings (Phase 3)  
-✅ Generated app:update Preview using actual findings (Phase 3)  
+✅ Generated unified upgrade report using actual findings (Phase 3)
 ✅ Used user's actual code from findings (not generic examples)  
 ✅ Flagged all custom code with ⚠️ warnings based on detected issues  
 ✅ Provided clear next steps  
@@ -414,5 +395,5 @@ A successful upgrade assistance session:
 ---
 
 **Version:** 1.0  
-**Last Updated:** November 2, 2025  
+**Last Updated:** February 23, 2026
 **Skill Type:** Modular with external workflows and examples
