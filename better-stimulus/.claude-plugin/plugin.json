@@ -1,0 +1,9 @@
+{
+    "name": "better-stimulus",
+    "version": "1.0.0",
+    "description": "Apply opinionated StimulusJS best practices from betterstimulus.com — patterns for writing, reviewing, and refactoring Stimulus controllers",
+    "author": {
+        "name": "Mario Alberto Chávez",
+        "email": "mario@maquina.app"
+    }
+}

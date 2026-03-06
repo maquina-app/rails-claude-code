@@ -1,0 +1,9 @@
+{
+    "name": "mvp-creator",
+    "version": "1.0.0",
+    "description": "Create comprehensive MVP documentation for Rails applications — research reports, business plans, brand guides, technical guides, and Claude setup",
+    "author": {
+        "name": "Mario Alberto Chávez",
+        "email": "mario@maquina.app"
+    }
+}

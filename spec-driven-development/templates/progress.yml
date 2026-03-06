@@ -1,0 +1,67 @@
+# Spec-Driven Development Progress Tracker
+# Copy this file to sdd/progress.yml and fill in project name
+
+project: <your-project-name>
+created: <ISO-8601-date>
+updated: <ISO-8601-date>
+
+# Phase 1: Product Planning (run once per project)
+product_planning:
+  status: not_started  # not_started | in_progress | complete
+  mission: false       # true when sdd/product/mission.md exists
+  roadmap: false       # true when sdd/product/roadmap.md exists
+  tech_stack: false    # true when sdd/product/tech-stack.md exists
+
+# Current feature being developed
+current_spec:
+  name: null           # e.g., "2024-12-22-user-authentication"
+  path: null           # e.g., "sdd/specs/2024-12-22-user-authentication"
+  
+  phases:
+    # Phase 2: Shape Spec (gather requirements)
+    shape_spec:
+      status: not_started
+      requirements_gathered: false
+      visuals_analyzed: false
+      
+    # Phase 3: Write Spec (formal specification)
+    write_spec:
+      status: not_started
+      spec_created: false
+      
+    # Phase 4: Verify Spec (pre-implementation validation)
+    verify_spec:
+      status: not_started
+      verified: false
+      issues_found: 0
+      
+    # Phase 5: Create Tasks (task breakdown)
+    create_tasks:
+      status: not_started
+      tasks_created: false
+      task_count: 0
+      
+    # Phase 6: Generate Prompts (optional, for orchestration)
+    generate_prompts:
+      status: not_started
+      prompts_generated: false
+      prompt_count: 0
+      
+    # Phase 7: Implement (simple or orchestrated)
+    implement:
+      status: not_started
+      mode: null  # simple | orchestrated
+      tasks_completed: 0
+      tasks_total: 0
+      
+    # Phase 8: Final Verification (post-implementation)
+    verify_final:
+      status: not_started
+      tests_passed: false
+      roadmap_updated: false
+
+# History of completed features
+completed_specs: []
+  # Example of completed spec entry:
+  # - name: "2024-12-20-user-onboarding"
+  #   completed_date: "2024-12-21T15:30:00Z"

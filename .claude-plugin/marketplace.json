@@ -57,6 +57,42 @@
       },
       "category": "productivity",
       "tags": ["knowledge", "memory", "cli", "ai-conversations"]
+    },
+    {
+      "name": "mvp-creator",
+      "source": "./mvp-creator",
+      "description": "Create comprehensive MVP documentation for Rails applications — research reports, business plans, brand guides, technical guides, and Claude setup",
+      "version": "1.0.0",
+      "author": {
+        "name": "Mario Alberto Chávez",
+        "email": "mario@maquina.app"
+      },
+      "category": "productivity",
+      "tags": ["rails", "mvp", "documentation", "planning", "business"]
+    },
+    {
+      "name": "better-stimulus",
+      "source": "./better-stimulus",
+      "description": "Apply opinionated StimulusJS best practices from betterstimulus.com — patterns for writing, reviewing, and refactoring Stimulus controllers",
+      "version": "1.0.0",
+      "author": {
+        "name": "Mario Alberto Chávez",
+        "email": "mario@maquina.app"
+      },
+      "category": "development",
+      "tags": ["stimulus", "hotwire", "javascript", "best-practices", "rails"]
+    },
+    {
+      "name": "spec-driven-development",
+      "source": "./spec-driven-development",
+      "description": "A Rails-focused spec-driven development workflow for building features with AI agents through systematic planning and self-contained specs",
+      "version": "1.0.0",
+      "author": {
+        "name": "Mario Alberto Chávez",
+        "email": "mario@maquina.app"
+      },
+      "category": "development",
+      "tags": ["rails", "specs", "planning", "workflow", "ai-agents"]
     }
   ]
 }

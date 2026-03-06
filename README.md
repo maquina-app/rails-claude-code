@@ -13,6 +13,9 @@ A collection of Claude Code plugins for Ruby on Rails development.
 /plugin install rails-upgrade-assistant@maquina
 /plugin install maquina-ui-standards@maquina
 /plugin install recuerd0@maquina
+/plugin install mvp-creator@maquina
+/plugin install better-stimulus@maquina
+/plugin install spec-driven-development@maquina
 ```
 
 ---
@@ -25,6 +28,9 @@ A collection of Claude Code plugins for Ruby on Rails development.
 | [rails-upgrade-assistant](#2-rails-upgrade-assistant) | Rails 6.0→8.1 upgrade planning | 1.0.0 |
 | [maquina-ui-standards](#3-maquina-ui-standards) | UI components with maquina_components | 0.3.1.0 |
 | [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.0.0 |
+| [mvp-creator](#5-mvp-creator) | MVP documentation for Rails applications | 1.0.0 |
+| [better-stimulus](#6-better-stimulus) | StimulusJS best practices from betterstimulus.com | 1.0.0 |
+| [spec-driven-development](#7-spec-driven-development) | Spec-driven development workflow for Rails | 1.0.0 |
 
 ---
 
@@ -271,6 +277,153 @@ recuerd0/
 
 ---
 
+## 5. mvp-creator
+
+Create comprehensive **MVP documentation** for Rails applications through guided research and discovery.
+
+### What It Does
+
+Produces 5 deliverables for a new Rails application:
+
+| Deliverable | Purpose |
+|-------------|---------|
+| Research Report | Competitor analysis, market overview, feature comparison |
+| MVP Business Plan | Vision, features, user flows, success metrics |
+| Brand Guide | Logo, colors, typography, components, voice |
+| Technical Guide | Architecture, patterns, data models, code style |
+| Claude Setup | CLAUDE.md, .mcp.json, commands for Claude Desktop/Code |
+
+### Usage
+
+```
+> I have an idea for a project management app
+> Help me plan a SaaS for freelancers
+> Research competitors for a booking system
+> Create a business plan for my app idea
+> Design a brand for my Rails project
+```
+
+### Workflow
+
+```
+Topic/Idea → Research → Discovery Questions → Generate Deliverables → Handoff to SDD
+```
+
+### Package Contents
+
+```
+mvp-creator/
+├── agents/mvp-creator.md                        # Main skill
+├── QUICKSTART.md                                 # Quick reference
+├── scripts/init.sh                               # Project initialization
+└── references/
+    ├── rails-philosophy.md                       # 37signals patterns
+    ├── rails-ui-patterns.md                      # UI conventions
+    ├── rails-api-patterns.md                     # API patterns
+    ├── rails-implementation-patterns.md          # Implementation guide
+    └── deliverable-templates/                    # Output templates
+        ├── research-report.md
+        ├── mvp-business-plan.md
+        ├── brand-guide.md
+        ├── technical-guide.md
+        └── claude-setup.md
+```
+
+---
+
+## 6. better-stimulus
+
+Apply opinionated **StimulusJS best practices** sourced from [betterstimulus.com](https://www.betterstimulus.com). Use when writing, reviewing, or refactoring Stimulus controllers.
+
+### What It Covers
+
+| Topic | Description |
+|-------|-------------|
+| Architecture | Application controller, configurable controllers, late binding |
+| State management | Values API, targets, outlets, avoiding global state |
+| Lifecycle | Connect/disconnect patterns, lazy loading, cleanup |
+| Composition | Mixins, use-hooks, controller communication |
+| SOLID principles | Applied to Stimulus controllers |
+| Cookbook | Common patterns for modals, forms, validation, etc. |
+
+### Usage
+
+```
+> Write a Stimulus controller for a dropdown menu
+> Review this Stimulus controller against best practices
+> Refactor this controller to use the Values API
+> How should I handle state in Stimulus?
+```
+
+### Package Contents
+
+```
+better-stimulus/
+├── agents/better-stimulus.md          # Main skill
+└── references/
+    ├── cookbook.md                     # Common patterns
+    └── solid.md                       # SOLID principles for Stimulus
+```
+
+### Resources
+
+- [Better Stimulus](https://www.betterstimulus.com)
+- [julianrubisch/better-stimulus](https://github.com/julianrubisch/better-stimulus)
+
+---
+
+## 7. spec-driven-development
+
+A lightweight workflow for building production-quality **Rails features with AI agents** through systematic planning and self-contained specs.
+
+### What It Does
+
+| Feature | Description |
+|---------|-------------|
+| Feature shaping | Convert ideas into structured specs |
+| Task breakdown | Split specs into implementable tasks |
+| Standards discovery | Extract patterns from existing codebases |
+| Progress tracking | YAML-based status for specs and tasks |
+| Agent handoff | Self-contained specs ready for Claude Code |
+
+### Usage
+
+```
+> Initialize SDD for this project
+> Shape a spec for the notifications feature
+> Create tasks from the authentication spec
+> Show SDD status
+> Add a new spec for the billing module
+```
+
+### Workflow
+
+```
+Initialize → Shape Spec → Create Tasks → Hand off to Claude Code → Track Progress
+```
+
+### Package Contents
+
+```
+spec-driven-development/
+├── agents/spec-driven-development.md    # Main skill
+├── README.md                             # Full documentation
+├── QUICKSTART.md                         # Quick reference
+├── scripts/
+│   ├── init_sdd.sh                       # Initialize SDD structure
+│   ├── new_spec.sh                       # Create new spec
+│   └── status.sh                         # Show progress
+├── references/
+│   ├── rails-standards.md                # Rails conventions
+│   ├── hotwire-patterns.md               # Turbo/Stimulus patterns
+│   └── document-templates.md             # Spec templates
+└── templates/
+    ├── standard-template.md              # Spec template
+    └── progress.yml                      # Progress tracking
+```
+
+---
+
 ## Team Installation
 
 Add to your project's `.claude/settings.json` for automatic installation:
@@ -289,7 +442,10 @@ Add to your project's `.claude/settings.json` for automatic installation:
     "rails-simplifier@maquina",
     "rails-upgrade-assistant@maquina",
     "maquina-ui-standards@maquina",
-    "recuerd0@maquina"
+    "recuerd0@maquina",
+    "mvp-creator@maquina",
+    "better-stimulus@maquina",
+    "spec-driven-development@maquina"
   ]
 }
 ```
