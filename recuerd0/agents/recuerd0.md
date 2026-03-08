@@ -231,6 +231,24 @@ TRANSCRIPT
 
 ---
 
+## Import Context Files as Memories
+
+When the user asks to "import my CLAUDE.md", "scan for context files", "import project context", or similar — find context files in the project (CLAUDE.md, AGENTS.md, .cursorrules, .windsurfrules, etc.), split them into logical sections, check for duplicates, confirm with the user, and create memories.
+
+Tag each memory with `--source "import:<filename>"` for later identification.
+
+See [references/import-context.md](../references/import-context.md) for the full workflow, supported files list, splitting guidelines, and re-import logic.
+
+---
+
+## Memory Templates
+
+When the user asks to "document this feature", "analyze the auth system", "create a memory for the API", or similar — read the relevant source code, select an appropriate template (Feature Guide, Architecture Decision, API Reference, Coding Conventions, Debugging, or Onboarding), draft the memory, check for duplicates, and save with `--source "analysis:feature-name"`.
+
+See [references/memory-templates.md](../references/memory-templates.md) for the workflow, template selection table, and structure guidance for each template type.
+
+---
+
 ## Workflow Guidelines
 
 1. **Always parse JSON output** — extract `data`, check `success`, and use `breadcrumbs` to suggest next steps
