@@ -910,7 +910,7 @@ For simple text replacement without a spinner:
         min: Date.current,
         max: 3.months.from_now.to_date %>
   </div>
-  
+
   <%# Time slots - loaded via Turbo Frame %>
   <div data-form-part="group">
     <%= f.label :time_slot, data: { component: "label" } %>
@@ -920,6 +920,55 @@ For simple text replacement without a spinner:
           data: { component: "select" }, disabled: true %>
     <% end %>
   </div>
+</div>
+```
+
+### Searchable Select with Combobox Helper
+
+For form fields that need search/autocomplete, prefer the `combobox_simple` helper over a plain `<select>`:
+
+```erb
+<div data-form-part="group">
+  <%= f.label :category_id, data: { component: "label" } %>
+  <%= combobox_simple(
+    options: @categories.map { |c| { value: c.id, label: c.name } },
+    value: @product.category_id,
+    name: "product[category_id]",
+    placeholder: "Select category...",
+    search_placeholder: "Search categories..."
+  ) %>
+  <% if @product.errors[:category_id].any? %>
+    <p data-form-part="error"><%= @product.errors[:category_id].first %></p>
+  <% end %>
+</div>
+```
+
+### Date Picker Component in Forms
+
+For date fields that need a calendar popover instead of the browser's native date input:
+
+```erb
+<div data-form-part="group">
+  <%= f.label :scheduled_at, data: { component: "label" } %>
+  <%= render "components/date_picker",
+    selected: @event.scheduled_at,
+    input_name: "event[scheduled_at]",
+    min_date: Date.current,
+    placeholder: "Pick a date",
+    required: true %>
+</div>
+
+<%# Range selection (e.g., booking check-in/check-out) %>
+<div data-form-part="group">
+  <%= f.label :dates, "Travel dates", data: { component: "label" } %>
+  <%= render "components/date_picker",
+    mode: :range,
+    selected: @booking.check_in,
+    selected_end: @booking.check_out,
+    input_name: "booking[check_in]",
+    input_name_end: "booking[check_out]",
+    min_date: Date.current,
+    placeholder: "Select dates" %>
 </div>
 ```
 

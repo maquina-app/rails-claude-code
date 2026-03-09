@@ -428,6 +428,18 @@ Data tables with header, body, and optional sorting.
 <% end %>
 ```
 
+**Helper (for simple data-driven tables):**
+```erb
+<%= simple_table(@users, columns: [
+  { header: "Name", accessor: :name },
+  { header: "Email", accessor: :email },
+  { header: "Status", accessor: ->(u) { u.status.titleize } },
+  { header: "Joined", accessor: ->(u) { l(u.created_at, format: :short) }, align: :right }
+]) %>
+```
+
+Use the partial approach for tables with custom cell content (badges, actions, links).
+
 ---
 
 ### Empty State
@@ -465,6 +477,20 @@ Placeholder for empty data states.
   <%= render "components/table" do %>...table...<% end %>
 <% else %>
   <%= render "components/empty" do %>...empty state...<% end %>
+<% end %>
+```
+
+**Helper shortcuts:**
+```erb
+<%# Search results empty state %>
+<%= empty_search_state(query: params[:q], reset_path: users_path) %>
+
+<%# Collection empty state %>
+<%= empty_list_state(resource_name: "invoices", new_path: new_invoice_path) %>
+
+<%# Custom empty state with action block %>
+<%= empty_state(title: "No projects yet", description: "Create your first project.", icon: :folder) do %>
+  <%= link_to "New Project", new_project_path, data: { component: "button", variant: "primary" } %>
 <% end %>
 ```
 
@@ -545,7 +571,7 @@ Navigation trail showing page hierarchy.
 - Multi-level pages
 - Show user's location
 
-**Structure:**
+**Structure (partial):**
 ```erb
 <%= render "components/breadcrumbs" do %>
   <%= render "components/breadcrumbs/list" do %>
@@ -562,6 +588,18 @@ Navigation trail showing page hierarchy.
     <% end %>
   <% end %>
 <% end %>
+```
+
+**Helper (preferred):**
+```erb
+<%# Simple breadcrumbs from a hash %>
+<%= breadcrumbs({ "Home" => root_path, "Users" => users_path }, @user.name) %>
+
+<%# Responsive — collapses middle items on overflow %>
+<%= responsive_breadcrumbs(
+  { "Home" => root_path, "Settings" => settings_path, "Team" => team_path },
+  "Members"
+) %>
 ```
 
 ---
@@ -618,6 +656,31 @@ Accessible dropdown with keyboard navigation.
 | `method` | HTTP method (`:delete`, etc.) |
 | `variant` | `:default`, `:destructive` |
 
+**Helper (preferred):**
+```erb
+<%# Simple — data-driven menu %>
+<%= dropdown_menu_simple "Actions", items: [
+  { label: "Edit", href: edit_item_path(@item), icon: :pencil },
+  { label: "Duplicate", href: duplicate_item_path(@item), icon: :copy },
+  { label: "Delete", href: item_path(@item), method: :delete, variant: :destructive, icon: :trash }
+] %>
+
+<%# Block form — full control with builder %>
+<%= dropdown_menu do |menu| %>
+  <% menu.trigger(variant: :outline) { "Options" } %>
+  <% menu.content(align: :end) do |content| %>
+    <% content.label("Actions") %>
+    <% content.item("Edit", href: edit_path, icon: :pencil) %>
+    <% content.item(href: duplicate_path, icon: :copy) do |item| %>
+      Duplicate
+      <% item.shortcut("⌘D") %>
+    <% end %>
+    <% content.separator %>
+    <% content.item("Delete", href: delete_path, method: :delete, variant: :destructive, icon: :trash) %>
+  <% end %>
+<% end %>
+```
+
 ---
 
 ### Pagination
@@ -650,6 +713,11 @@ Page navigation integrated with Pagy.
   </span>
   <%= pagination_nav(@pagy, :users_path, show_labels: false) %>
 <% end %>
+```
+
+**Custom Page Links:**
+```erb
+<%= link_to "Page 3", paginated_path(:users_path, @pagy, 3) %>
 ```
 
 ---
@@ -697,6 +765,25 @@ Single or multiple selection button group.
 | `type` | `:single`, `:multiple` | `:single` |
 | `variant` | `:default`, `:outline` | `:default` |
 | `size` | `:sm`, `:md`, `:lg` | `:md` |
+
+**Helper (preferred):**
+```erb
+<%# Simple — data-driven %>
+<%= toggle_group_simple(
+  items: [
+    { value: "list", icon: :list, aria_label: "List view" },
+    { value: "grid", icon: :grid, aria_label: "Grid view" }
+  ],
+  value: "list"
+) %>
+
+<%# Block form — custom content %>
+<%= toggle_group(type: :multiple, variant: :outline) do |group| %>
+  <% group.item(value: "bold", icon: :bold, aria_label: "Bold") %>
+  <% group.item(value: "italic", icon: :italic, aria_label: "Italic") %>
+  <% group.item(value: "underline", icon: :underline, aria_label: "Underline") %>
+<% end %>
+```
 
 ---
 
@@ -892,6 +979,33 @@ Searchable select with autocomplete functionality.
   search_placeholder: "Search countries..." %>
 ```
 
+**Helper (preferred):**
+```erb
+<%# Simple — data-driven %>
+<%= combobox_simple(
+  options: @categories.map { |c| { value: c.id, label: c.name } },
+  value: @product.category_id,
+  name: "product[category_id]",
+  placeholder: "Select category..."
+) %>
+
+<%# Block form — grouped options with custom content %>
+<%= combobox(name: "user[role]", value: @user.role) do |c| %>
+  <% c.content do |content| %>
+    <% content.input(placeholder: "Search roles...") %>
+    <% content.list do |list| %>
+      <% list.label("Standard") %>
+      <% list.option(value: "viewer") { "Viewer" } %>
+      <% list.option(value: "editor") { "Editor" } %>
+      <% list.separator %>
+      <% list.label("Privileged") %>
+      <% list.option(value: "admin") { "Admin" } %>
+    <% end %>
+    <% content.empty(text: "No roles found.") %>
+  <% end %>
+<% end %>
+```
+
 ---
 
 ### Toast
@@ -939,6 +1053,24 @@ Temporary notification messages.
 | `description` | String | `nil` | Toast description |
 | `duration` | Integer | `5000` | Auto-dismiss time in ms |
 | `dismissible` | Boolean | `true` | Show close button |
+
+**Helper (preferred for flash integration):**
+```erb
+<%# In layout — renders toasts for all flash messages %>
+<%= render "components/toaster" %>
+<%= toast_flash_messages %>
+
+<%# Exclude specific flash types %>
+<%= toast_flash_messages(exclude: [:timedout]) %>
+
+<%# Convenience methods for manual toasts %>
+<%= toast_success("Saved!", description: "Your changes have been saved.") %>
+<%= toast_error("Failed", description: "Could not save changes.") %>
+<%= toast_warning("Warning", description: "This action is irreversible.") %>
+<%= toast_info("Note", description: "New version available.") %>
+```
+
+**Flash-to-variant mapping (`FLASH_VARIANTS`):** `notice`/`success` → `:success`, `alert`/`error` → `:error`, `warning`/`warn` → `:warning`, `info` → `:info`
 
 ---
 

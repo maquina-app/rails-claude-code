@@ -22,44 +22,63 @@ Build production-quality Rails UIs with maquina_components — ERB partials styl
 ### Component Rendering
 
 ```erb
-<%# Partial components %>
+<%# Partial components (layout/structural) %>
 <%= render "components/card" do %>
   <%= render "components/card/header" do %>
     <%= render "components/card/title", text: "Title" %>
   <% end %>
 <% end %>
 
+<%# Helper-based (preferred for complex interactive components) %>
+<%= dropdown_menu_simple "Actions", items: [
+  { label: "Edit", href: edit_path, icon: :pencil },
+  { label: "Delete", href: delete_path, variant: :destructive, icon: :trash }
+] %>
+
 <%# Data-attribute components (forms) %>
 <%= f.text_field :email, data: { component: "input" } %>
 <%= f.submit "Save", data: { component: "button", variant: "primary" } %>
 ```
 
+### Helpers vs Partials
+
+Complex interactive components have **Ruby helper methods with builder patterns** — prefer these over composing multiple partials. Helpers exist for: Combobox, Dropdown Menu, Toggle Group, Table, Empty, Toast, Breadcrumbs, Pagination.
+
+- **`_simple` methods** — Data-driven one-liners (e.g., `combobox_simple`, `dropdown_menu_simple`, `toggle_group_simple`, `simple_table`)
+- **Block form** — Full builder control for custom content (e.g., `combobox do |c| ... end`)
+- **Partials** — Best for structural/layout components (Card, Alert, Badge, Sidebar)
+
+See [helpers-reference.md](references/helpers-reference.md) for complete API documentation.
+
 ### Decision Framework
 
-| Need | Component | Why |
-|------|-----------|-----|
-| Container with header/content/footer | **Card** | Structured content grouping |
-| Important message to user | **Alert** | Draws attention, semantic variants |
-| Status indicator | **Badge** | Compact, inline status |
-| Data display | **Table** | Structured rows/columns |
-| No data state | **Empty** | Consistent empty patterns |
-| User actions menu | **Dropdown Menu** | Accessible, keyboard-navigable |
-| Selection from options | **Toggle Group** | Visual, single/multi select |
-| Page location | **Breadcrumbs** | Navigation context |
-| Large result sets | **Pagination** | Pagy integration |
-| App navigation | **Sidebar** | Collapsible, persistent state |
-| Form inputs | **Form components** | Consistent styling via data attrs |
-| Inline date selection | **Calendar** | Always visible, single/range modes |
-| Date input field | **Date Picker** | Popover calendar, compact trigger |
-| Searchable selection | **Combobox** | Autocomplete, type-ahead search |
-| Temporary feedback | **Toast/Toaster** | Auto-dismiss notifications |
-| Statistics display | **Stats** | Cards and grids for metrics |
+| Need | Component | Helper? | Why |
+|------|-----------|---------|-----|
+| Container with header/content/footer | **Card** | — | Structured content grouping |
+| Important message to user | **Alert** | — | Draws attention, semantic variants |
+| Status indicator | **Badge** | — | Compact, inline status |
+| Data display | **Table** | `simple_table` | Structured rows/columns |
+| No data state | **Empty** | `empty_state` | Consistent empty patterns |
+| User actions menu | **Dropdown Menu** | `dropdown_menu_simple` | Accessible, keyboard-navigable |
+| Selection from options | **Toggle Group** | `toggle_group_simple` | Visual, single/multi select |
+| Page location | **Breadcrumbs** | `breadcrumbs` | Navigation context |
+| Large result sets | **Pagination** | `pagination_nav` | Pagy integration |
+| App navigation | **Sidebar** | — | Collapsible, persistent state |
+| Form inputs | **Form components** | — | Consistent styling via data attrs |
+| Inline date selection | **Calendar** | — | Always visible, single/range modes |
+| Date input field | **Date Picker** | — | Popover calendar, compact trigger |
+| Searchable selection | **Combobox** | `combobox_simple` | Autocomplete, type-ahead search |
+| Temporary feedback | **Toast/Toaster** | `toast_flash_messages` | Auto-dismiss notifications |
+| Statistics display | **Stats** | — | Cards and grids for metrics |
 
 ## File References
 
 | File | Content |
 |------|---------|
 | [component-catalog.md](references/component-catalog.md) | All components with props, variants, examples |
+| [helpers-reference.md](references/helpers-reference.md) | All 11 Ruby helper modules with complete APIs |
+| [stimulus-controllers.md](references/stimulus-controllers.md) | All Stimulus controllers with targets, values, methods |
+| [installation-guide.md](references/installation-guide.md) | Setup, CSS architecture, theme system, icon config |
 | [layout-patterns.md](references/layout-patterns.md) | Page structure, grids, responsive design |
 | [form-patterns.md](references/form-patterns.md) | Forms, validation, field groups |
 | [turbo-integration.md](references/turbo-integration.md) | Frames, Streams, Morph with components |
@@ -314,6 +333,17 @@ Use `icon_for` helper, which delegates to your app's icon system:
 ```erb
 <%= icon_for :check, class: "size-4" %>
 <%= icon_for :chevron_right, class: "size-4 text-muted-foreground" %>
+
+<%# Access built-in icons directly (bypasses your override) %>
+<%= builtin_icon_for :search, class: "size-4" %>
+```
+
+Override the icon system by defining `main_icon_svg_for` in `app/helpers/maquina_components_helper.rb`:
+
+```ruby
+def main_icon_svg_for(name)
+  heroicon(name.to_s)  # Return SVG string, or nil to fall back to built-ins
+end
 ```
 
 ### 7. Theme Variables

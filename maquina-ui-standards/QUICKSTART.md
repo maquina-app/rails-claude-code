@@ -34,6 +34,9 @@ Build Rails UIs with maquina_components — server-rendered ERB partials with Ta
 |------|---------|
 | `agents/maquina-ui-standards.md` | Core principles, decision framework |
 | `references/component-catalog.md` | All components with props and examples |
+| `references/helpers-reference.md` | All 11 Ruby helper modules with complete APIs |
+| `references/stimulus-controllers.md` | All Stimulus controllers reference |
+| `references/installation-guide.md` | Setup, CSS architecture, theme, icons |
 | `references/form-patterns.md` | Forms, validation, field groups |
 | `references/layout-patterns.md` | Grids, responsive, page structure |
 | `references/turbo-integration.md` | Frames, Streams, Morph patterns |
@@ -46,13 +49,15 @@ Build Rails UIs with maquina_components — server-rendered ERB partials with Ta
 - **Navigation:** Breadcrumbs, Dropdown Menu, Pagination
 - **Interactive:** Toggle Group, Calendar, Date Picker, Combobox, Toast
 - **Forms:** Button, Input, Textarea, Select, Checkbox, Radio, Switch
+- **Helpers:** Ruby helper methods with builder patterns for complex interactive components
 
 ## Quick Tips
 
 1. **Compose, don't configure** — Build UIs from small parts
-2. **Inline errors** — Show errors next to fields, not in lists
-3. **Data attributes** — Components identify via `data-component="..."`
-4. **Icons** — Use `icon_for :name, class: "size-4"`
-5. **Theme** — Colors via CSS variables (`--primary`, `--destructive`, etc.)
+2. **Use helpers for complex components** — `simple_table`, `combobox_simple`, `dropdown_menu_simple`, `toggle_group_simple` are one-liner shortcuts
+3. **Inline errors** — Show errors next to fields, not in lists
+4. **Data attributes** — Components identify via `data-component="..."`
+5. **Icons** — Use `icon_for :name, class: "size-4"`
+6. **Theme** — Colors via CSS variables (`--primary`, `--destructive`, etc.)
 
 Read the main skill file for complete guidelines.
