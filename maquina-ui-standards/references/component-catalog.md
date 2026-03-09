@@ -600,7 +600,16 @@ Navigation trail showing page hierarchy.
   { "Home" => root_path, "Settings" => settings_path, "Team" => team_path },
   "Members"
 ) %>
+
+<%# Responsive with forced collapse — show first + last only %>
+<%= responsive_breadcrumbs(
+  { "Home" => root_path, "Settings" => settings_path, "Team" => team_path },
+  "Members",
+  collapse_after: 2
+) %>
 ```
+
+**`collapse_after` parameter:** Forces collapse by item count, solving cases where CSS text truncation absorbs overflow before JS can detect it. `collapse_after: 2` = first + last only, `3` = first + one middle + last. Default `0` = pure overflow detection.
 
 ---
 

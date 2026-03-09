@@ -31,14 +31,29 @@ Generates breadcrumb navigation from a hash of links.
 <%= breadcrumbs({ "Home" => root_path, "Users" => users_path }, @user.name) %>
 ```
 
-### `responsive_breadcrumbs(links = {}, current_page = nil, css_classes: "")`
+### `responsive_breadcrumbs(links = {}, current_page = nil, css_classes: "", collapse_after: 0)`
 
-Same API as `breadcrumbs` but collapses middle items into a dropdown on overflow.
+Same API as `breadcrumbs` but collapses middle items into a dropdown on overflow. When `collapse_after` is set, also forces collapse by item count regardless of overflow.
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `links` | Hash | `{}` | `{ "Label" => path }` pairs |
+| `current_page` | String | `nil` | Current page label (not a link) |
+| `css_classes` | String | `""` | Additional CSS classes |
+| `collapse_after` | Integer | `0` | Max visible items (first + last count). `0` = pure overflow detection. `2` = show first + last only. `3` = first + one middle + last. |
 
 ```erb
+<%# Pure overflow detection (default) %>
 <%= responsive_breadcrumbs(
   { "Home" => root_path, "Settings" => settings_path, "Team" => team_path },
   "Members"
+) %>
+
+<%# Force collapse — always show first + last, collapse middle %>
+<%= responsive_breadcrumbs(
+  { "Home" => root_path, "Settings" => settings_path, "Team" => team_path },
+  "Members",
+  collapse_after: 2
 ) %>
 ```
 

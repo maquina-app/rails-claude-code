@@ -8,7 +8,7 @@ Reference for all Stimulus controllers provided by maquina_components. Controlle
 
 | Controller | Targets | Values | Key Behavior |
 |-----------|---------|--------|-------------|
-| `breadcrumb` | item, ellipsis, ellipsisSeparator | — | Responsive overflow, collapses middle items |
+| `breadcrumb` | item, ellipsis, ellipsisSeparator | collapseAfter | Responsive overflow, collapses middle items |
 | `calendar` | day, input, inputEnd, prevButton, nextButton, grid, caption | month, year, selected, selectedEnd, minDate, maxDate, mode, weekStartsOn | Date selection, keyboard nav, range support |
 | `combobox` | trigger, content, input, option, empty, label | value, name, placeholder | Popover API, type-ahead filtering |
 | `date-picker` | trigger, popover, calendar, input, inputEnd, display | mode, selected, selectedEnd, format, placeholder, placeholderRange | Wraps calendar in popover |
@@ -28,12 +28,25 @@ Responsive breadcrumb that collapses middle items into a dropdown when the conta
 
 **Targets:** `item`, `ellipsis`, `ellipsisSeparator`
 
+**Values:**
+
+| Value | Type | Default | Description |
+|-------|------|---------|-------------|
+| `collapseAfter` | Number | `0` | Force collapse when total items exceed this count. `0` = pure overflow detection. When set, first + last items always stay visible; excess middle items collapse into ellipsis. |
+
 **Behavior:**
-- Monitors `scrollWidth > clientWidth` to detect overflow
+- When `collapseAfter > 0` and total items exceed the threshold, force-collapses middle items by count (keeps first + last visible, hides excess middle items from end backwards)
+- When `collapseAfter` is `0` or omitted, uses pure overflow detection (`scrollWidth > clientWidth`)
+- Both modes can work together — count-based collapse runs first, then overflow detection handles remaining items
 - Hides items from the middle, keeping first and last visible
 - Creates a dropdown menu of hidden items on ellipsis click
 - Handles window resize dynamically
 - Escape key closes dropdown, click outside closes dropdown
+
+**`collapseAfter` semantics:**
+- `2` — show first + last, collapse all middle into ellipsis
+- `3` — show first + one middle + last, collapse the rest
+- `0` or omitted — current behavior (pure overflow-based)
 
 ---
 
