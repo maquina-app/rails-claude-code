@@ -86,6 +86,28 @@ See [helpers-reference.md](references/helpers-reference.md) for complete API doc
 
 ---
 
+## Design Philosophy
+
+Six principles that guide how to compose components into polished interfaces:
+
+1. **Restraint over decoration** — fewer elements, more refinement; whitespace is a feature, not wasted space
+2. **Typography carries hierarchy** — use weight contrast between headings and body text instead of relying on color or size alone
+3. **One strong color moment** — keep a neutral palette with one confident accent via OKLCH theme variables (`--primary`)
+4. **Spacing is structure** — consistent Tailwind spacing scale (`space-y-*`, `gap-*`) groups and separates content intentionally
+5. **Accessibility is non-negotiable** — WCAG AA contrast, visible focus indicators, semantic HTML, full keyboard navigation
+6. **No generic AI aesthetics** — avoid purple gradients, cookie-cutter card grids, and default font stacks; build with intention
+
+### Quality Bar
+
+Every screen should meet these standards before shipping:
+
+- Clean visual rhythm with intentional layout — no orphaned elements or uneven gaps
+- Obvious interactive affordances — hover, focus, and active states on all clickable elements
+- Graceful edge cases — empty states, loading indicators, and error feedback handled explicitly
+- Responsive without breakpoint artifacts — layouts adapt smoothly, no content overflow or collapse
+
+---
+
 ## Universal Component API
 
 All maquina_components partials follow a consistent API pattern. Understanding this enables flexible usage across your application.
@@ -484,6 +506,11 @@ Run through [spec-checklist.md](references/spec-checklist.md) before marking com
 | Mix icon libraries | Use `icon_for` consistently |
 | Nest components incorrectly | Follow documented composition |
 | Skip accessibility attributes | Include ARIA labels, roles |
+| Rainbow badges — random colors per status | Use semantic badge variants from the component system |
+| Disabled submit with no explanation | Show inline validation indicating what's missing |
+| Spinner for predictable layouts | Use skeleton screens; show spinner only after 300ms delay |
+| "Click here" links | Link text must describe the destination |
+| Equal-weight buttons in action groups | Establish primary/secondary/tertiary hierarchy |
 
 ---
 
