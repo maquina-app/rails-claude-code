@@ -368,11 +368,11 @@ completed_specs: []
 
 ## Commands
 
-These slash commands are available in Claude Code after running `bash scripts/init_sdd.sh`, which writes `.claude/commands/sdd-*.md` into the project root.
+These slash commands are provided directly by the spec-driven-development plugin — installing the plugin makes them available in Claude Code with no per-project setup. Run `/sdd-init` once per Rails project to bootstrap the `sdd/` directory.
 
 | Command | Action |
 |---------|--------|
-| `/sdd-init` | Initialize sdd/ with Rails standards + index.yml + all commands |
+| `/sdd-init` | Bootstrap sdd/ with Rails standards + index.yml + progress tracker |
 | `/sdd-plan` | Create/update product planning docs |
 | `/sdd-shape` | Shape spec: questions → codebase search → inject standards → write spec.md + references.md + standards.md |
 | `/sdd-tasks` | Create task groups with self-contained Claude Code prompts |
