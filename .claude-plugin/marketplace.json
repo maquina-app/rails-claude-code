@@ -86,7 +86,7 @@
       "name": "spec-driven-development",
       "source": "./spec-driven-development",
       "description": "A Rails-focused spec-driven development workflow for building features with AI agents through systematic planning and self-contained specs",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"
