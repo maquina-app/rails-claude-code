@@ -58,6 +58,7 @@ recuerd0 workspace create --name NAME [--description DESC]
 recuerd0 workspace update <id> [--name NAME] [--description DESC]
 recuerd0 workspace archive <id>
 recuerd0 workspace unarchive <id>
+recuerd0 workspace context <id> [--limit N] [--no-body] [--max-body-chars N]
 ```
 
 ### Memories
