@@ -1,0 +1,27 @@
+{
+  "description": "Recuerd0 auto-save hooks — capture session state to a recuerd0 workspace via the recuerd0 CLI.",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/recuerd0_stop_hook.sh",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/recuerd0_precompact_hook.sh",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}
