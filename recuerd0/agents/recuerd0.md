@@ -57,7 +57,8 @@ Before any `memory create`, you MUST:
    - **Strong match** (same topic, same scope, just evolved): use `recuerd0 memory version create --workspace <id> <memory_id> --content -` to add a new version. **Default to versioning** — recuerd0's whole versioning model exists for this. Preserve history.
    - **Wrong match** (the existing memory is incorrect, not just outdated): use `recuerd0 memory update --workspace <id> <memory_id>` to overwrite.
    - **No match**: only then call `recuerd0 memory create`.
-4. **After creation/update**: distill any raw `auto-save` memories that contributed to this curated memory and delete them (see Hook Coordination below).
+4. **Pick a category** from the four values in the Categories section above (`decision`, `discovery`, `preference`, `general`). Pass it via `--category` on create or version create.
+5. **After creation/update**: distill any raw `auto-save` memories that contributed to this curated memory and delete them (see Hook Coordination below).
 
 ### Examples
 
@@ -68,6 +69,7 @@ recuerd0 workspace context 1 --pretty
 recuerd0 search "auth strategy" --workspace 1 --pretty
 # Finds memory 42: "Auth strategy" — outdated
 recuerd0 memory version create --workspace 1 42 \
+  --category decision \
   --content - <<'EOF'
 # Auth strategy v2
 
@@ -86,6 +88,7 @@ recuerd0 memory create --workspace 1 \
   --title "FTS5 trigram tokenizer for substring search" \
   --tags "sqlite,fts5,search" \
   --source "claude-code-session" \
+  --category discovery \
   --content - <<'EOF'
 # FTS5 trigram tokenizer
 
@@ -115,19 +118,36 @@ Never delete an `auto-save` memory before its content has been distilled into a 
 
 ---
 
+## Categories
+
+Every memory carries a `category`, picked from a locked four-value enum. The server defaults new memories to `general` when no category is sent, but you should always pass `--category` explicitly on every `memory create` and `memory version create` so the choice is deliberate.
+
+| Value | Label | When to pick it |
+|---|---|---|
+| `decision` | Decision | Architecture choices, library picks, tradeoffs with stated reasoning |
+| `discovery` | Discovery | Non-obvious findings — gotchas, root causes, patterns, library quirks |
+| `preference` | Preference | User-stated rules ("always X", "never Y") |
+| `general` | General | Catch-all and default |
+
+**Picking heuristic**: if torn between two, prefer the more specific one — `discovery` over `general`, `decision` over `discovery`. `general` is a fallback, not a default.
+
+**Versions inherit** the parent memory's category unless you explicitly override with `--category` on `memory version create`.
+
+---
+
 ## Save Notice Convention
 
 Every successful capture must produce **one line** of user-facing output, in this format:
 
 ```
-✓ Saved to workspace <name> (id <ws_id>) as "<title>" (id <mem_id>) [<action>]
+✓ Saved to workspace <name> (id <ws_id>) as "<title>" [<category>] (id <mem_id>) [<action>]
 ```
 
 Where `<action>` is one of: `created`, `versioned`, `updated`. Examples:
 
 ```
-✓ Saved to workspace rails-patterns (id 1) as "FTS5 trigram tokenizer for substring search" (id 87) [created]
-✓ Saved to workspace rails-patterns (id 1) as "Auth strategy" (id 42) [versioned]
+✓ Saved to workspace rails-patterns (id 1) as "FTS5 trigram tokenizer for substring search" [discovery] (id 87) [created]
+✓ Saved to workspace rails-patterns (id 1) as "Auth strategy" [decision] (id 42) [versioned]
 ```
 
 Do not narrate the dedup process, the search results, or the workspace resolution unless something went wrong or the user asked. The one-liner is enough.
@@ -189,10 +209,10 @@ recuerd0 workspace context <id> [--limit N] [--no-body] [--max-body-chars N]
 ### Memories
 
 ```bash
-recuerd0 memory list [--workspace ID] [--page N]
+recuerd0 memory list [--workspace ID] [--page N] [--category CAT]
 recuerd0 memory show [--workspace ID] <memory_id>
-recuerd0 memory create [--workspace ID] [--title TITLE] [--content CONTENT | --content -] [--source SRC] [--tags tag1,tag2]
-recuerd0 memory update [--workspace ID] <memory_id> [--title T] [--content C | --content -] [--source S] [--tags T]
+recuerd0 memory create [--workspace ID] [--title TITLE] [--content CONTENT | --content -] [--source SRC] [--tags tag1,tag2] [--category CAT]
+recuerd0 memory update [--workspace ID] <memory_id> [--title T] [--content C | --content -] [--source S] [--tags T] [--category CAT]
 recuerd0 memory delete [--workspace ID] <memory_id>
 ```
 
@@ -202,13 +222,13 @@ recuerd0 memory delete [--workspace ID] <memory_id>
 ### Memory Versions
 
 ```bash
-recuerd0 memory version create [--workspace ID] <memory_id> [--title T] [--content C | --content -] [--source S] [--tags T]
+recuerd0 memory version create [--workspace ID] <memory_id> [--title T] [--content C | --content -] [--source S] [--tags T] [--category CAT]
 ```
 
 ### Search
 
 ```bash
-recuerd0 search <query> [--workspace ID] [--page N]
+recuerd0 search <query> [--workspace ID] [--page N] [--category CAT]
 ```
 
 Search is backed by SQLite FTS5 and supports operators:
@@ -342,11 +362,12 @@ What the user set out to accomplish.
    - **Title**: declarative, scoped, ≤80 chars. Lead with the conclusion ("FTS5 errors surface as ActiveRecord::StatementInvalid"), not the topic ("FTS5 stuff").
    - **Tags**: 3–6, lowercase, hyphenated. Aim for one domain tag (`auth`, `deploy`), one tech tag (`rails`, `sqlite`), one type tag (`decision`, `pattern`, `bugfix`).
    - **Source**: `claude-code-session` for proactive captures, `manual` for explicit user requests, `<project>-decision` for architecture-decision memories.
+   - **Category**: required. Pick from `decision`, `discovery`, `preference`, `general`. Lean toward the more specific choice — `general` is a fallback, not a default.
 
 5. **Save via the CLI** by piping the transcript through stdin:
 
 ```bash
-cat <<'TRANSCRIPT' | recuerd0 memory create --workspace <id> --title "<title>" --tags "tag1,tag2,tag3" --source "claude-code-session" --content -
+cat <<'TRANSCRIPT' | recuerd0 memory create --workspace <id> --title "<title>" --tags "tag1,tag2,tag3" --source "claude-code-session" --category decision --content -
 <transcript content>
 TRANSCRIPT
 ```
@@ -379,12 +400,13 @@ See [references/memory-templates.md](../references/memory-templates.md) for the 
 
 1. **Capture proactively** — watch for the signals in the When to Capture section. Don't wait to be asked.
 2. **Dedup before every write** — always run `workspace context` + `search` first. Default to `version create` over `memory create` when there's a strong match.
-3. **Route to the right workspace** — follow the Workspace Routing decision tree. Never silently dump into a default workspace. Create a new workspace if the project doesn't have one yet.
-4. **Announce every save in one line** — use the Save Notice Convention. No narration of the dedup or routing process unless something went wrong.
-5. **Clean up `auto-save` memories** — distill them into curated memories, then delete the raw originals.
-6. **Always parse JSON output** — extract `data`, check `success`, use `breadcrumbs` to discover follow-up actions.
-7. **Handle pagination** — when `pagination.has_next` is true, fetch the next page or inform the user.
-8. **Use `--pretty`** when showing output to the user for readability.
-9. **Prefer `--workspace`** from context — let the CLI resolve from `.recuerd0.yaml` when present.
-10. **Pipe long content via stdin** — for multi-line content, use `--content -` with a heredoc or pipe.
-11. **Check errors gracefully** — on failure, read the error code and message, suggest corrective action.
+3. **Always pick a category** — every save and version must pass `--category`. Default to `general` only when nothing else fits. The four values are `decision`, `discovery`, `preference`, `general`.
+4. **Route to the right workspace** — follow the Workspace Routing decision tree. Never silently dump into a default workspace. Create a new workspace if the project doesn't have one yet.
+5. **Announce every save in one line** — use the Save Notice Convention. No narration of the dedup or routing process unless something went wrong.
+6. **Clean up `auto-save` memories** — distill them into curated memories, then delete the raw originals.
+7. **Always parse JSON output** — extract `data`, check `success`, use `breadcrumbs` to discover follow-up actions.
+8. **Handle pagination** — when `pagination.has_next` is true, fetch the next page or inform the user.
+9. **Use `--pretty`** when showing output to the user for readability.
+10. **Prefer `--workspace`** from context — let the CLI resolve from `.recuerd0.yaml` when present.
+11. **Pipe long content via stdin** — for multi-line content, use `--content -` with a heredoc or pipe.
+12. **Check errors gracefully** — on failure, read the error code and message, suggest corrective action.
