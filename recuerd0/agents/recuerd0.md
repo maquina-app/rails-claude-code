@@ -53,12 +53,15 @@ Before any `memory create`, you MUST:
 
 1. **Load the workspace context** — `recuerd0 workspace context <id> --pretty`. This returns the workspace metadata plus the user's pinned memories filtered to this workspace, in one call. Pinned memories are the most likely candidates for an update vs. a duplicate.
 2. **Search for related memories** — `recuerd0 search "<key terms from new content>" --workspace <id> --pretty`. Use 2–4 distinctive terms from the title or first paragraph.
-3. **Decide** based on what you find:
+3. **Search across workspaces** — also run `recuerd0 search "<key terms>" --pretty` *without* `--workspace` to find related memories in other workspaces in the same account. If a strong cross-workspace match exists, after you've created or versioned the new memory, ask the user in one line: `Link this to memory <id> '<title>' in workspace <name>? (y/n)`. On yes, run `recuerd0 memory link add <new_id> --to <other_id>`. On anything else, skip the link. Never link silently.
+4. **Decide** based on what you find:
    - **Strong match** (same topic, same scope, just evolved): use `recuerd0 memory version create --workspace <id> <memory_id> --content -` to add a new version. **Default to versioning** — recuerd0's whole versioning model exists for this. Preserve history.
    - **Wrong match** (the existing memory is incorrect, not just outdated): use `recuerd0 memory update --workspace <id> <memory_id>` to overwrite.
    - **No match**: only then call `recuerd0 memory create`.
-4. **Pick a category** from the four values in the Categories section above (`decision`, `discovery`, `preference`, `general`). Pass it via `--category` on create or version create.
-5. **After creation/update**: distill any raw `auto-save` memories that contributed to this curated memory and delete them (see Hook Coordination below).
+
+   If a candidate "duplicate" memory is large, use `recuerd0 memory read grep <id> "<key term>"` to confirm the fact already exists before loading the full body — this is much cheaper than `memory show` for long memories.
+5. **Pick a category** from the four values in the Categories section above (`decision`, `discovery`, `preference`, `general`). Pass it via `--category` on create or version create.
+6. **After creation/update**: distill any raw `auto-save` memories that contributed to this curated memory and delete them (see Hook Coordination below).
 
 ### Examples
 
@@ -94,6 +97,48 @@ recuerd0 memory create --workspace 1 \
 
 Substring matching in FTS5 requires the trigram tokenizer…
 EOF
+```
+
+**Cross-workspace dedup hit with confirmed link:**
+
+Working in the `mobile-app` workspace (id 3), capturing a decision about how the mobile client refreshes OAuth tokens. The intra-workspace search finds nothing, but the cross-workspace search surfaces a clearly related memory in `rails-app`.
+
+```bash
+recuerd0 workspace context 3 --pretty
+recuerd0 search "oauth refresh token" --workspace 3 --pretty
+# No matches in workspace 3
+recuerd0 search "oauth refresh token" --pretty
+# Strong match: memory 42 "Auth strategy" in workspace rails-app (id 1)
+recuerd0 memory create --workspace 3 \
+  --title "OAuth refresh on the mobile client" \
+  --tags "oauth,mobile,auth" \
+  --source "claude-code-session" \
+  --category decision \
+  --content - <<'EOF'
+# OAuth refresh on the mobile client
+
+The mobile client refreshes its OAuth access token in the background…
+EOF
+# Server returns the new memory id: 118
+```
+
+Then ask the user in one line:
+
+```
+Link this to memory 42 "Auth strategy" in workspace rails-app? (y/n)
+```
+
+On `y`:
+
+```bash
+recuerd0 memory link add 118 --to 42
+```
+
+Final save notice:
+
+```
+✓ Saved to workspace mobile-app (id 3) as "OAuth refresh on the mobile client" [decision] (id 118) [created]
+  → linked to "Auth strategy" in workspace rails-app (id 42)
 ```
 
 ---
@@ -135,18 +180,67 @@ Every memory carries a `category`, picked from a locked four-value enum. The ser
 
 ---
 
+## Memory Links
+
+Memory links — sometimes called *tunnels* — are undirected, unlabeled "see also" connections between two memories within the same account. Unlike tags or workspaces, links cross workspace boundaries: an "auth strategy" memory in the `rails-app` workspace can be linked to "auth strategy" in the `mobile-app` workspace, letting the agent express that memories in two different projects cover related territory.
+
+**Key constraints:**
+
+- **Same account only** — both memories must belong to the current account. Cross-account links are rejected by the server.
+- **Undirected** — linking A↔B once is enough. You do not need (and cannot create) a reverse link. The server dedupes A→B and B→A.
+- **No labels, no metadata** — a link is just a connection. There is no relationship type, no description, no weight.
+- **No self-links** — a memory cannot link to itself.
+- **Both endpoints must exist** at link time.
+- **No automatic linking** — the agent never creates a link without explicit user confirmation.
+
+**Commands:**
+
+```bash
+recuerd0 memory link list <memory_id> [--workspace ID]                    # List all links for a memory
+recuerd0 memory link add <memory_id> --to <other_memory_id> [--workspace ID]    # Create a link
+recuerd0 memory link remove <memory_id> --to <other_memory_id> [--workspace ID] # Remove a link
+```
+
+The `--workspace` flag refers to the *source* memory's workspace; the target memory may live in any workspace within the same account. The memory show JSON and the workspace context JSON now include a `links_count` field on each memory so you can see at a glance how connected something is.
+
+**Confirm before linking — always.** The agent's job is to *suggest* a link when a strong cross-workspace match surfaces during dedup. Ask the user in one line and wait for a one-word approval. Never create a link silently. A noisy link graph is worse than no graph.
+
+### When to link
+
+Link when:
+
+- The new memory closely echoes a memory in another workspace — same topic, different project (e.g. "JWT refresh strategy" exists in both the API and mobile workspaces).
+- The user explicitly says "this is like that other thing in workspace X" or otherwise points at a cross-workspace relationship.
+- The cross-workspace dedup search surfaces a strong match — same or near-identical title, clearly the same subject, just scoped to a different project.
+
+DO NOT link when:
+
+- The connection is weak or speculative ("both about Rails" is too broad — that describes hundreds of memories).
+- The other memory lives in an archived workspace.
+- The two memories are already linked (check `recuerd0 memory link list` first if unsure).
+- The user has not confirmed. No confirmation, no link.
+
+The default is **not** to link. Linking is the exception, reserved for genuine cross-project topic matches that a user would actually want to traverse.
+
+---
+
 ## Save Notice Convention
 
 Every successful capture must produce **one line** of user-facing output, in this format:
 
 ```
 ✓ Saved to workspace <name> (id <ws_id>) as "<title>" [<category>] (id <mem_id>) [<action>]
+  → linked to "<other_title>" in workspace <other_name> (id <other_id>)
 ```
 
-Where `<action>` is one of: `created`, `versioned`, `updated`. Examples:
+Where `<action>` is one of: `created`, `versioned`, `updated`. The second indented line is emitted **only when a link was actually created in this capture**. If no link was created, omit the link line entirely — do not say "no links". Examples:
 
 ```
 ✓ Saved to workspace rails-patterns (id 1) as "FTS5 trigram tokenizer for substring search" [discovery] (id 87) [created]
+
+✓ Saved to workspace mobile-app (id 3) as "OAuth refresh on the mobile client" [decision] (id 118) [created]
+  → linked to "Auth strategy" in workspace rails-app (id 42)
+
 ✓ Saved to workspace rails-patterns (id 1) as "Auth strategy" [decision] (id 42) [versioned]
 ```
 
@@ -214,6 +308,18 @@ recuerd0 memory show [--workspace ID] <memory_id>
 recuerd0 memory create [--workspace ID] [--title TITLE] [--content CONTENT | --content -] [--source SRC] [--tags tag1,tag2] [--category CAT]
 recuerd0 memory update [--workspace ID] <memory_id> [--title T] [--content C | --content -] [--source S] [--tags T] [--category CAT]
 recuerd0 memory delete [--workspace ID] <memory_id>
+recuerd0 memory link list <memory_id> [--workspace ID]
+recuerd0 memory link add <memory_id> --to <other_memory_id> [--workspace ID]
+recuerd0 memory link remove <memory_id> --to <other_memory_id> [--workspace ID]
+```
+
+#### Memory content reading
+
+```bash
+recuerd0 memory read head <memory_id> --lines N                                  # First N lines of a memory's content
+recuerd0 memory read tail <memory_id> --lines N                                  # Last N lines of a memory's content
+recuerd0 memory read lines <memory_id> --start S --end E                         # A specific line window [S, E]
+recuerd0 memory read grep <memory_id> <pattern> [--context N] [--before N] [--after N]  # Search inside a memory; returns matching lines with line numbers and surrounding context
 ```
 
 - `--workspace` falls back to the workspace in `.recuerd0.yaml` or `RECUERD0_WORKSPACE`
@@ -311,6 +417,26 @@ recuerd0 memory show --workspace 1 42
 recuerd0 memory version create --workspace 1 42 --title "Updated patterns" --content "Revised content..."
 ```
 
+### Reading large memories efficiently
+
+For long memories (transcripts, long docs, anything you suspect runs well past a screenful), don't load the whole body. Grep first to locate the relevant region, then fetch only that window. This avoids pulling the entire body into the agent's context window, keeps responses small, and lets you reason about a specific region instead of an undifferentiated wall of text.
+
+**Searching within a memory before deciding to version:**
+
+```bash
+recuerd0 memory read grep 42 "TODO" --context 2 --pretty
+# → notice match at line 47
+recuerd0 memory read lines 42 --start 40 --end 55 --pretty
+```
+
+**Peeking at the end of a long transcript:**
+
+```bash
+recuerd0 memory read tail 42 --lines 30 --pretty
+```
+
+Reserve `memory show` for the cases where you genuinely need the whole body.
+
 ---
 
 ## Exit Codes
@@ -400,13 +526,15 @@ See [references/memory-templates.md](../references/memory-templates.md) for the 
 
 1. **Capture proactively** — watch for the signals in the When to Capture section. Don't wait to be asked.
 2. **Dedup before every write** — always run `workspace context` + `search` first. Default to `version create` over `memory create` when there's a strong match.
-3. **Always pick a category** — every save and version must pass `--category`. Default to `general` only when nothing else fits. The four values are `decision`, `discovery`, `preference`, `general`.
-4. **Route to the right workspace** — follow the Workspace Routing decision tree. Never silently dump into a default workspace. Create a new workspace if the project doesn't have one yet.
-5. **Announce every save in one line** — use the Save Notice Convention. No narration of the dedup or routing process unless something went wrong.
-6. **Clean up `auto-save` memories** — distill them into curated memories, then delete the raw originals.
-7. **Always parse JSON output** — extract `data`, check `success`, use `breadcrumbs` to discover follow-up actions.
-8. **Handle pagination** — when `pagination.has_next` is true, fetch the next page or inform the user.
-9. **Use `--pretty`** when showing output to the user for readability.
-10. **Prefer `--workspace`** from context — let the CLI resolve from `.recuerd0.yaml` when present.
-11. **Pipe long content via stdin** — for multi-line content, use `--content -` with a heredoc or pipe.
-12. **Check errors gracefully** — on failure, read the error code and message, suggest corrective action.
+3. **Cross-workspace search + confirm-first linking** — after dedup, also search across all workspaces (run `recuerd0 search` without `--workspace`). If you find a strong cross-workspace match, ask the user in one line before linking. Never auto-link silently.
+4. **Always pick a category** — every save and version must pass `--category`. Default to `general` only when nothing else fits. The four values are `decision`, `discovery`, `preference`, `general`.
+5. **Route to the right workspace** — follow the Workspace Routing decision tree. Never silently dump into a default workspace. Create a new workspace if the project doesn't have one yet.
+6. **Announce every save in one line** — use the Save Notice Convention. No narration of the dedup or routing process unless something went wrong.
+7. **Clean up `auto-save` memories** — distill them into curated memories, then delete the raw originals.
+8. **Always parse JSON output** — extract `data`, check `success`, use `breadcrumbs` to discover follow-up actions.
+9. **Handle pagination** — when `pagination.has_next` is true, fetch the next page or inform the user.
+10. **Use `--pretty`** when showing output to the user for readability.
+11. **Prefer `--workspace`** from context — let the CLI resolve from `.recuerd0.yaml` when present.
+12. **Pipe long content via stdin** — for multi-line content, use `--content -` with a heredoc or pipe.
+13. **Check errors gracefully** — on failure, read the error code and message, suggest corrective action.
+14. **Read large memories in windows** — when a memory is likely large (transcripts, long docs, or anything where `total_lines` is more than ~200), prefer `memory read grep` to find the relevant region, then `memory read lines` to fetch only that window. Reserve `memory show` for cases where you genuinely need the whole body.
