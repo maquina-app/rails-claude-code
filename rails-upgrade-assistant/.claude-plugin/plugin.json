@@ -6,7 +6,7 @@
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"
     },
-    "repository": "https://github.com/maquina/rails-claude-code",
+    "repository": "https://github.com/maquina-app/rails-claude-code",
     "license": "MIT",
     "keywords": ["rails", "upgrade", "migration", "breaking-changes", "deprecations"]
 }

@@ -1,6 +1,9 @@
 ---
 name: spec-driven-development
-description: A Rails-focused spec-driven development workflow for building features with AI agents. Use this skill when users want to plan features, write specs, create task breakdowns, or generate implementation prompts for Rails apps. Triggers on "sdd", "spec-driven", "shape spec", "create tasks", "initialize SDD", "feature planning", "implementation prompts", or any request to systematically plan and implement a Rails feature. Also triggers when moving from MVP documentation to implementation planning.
+description: A Rails-focused spec-driven development workflow for building features with AI agents. Use this agent when users want to plan features, write specs, create task breakdowns, or generate implementation prompts for Rails apps. Triggers on "sdd", "spec-driven", "shape spec", "create tasks", "initialize SDD", "feature planning", "implementation prompts", or any request to systematically plan and implement a Rails feature. Also triggers when moving from MVP documentation to implementation planning.
+model: sonnet
+effort: high
+tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 
 # Spec-Driven Development

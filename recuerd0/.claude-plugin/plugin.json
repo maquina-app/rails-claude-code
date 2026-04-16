@@ -5,5 +5,9 @@
     "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"
-    }
+    },
+    "repository": "https://github.com/maquina-app/rails-claude-code",
+    "homepage": "https://recuerd0.ai",
+    "license": "MIT",
+    "keywords": ["knowledge", "memory", "cli", "ai-conversations", "recuerd0"]
 }

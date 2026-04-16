@@ -16,6 +16,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 /plugin install mvp-creator@maquina
 /plugin install better-stimulus@maquina
 /plugin install spec-driven-development@maquina
+/plugin install rails-security-auditor@maquina
 ```
 
 ---
@@ -25,12 +26,13 @@ A collection of Claude Code plugins for Ruby on Rails development.
 | Plugin | Description | Version |
 |--------|-------------|---------|
 | [rails-simplifier](#1-rails-simplifier) | Code quality following 37signals patterns | 1.0.0 |
-| [rails-upgrade-assistant](#2-rails-upgrade-assistant) | Rails 6.0→8.1 upgrade planning | 1.0.0 |
-| [maquina-ui-standards](#3-maquina-ui-standards) | UI components with maquina_components | 0.3.1.0 |
-| [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.0.0 |
+| [rails-upgrade-assistant](#2-rails-upgrade-assistant) | Rails 6.0→8.1 upgrade planning | 1.1.0 |
+| [maquina-ui-standards](#3-maquina-ui-standards) | UI components with maquina_components | 0.4.4 |
+| [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.2.0 |
 | [mvp-creator](#5-mvp-creator) | MVP documentation for Rails applications | 1.0.0 |
 | [better-stimulus](#6-better-stimulus) | StimulusJS best practices from betterstimulus.com | 1.0.0 |
-| [spec-driven-development](#7-spec-driven-development) | Spec-driven development workflow for Rails | 1.0.0 |
+| [spec-driven-development](#7-spec-driven-development) | Spec-driven development workflow for Rails | 1.2.0 |
+| [rails-security-auditor](#8-rails-security-auditor) | Security audit for Rails 8.0–8.2 configuration | 1.0.0 |
 
 ---
 
@@ -473,6 +475,56 @@ spec-driven-development/
 
 ---
 
+## 8. rails-security-auditor
+
+A security auditor that scans a Rails application's configuration and produces a structured, actionable report grouped by severity. Grounded in **Rails 8.0–8.2 security defaults** and covers the framework, application, and infrastructure layers.
+
+### What It Does
+
+- **Scans** production environment, initializers, controllers, Gemfile, and CI config
+- **Detects** the Rails version from `Gemfile.lock` and adjusts expectations accordingly
+- **Checks** CSRF, security headers, CSP, session cookies, rate limiting, authorization, dependency CVEs, and Rails 8.2 framework defaults
+- **Reports** each finding with severity, evidence, plain-language risk explanation, and exact fix
+- **Offers** to apply fixes — one, all critical, or all — with minimal diffs
+
+### Check Categories
+
+| Category | Covers |
+|----------|--------|
+| PROD | `force_ssl`, `assume_ssl`, log level, `filter_parameters`, trusted proxies |
+| CSRF | `protect_from_forgery`, strategy, per-form tokens |
+| HDR | X-Frame-Options, X-Content-Type-Options, Referrer-Policy |
+| CSP | Content Security Policy initializer and directives |
+| SESS | Session cookie `SameSite`, `expire_after`, `httponly` |
+| RATE | `rate_limit` macro, Rack::Attack throttles and safelists |
+| AUTH | Authorization gem, tenant scoping, `allow_unauthenticated_access` |
+| GEM | Brakeman, bundler-audit, Rails CVEs |
+| CI | Security scanning in CI |
+| DATA | Column-level encryption, hardcoded secrets |
+| FWKD | Rails 8.2 framework defaults (CSRF header strategy, transaction-aware jobs) |
+
+### Usage
+
+```
+> Audit security
+> Run a security audit on this Rails app
+> Is my CSRF configured correctly?
+> Am I missing any security headers?
+> Check my Rack::Attack config
+```
+
+### Package Contents
+
+```
+rails-security-auditor/
+├── agents/rails-security-auditor.md    # Main agent
+├── references/
+│   └── checks.md                       # Full catalog of checks with fixes
+└── .claude-plugin/plugin.json          # Plugin metadata
+```
+
+---
+
 ## Team Installation
 
 Add to your project's `.claude/settings.json` for automatic installation:
@@ -494,7 +546,8 @@ Add to your project's `.claude/settings.json` for automatic installation:
     "recuerd0@maquina",
     "mvp-creator@maquina",
     "better-stimulus@maquina",
-    "spec-driven-development@maquina"
+    "spec-driven-development@maquina",
+    "rails-security-auditor@maquina"
   ]
 }
 ```
@@ -503,7 +556,7 @@ Add to your project's `.claude/settings.json` for automatic installation:
 
 ## License
 
-[MIT](./LICENCE.txt)
+[MIT](./LICENSE.txt)
 
 ---
 

@@ -2,11 +2,14 @@
 name: better-stimulus
 description: >
   Apply opinionated StimulusJS best practices from betterstimulus.com. Use this
-  skill whenever writing, reviewing, debugging, or refactoring Stimulus
+  agent whenever writing, reviewing, debugging, or refactoring Stimulus
   controllers. Triggers when user asks to write, fix, or review a Stimulus
   controller, asks about data-controller, data-action, data-target, data-values,
   outlets, lifecycle callbacks, state management in Stimulus, Hotwire patterns,
   or Turbo and Stimulus integration.
+model: sonnet
+effort: medium
+tools: Read, Edit, Write, Grep, Glob
 ---
 
 # Better Stimulus

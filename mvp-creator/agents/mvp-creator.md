@@ -1,6 +1,9 @@
 ---
 name: mvp-creator
-description: Create comprehensive MVP documentation for Rails applications. Use this skill whenever a user describes a new app idea, wants to explore a SaaS concept, needs competitor research, or is starting a new project from scratch — even if they don't explicitly say "MVP". Triggers on "I have an idea for...", "I want to build...", "help me plan...", "research competitors for...", "create a business plan for...", "design a brand for my app", "set up Claude for my Rails project", "bootstrap an app", or any request to plan, research, or document a new application concept.
+description: Create comprehensive MVP documentation for Rails applications. Use this agent whenever a user describes a new app idea, wants to explore a SaaS concept, needs competitor research, or is starting a new project from scratch — even if they don't explicitly say "MVP". Triggers on "I have an idea for...", "I want to build...", "help me plan...", "research competitors for...", "create a business plan for...", "design a brand for my app", "set up Claude for my Rails project", "bootstrap an app", or any request to plan, research, or document a new application concept.
+model: sonnet
+effort: high
+tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch, WebSearch
 ---
 
 # MVP Creator

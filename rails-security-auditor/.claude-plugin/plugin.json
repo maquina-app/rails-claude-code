@@ -1,0 +1,12 @@
+{
+    "name": "rails-security-auditor",
+    "version": "1.0.0",
+    "description": "Audits a Rails application's security configuration and produces a structured, actionable report grounded in Rails 8.0–8.2 defaults",
+    "author": {
+        "name": "Mario Alberto Chávez",
+        "email": "mario@maquina.app"
+    },
+    "repository": "https://github.com/maquina-app/rails-claude-code",
+    "license": "MIT",
+    "keywords": ["rails", "security", "audit", "csrf", "csp", "rack-attack", "brakeman"]
+}

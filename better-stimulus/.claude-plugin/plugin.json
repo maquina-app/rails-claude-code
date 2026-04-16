@@ -5,5 +5,9 @@
     "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"
-    }
+    },
+    "repository": "https://github.com/maquina-app/rails-claude-code",
+    "homepage": "https://www.betterstimulus.com",
+    "license": "MIT",
+    "keywords": ["stimulus", "hotwire", "javascript", "best-practices", "rails"]
 }

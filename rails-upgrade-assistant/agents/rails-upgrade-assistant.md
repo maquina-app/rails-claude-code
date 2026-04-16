@@ -1,6 +1,9 @@
 ---
 name: upgrade
 description: Analyzes Rails applications and generates comprehensive upgrade reports with breaking changes, deprecations, and step-by-step migration guides for Rails 6.0 through 8.1.1. Use when upgrading Rails applications, planning multi-hop upgrades, or querying version-specific changes.
+model: sonnet
+effort: high
+tools: Read, Bash, Grep, Glob, Write, Edit
 ---
 
 # Rails Upgrade Assistant Skill v1.0

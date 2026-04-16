@@ -6,8 +6,8 @@
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"
     },
-    "repository": "https://github.com/maquina/rails-claude-code",
-    "homepage": "https://github.com/maquina/maquina_components",
+    "repository": "https://github.com/maquina-app/rails-claude-code",
+    "homepage": "https://github.com/maquina-app/maquina_components",
     "license": "MIT",
     "keywords": ["rails", "ui", "components", "tailwind", "erb", "shadcn", "maquina"]
 }

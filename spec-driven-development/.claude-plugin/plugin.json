@@ -5,5 +5,8 @@
     "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"
-    }
+    },
+    "repository": "https://github.com/maquina-app/rails-claude-code",
+    "license": "MIT",
+    "keywords": ["rails", "specs", "planning", "workflow", "ai-agents", "sdd"]
 }
