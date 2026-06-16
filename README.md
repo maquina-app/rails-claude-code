@@ -274,14 +274,14 @@ The plugin registers two Claude Code lifecycle hooks that automatically capture 
 | `Stop` | After each assistant turn, at most once every 15 minutes | Saves a checkpoint memory tagged `claude-code,auto-save,stop` |
 | `PreCompact` | Before Claude Code compresses the conversation | Saves an emergency snapshot tagged `claude-code,auto-save,precompact` |
 
-**What happens on install**: as soon as the plugin is installed, both hooks are live. The first time a Stop or PreCompact event fires in a session where you have the `recuerd0` CLI installed and a workspace configured, a new memory appears in that workspace containing the last 200 lines of the transcript. The memory title is `Claude Code checkpoint — <timestamp>` (or `pre-compact —`), sourced as `claude-code-session`.
+**What happens on install**: both hooks are registered but **disabled by default** — they capture nothing until you opt in with `RECUERD0_HOOK_DISABLE=0`. Once enabled, the first time a Stop or PreCompact event fires in a session where you have the `recuerd0` CLI installed and a workspace configured, a new memory appears in that workspace containing the last 200 lines of the transcript. The memory title is `Claude Code checkpoint — <timestamp>` (or `pre-compact —`), sourced as `claude-code-session`.
 
-**Nothing is captured if any of the following are true** — so a fresh machine or a user who doesn't want this will see zero activity:
+**Nothing is captured if any of the following are true** — so a fresh machine or a user who hasn't opted in will see zero activity:
 
+- `RECUERD0_HOOK_DISABLE` is not set to `0` (hooks are off by default)
 - The `recuerd0` CLI is not on `PATH`
 - No account is configured (`recuerd0 account add …` has not been run)
 - No workspace is resolvable (no `RECUERD0_WORKSPACE` env var, no `.recuerd0.yaml` in the project, no default workspace in `~/.config/recuerd0/config.yaml`)
-- `RECUERD0_HOOK_DISABLE=1` is set
 
 The hooks never exit non-zero, so a misconfigured or offline recuerd0 setup will never interrupt your Claude Code session. Failures (when they happen) are appended to `~/.recuerd0/hook-errors.log`.
 
@@ -297,16 +297,16 @@ Every session started inside that directory will auto-save to workspace 12. The 
 
 | Env var | Default | Purpose |
 |---------|---------|---------|
-| `RECUERD0_HOOK_DISABLE` | unset | Set to `1` to disable both hooks entirely |
+| `RECUERD0_HOOK_DISABLE` | unset (disabled) | Hooks are off by default; set to `0` to enable both. Any other value (or unset) keeps them disabled |
 | `RECUERD0_STOP_INTERVAL_MINUTES` | `15` | Minimum minutes between Stop saves |
 | `RECUERD0_HOOK_TAIL_LINES` | `200` | Transcript lines captured per save |
 
-**How to disable**:
+**How to enable** (off by default):
 
-- **Temporarily** — `export RECUERD0_HOOK_DISABLE=1` in your shell before launching Claude Code, or unset `RECUERD0_WORKSPACE` and remove any `.recuerd0.yaml` so the hooks find nowhere to save.
-- **Per project** — omit `.recuerd0.yaml` from that project and don't set `RECUERD0_WORKSPACE`.
-- **Just one hook** — edit `${CLAUDE_PLUGIN_ROOT}/hooks/hooks.json` and remove the `Stop` or `PreCompact` block.
-- **Permanently** — uninstall the plugin: `/plugin uninstall recuerd0@maquina`.
+- **Temporarily** — `export RECUERD0_HOOK_DISABLE=0` in your shell before launching Claude Code (you also need the CLI installed and a workspace resolvable — see above).
+- **Persistently** — set `RECUERD0_HOOK_DISABLE=0` in your shell profile or Claude Code environment config.
+
+**How to disable again** — unset `RECUERD0_HOOK_DISABLE` (or set it to anything other than `0`); the hooks return to their default off state. To remove just one hook, edit `${CLAUDE_PLUGIN_ROOT}/hooks/hooks.json` and drop the `Stop` or `PreCompact` block. To remove entirely, uninstall the plugin: `/plugin uninstall recuerd0@maquina`.
 
 ### Package Contents
 

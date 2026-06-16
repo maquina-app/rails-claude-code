@@ -14,7 +14,8 @@
 #
 # Environment:
 #   RECUERD0_HOOK_TAIL_LINES  lines of transcript to capture (default 200)
-#   RECUERD0_HOOK_DISABLE     if set to "1", skip entirely
+#   RECUERD0_HOOK_DISABLE     hooks are disabled by default; set to "0" to
+#                             opt in. Any other value (or unset) skips entirely.
 #
 # On failure, writes a one-line entry to ~/.recuerd0/hook-errors.log and
 # returns non-zero. Callers ignore the return code and exit 0 themselves.
@@ -32,7 +33,8 @@ run_save() {
   local hook_type="$1"
   local title_prefix="$2"
 
-  if [[ "${RECUERD0_HOOK_DISABLE:-0}" == "1" ]]; then
+  # Disabled by default — only an explicit RECUERD0_HOOK_DISABLE=0 opts in.
+  if [[ "${RECUERD0_HOOK_DISABLE:-1}" != "0" ]]; then
     return 0
   fi
 

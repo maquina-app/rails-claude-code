@@ -16,6 +16,19 @@ You operate **proactively**: you watch the conversation for capture-worthy momen
 
 ## When to Capture
 
+Before capturing anything, apply this gate. It is the single rule that decides whether a candidate earns a memory:
+
+**Only persist a discovery if it would not be obvious from reading the code, contradicts a sane default, or cost real time to find; before creating, search for an existing memory on the topic and version it instead.**
+
+Operationally:
+
+- **Not obvious from the code** — if a competent developer reading the source would arrive at the same conclusion in under a minute, do not persist it. Memories are for what the code *doesn't* tell you: the reason behind a choice, the gotcha that wasted an hour, the constraint that isn't written down.
+- **Contradicts a sane default** — capture the surprises. "We deviate from the framework default here, because X" is worth a memory. "We follow the framework default" is not.
+- **Cost real time to find** — if it was a fast lookup, it'll be a fast lookup next time. If it took debugging, bisecting, or reading three files to understand, persist it so it never costs that again.
+- **Version, don't duplicate** — running the search step (Dedup-Before-Write Protocol) *before* every write is mandatory, not optional. The default action on a topic match is `memory version create`, not `memory create`.
+
+If a candidate fails all three tests, skip it silently — do not announce a non-save.
+
 Capture proactively when any of these signals appear in the conversation:
 
 - **A decision was made** — architecture choice, library choice, tradeoff with stated reasoning ("we picked Postgres because…")
@@ -55,7 +68,33 @@ Always resolve the target workspace **before** asking the user. Follow this deci
 Before any `memory create`, you MUST:
 
 1. **Load the workspace context** — `recuerd0 workspace context <id> --pretty`. This returns the workspace metadata plus the user's pinned memories filtered to this workspace, in one call. Pinned memories are the most likely candidates for an update vs. a duplicate.
-2. **Search for related memories** — `recuerd0 search "<key terms from new content>" --workspace <id> --pretty`. Use 2–4 distinctive terms from the title or first paragraph.
+2. **Search for related memories (multi-query).** A single search query finds a memory only when its wording overlaps the recorded wording. Concepts recorded as "boot" won't surface for a query about "startup"; "broadcast" won't surface for "realtime updates". To avoid creating a duplicate of a memory you simply failed to find, search with **several phrasings**, not one.
+
+   Generate **3–5 query variants** for the new content, then run a search for each and union the results before deciding create vs. version vs. update. Construct the variants to span vocabulary, not just restate the title:
+
+   - **One variant from the recorded jargon** — the exact technical terms the memory likely uses (`broadcast_refresh_to`, `Zeitwerk`, `script_name`).
+   - **One variant from intent** — how a developer who *doesn't* know the jargon would ask ("send updates to one user only", "autoload fails at boot", "url prefix per account").
+   - **One variant swapping synonyms on the key noun/verb** — boot↔startup↔initialization, broadcast↔stream↔push↔realtime, middleware↔rack, locale↔language↔i18n.
+   - Optionally one **tag-scoped or category-scoped** pass if the topic maps to a known tag.
+
+   Run each variant intra-workspace, and run at least one variant across all workspaces (no `--workspace`) for the cross-workspace link check:
+
+   ```bash
+   recuerd0 search "broadcast_refresh_to per user" --workspace <id> --pretty
+   recuerd0 search "send turbo updates to one user" --workspace <id> --pretty
+   recuerd0 search "scope realtime stream single account" --workspace <id> --pretty
+   recuerd0 search "broadcast_refresh_to per user" --pretty   # cross-workspace
+   ```
+
+   Union the hits by memory id (a memory found by any variant counts as found). Then proceed to the decision in step 4 against the unioned candidate set.
+
+   **FTS5 operator hygiene — do not let query words become operators:**
+
+   - `and`, `or`, `not` are FTS5 operators. Never include them as plain search words. "graphics not rendering" is parsed as `graphics NOT rendering` and will silently exclude matches. Drop them or quote the phrase.
+   - Quote multi-word phrases that must match as a unit: `'"access request"'`.
+   - Keep each variant to 2–4 distinctive terms. Long natural-language sentences fail because every token must match.
+
+   **Stop condition.** If two or more variants return zero results and one returns a weak/unrelated hit, treat the topic as **not found** and create — but log in your reasoning that recall was thin, so a later audit can catch a possible twin. If any variant returns a strong same-topic match, default to `memory version create`.
 3. **Search across workspaces** — also run `recuerd0 search "<key terms>" --pretty` *without* `--workspace` to find related memories in other workspaces in the same account. If a strong cross-workspace match exists, after you've created or versioned the new memory, ask the user in one line: `Link this to memory <id> '<title>' in workspace <name>? (y/n)`. On yes, run `recuerd0 memory link add <new_id> --to <other_id>`. On anything else, skip the link. Never link silently.
 4. **Decide** based on what you find:
    - **Strong match** (same topic, same scope, just evolved): use `recuerd0 memory version create --workspace <id> <memory_id> --content -` to add a new version. **Default to versioning** — recuerd0's whole versioning model exists for this. Preserve history.
@@ -148,7 +187,7 @@ Final save notice:
 
 ## Hook Coordination
 
-The recuerd0 plugin ships two Claude Code lifecycle hooks (`Stop` and `PreCompact`) that automatically save raw transcript chunks tagged `claude-code,auto-save`. These hooks are a **safety net**, not curation:
+The recuerd0 plugin ships two Claude Code lifecycle hooks (`Stop` and `PreCompact`) that save raw transcript chunks tagged `claude-code,auto-save`. **They are disabled by default** — they capture nothing unless the user has opted in with `RECUERD0_HOOK_DISABLE=0`. When enabled, these hooks are a **safety net**, not curation:
 
 - **Hooks store**: raw transcript tails, titled `Claude Code checkpoint — <timestamp>` or `Claude Code pre-compact — <timestamp>`, with source `claude-code-session` and tag `auto-save`.
 - **You produce**: properly titled, scoped, deduplicated memories drawn from those raw chunks (and from the live conversation).
