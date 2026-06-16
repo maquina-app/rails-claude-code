@@ -17,6 +17,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 /plugin install better-stimulus@maquina
 /plugin install spec-driven-development@maquina
 /plugin install rails-security-auditor@maquina
+/plugin install rails-hotwire-driver@maquina
 ```
 
 ---
@@ -25,14 +26,15 @@ A collection of Claude Code plugins for Ruby on Rails development.
 
 | Plugin | Description | Version |
 |--------|-------------|---------|
-| [rails-simplifier](#1-rails-simplifier) | Code quality following 37signals patterns | 1.0.0 |
-| [rails-upgrade-assistant](#2-rails-upgrade-assistant) | Rails 6.0→8.1 upgrade planning | 1.1.0 |
+| [rails-simplifier](#1-rails-simplifier) | Code quality following 37signals patterns | 1.0.1 |
+| [rails-upgrade-assistant](#2-rails-upgrade-assistant) | Rails 6.0→8.1 upgrade planning | 1.1.1 |
 | [maquina-ui-standards](#3-maquina-ui-standards) | UI components with maquina_components | 0.4.4 |
-| [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.2.0 |
-| [mvp-creator](#5-mvp-creator) | MVP documentation for Rails applications | 1.0.0 |
+| [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.3.1 |
+| [mvp-creator](#5-mvp-creator) | MVP documentation for Rails applications | 1.0.1 |
 | [better-stimulus](#6-better-stimulus) | StimulusJS best practices from betterstimulus.com | 1.0.0 |
-| [spec-driven-development](#7-spec-driven-development) | Spec-driven development workflow for Rails | 1.2.0 |
+| [spec-driven-development](#7-spec-driven-development) | Spec-driven development workflow for Rails | 1.3.0 |
 | [rails-security-auditor](#8-rails-security-auditor) | Security audit for Rails 8.0–8.2 configuration | 1.0.0 |
+| [rails-hotwire-driver](#9-rails-hotwire-driver) | Drive a running Rails dev server from the terminal | 0.1.0 |
 
 ---
 
@@ -525,6 +527,58 @@ rails-security-auditor/
 
 ---
 
+## 9. rails-hotwire-driver
+
+Drive a **running local Rails dev server from the terminal** — no browser required. The runtime complement to static code tools: it exercises the server-rendered Hotwire contract directly, so you can verify what the app actually does at request time.
+
+### What It Does
+
+- **Submits ERB forms with the correct CSRF token** — GETs the page, reads the hidden `authenticity_token`, merges your fields, and posts (the #1 hand-driving failure, eliminated)
+- **Logs in via OTP/magic-link** by reading the code straight from the development log, scoped to the login's request id
+- **Inspects Turbo Stream responses** — parses the returned `action #target` pairs
+- **Correlates by request id** — pulls the exact log slice (params, SQL, partial renders) for any request
+- **Bridges sessions to/from Playwright** (`storageState`) so you log in once and share the session between curl and a real browser
+
+### Guardrails
+
+- **Local only** — refuses any non-localhost host (`localhost`, loopback, `*.localhost` for kamal-proxy)
+- **No production logs** — the log reader refuses any path containing `production`
+- **Cookie hygiene** — `Set-Cookie` is redacted; the session value never enters the transcript
+- Does **not** execute JavaScript — pair with a Playwright tool for Stimulus/DOM assertions
+
+### Usage
+
+```
+> Log into the app from the terminal and read the OTP from the log
+> Submit the new post form and show me the turbo-stream targets
+> Trace what request <id> did in the dev log
+> Bridge this curl session to Playwright so I can verify the DOM
+```
+
+### Package Contents
+
+```
+rails-hotwire-driver/
+├── skills/rails-hotwire-driver/
+│   ├── SKILL.md                        # Skill instructions and workflows
+│   └── scripts/
+│       ├── req.sh                      # One HTTP request, cookies persisted
+│       ├── submit_form.rb              # Submit a form with the right CSRF token
+│       ├── readlog.sh                  # Read the dev log (request-id correlation)
+│       ├── flow.sh                     # Full login → OTP → action in one command
+│       ├── jar_to_storage.rb           # curl session → Playwright storageState
+│       └── storage_to_jar.rb           # Playwright storageState → curl jar
+└── .claude-plugin/plugin.json          # Plugin metadata
+```
+
+### Requirements
+
+- A Rails app **running locally** in development; set `BASE_URL` (default `http://localhost:3000`)
+- `Nokogiri` on the load path — run the Ruby scripts via the app's bundle (`bundle exec ruby ...`)
+- Recommended: `config.log_tags = [ :request_id ]` for exact log correlation
+
+---
+
 ## Team Installation
 
 Add to your project's `.claude/settings.json` for automatic installation:
@@ -547,7 +601,8 @@ Add to your project's `.claude/settings.json` for automatic installation:
     "mvp-creator@maquina",
     "better-stimulus@maquina",
     "spec-driven-development@maquina",
-    "rails-security-auditor@maquina"
+    "rails-security-auditor@maquina",
+    "rails-hotwire-driver@maquina"
   ]
 }
 ```
