@@ -14,7 +14,7 @@
       "name": "rails-simplifier",
       "source": "./rails-simplifier",
       "description": "Simplifies and refines Ruby on Rails code following 37signals patterns and the One Person Framework philosophy",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"
@@ -26,7 +26,7 @@
       "name": "rails-upgrade-assistant",
       "source": "./rails-upgrade-assistant",
       "description": "Analyzes Rails applications and generates comprehensive upgrade reports with breaking changes, deprecations, and step-by-step migration guides for Rails 6.0 through 8.1.1",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"
@@ -50,7 +50,7 @@
       "name": "recuerd0",
       "source": "./recuerd0",
       "description": "Manages workspaces and memories in the Recuerd0 platform — a CLI tool for preserving, versioning, and organizing knowledge from AI conversations",
-      "version": "1.3.0",
+      "version": "1.3.1",
       "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"
@@ -62,7 +62,7 @@
       "name": "mvp-creator",
       "source": "./mvp-creator",
       "description": "Create comprehensive MVP documentation for Rails applications — research reports, business plans, brand guides, technical guides, and Claude setup",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"

@@ -115,10 +115,10 @@ reference/
 
 ```bash
 # Add the marketplace
-/plugin marketplace add maquina/rails-claude-code
+/plugin marketplace add maquina-app/rails-claude-code
 
 # Install the plugin
-/plugin install rails-upgrade-assistant@rails
+/plugin install rails-upgrade-assistant@maquina
 ```
 
 ### Step 2: Verify MCP Connection

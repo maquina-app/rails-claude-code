@@ -30,12 +30,12 @@ From DHH's RailsConf 2018 keynote:
 
 ```bash
 # Add the marketplace
-/plugin marketplace add maquina/rails-claude-code
+/plugin marketplace add maquina-app/rails-claude-code
 
 # Install individual plugins
-/plugin install rails-simplifier@rails
-/plugin install rails-upgrade-assistant@rails
-/plugin install maquina-ui-standards@rails
+/plugin install rails-simplifier@maquina
+/plugin install rails-upgrade-assistant@maquina
+/plugin install maquina-ui-standards@maquina
 ```
 
 ---
@@ -184,9 +184,9 @@ Add to your project's `.claude/settings.json` for automatic installation:
     }
   },
   "enabledPlugins": [
-    "rails-simplifier@rails",
-    "rails-upgrade-assistant@rails",
-    "maquina-ui-standards@rails"
+    "rails-simplifier@maquina",
+    "rails-upgrade-assistant@maquina",
+    "maquina-ui-standards@maquina"
   ]
 }
 ```
