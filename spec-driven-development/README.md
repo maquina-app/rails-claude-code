@@ -6,15 +6,12 @@ A structured workflow for building production-quality features with AI agents. T
 
 This skill guides Claude through a proven development workflow inspired by [Agent OS](https://github.com/buildermethods/agent-os). Instead of jumping straight into code, it helps you:
 
-1. **Plan your product** — Define mission, roadmap, and tech stack
-2. **Shape requirements** — Gather detailed requirements through targeted questions
-3. **Write specifications** — Create formal specs that capture exactly what to build
-4. **Break down tasks** — Generate strategic, ordered task lists
-5. **Generate prompts** — Create implementation prompts for any AI tool
-6. **Implement systematically** — Build features with consistent quality
-7. **Verify completeness** — Ensure everything works before shipping
+1. **Plan your product** — Define mission, roadmap, and tech stack (once per project)
+2. **Shape the spec** — Gather requirements, search the codebase for reusable code, and inject the standards that apply to the feature
+3. **Break down tasks** — Generate ordered task groups (Database → Backend → Frontend → Integration), each with a self-contained Claude Code prompt
+4. **Implement systematically** — Hand the spec folder to Claude Code and work through the groups
 
-**The result:** A well-documented feature built to spec, with clear requirements, organized tasks, and verification reports—not just code thrown together.
+**The result:** A well-documented feature built to spec — a self-contained spec folder (`spec.md`, `references.md`, `standards.md`, `tasks.md`) that Claude Code can pick up and execute with zero extra context, not just code thrown together.
 
 ---
 
@@ -47,14 +44,17 @@ This skill guides Claude through a proven development workflow inspired by [Agen
 
 ### Installation
 
-Copy the `spec-driven-dev` folder to your Claude skills directory:
+This is a Claude Code plugin distributed through the `maquina` marketplace. Install it from the marketplace, then bootstrap each project:
 
 ```bash
-# For Claude Desktop / Claude Code
-cp -r spec-driven-dev ~/.claude/skills/
+# In Claude Code
+/plugin install spec-driven-development@maquina
 
-# Or wherever your AI tool loads skills from
+# Then, once per Rails project, bootstrap the sdd/ directory:
+/sdd-init
 ```
+
+`/sdd-init` creates the `sdd/` structure with pre-built Rails standards and a progress tracker. The slash commands are provided by the plugin — no per-project setup beyond `/sdd-init`.
 
 ---
 
@@ -63,59 +63,41 @@ cp -r spec-driven-dev ~/.claude/skills/
 ### Quick Start
 
 ```
-You: "Initialize spec-driven development for my project"
+You: "Initialize spec-driven development for my project"   (or /sdd-init)
 
-Claude: [Creates sdd/ directory structure and progress.yml]
+Claude: [Creates sdd/ structure with Rails standards, index.yml, and progress.yml]
 
-You: "Let's plan the product"
+You: "Let's plan the product"   (or /sdd-plan)
 
 Claude: [Asks about your product, creates mission.md, roadmap.md, tech-stack.md]
 
-You: "Start a new spec for user authentication"
+You: "Shape a spec for user authentication"   (or /sdd-shape)
 
-Claude: [Creates spec folder, asks clarifying questions, gathers requirements]
+Claude: [Creates the dated spec folder, asks focused questions, searches the
+         codebase for reusable code, injects the relevant standards, and writes
+         spec.md + references.md + standards.md]
 
-You: "Write the spec"
+You: "Create the task breakdown"   (or /sdd-tasks)
 
-Claude: [Creates formal specification based on requirements]
-
-You: "Create the task breakdown"
-
-Claude: [Generates ordered tasks with acceptance criteria]
-
-You: "Generate implementation prompts"
-
-Claude: [Creates prompt files for each task group]
+Claude: [Writes tasks.md — ordered task groups, each a self-contained Claude
+         Code prompt]
 
 You: "Implement the feature"
 
-Claude: [Works through tasks, runs tests, marks complete]
-
-You: "Verify and wrap up"
-
-Claude: [Runs verification, updates roadmap, creates report]
-
-You: "Export everything"
-
-Claude: [Creates zip file with all documents]
+Claude: [Hand the spec folder to Claude Code; it works through the groups,
+         runs tests, and marks tasks complete]
 ```
 
 ### Available Commands
 
 | Command | What It Does |
 |---------|--------------|
-| `/sdd-init` | Initialize project with sdd/ directory |
-| `/sdd-plan` | Create mission, roadmap, tech stack |
-| `/sdd-shape` | Gather requirements for a feature |
-| `/sdd-write` | Write formal specification |
-| `/sdd-verify-spec` | Validate spec before implementation |
-| `/sdd-tasks` | Create task breakdown |
-| `/sdd-prompts` | Generate implementation prompts |
-| `/sdd-implement` | Implement in simple mode |
-| `/sdd-orchestrate` | Implement with multi-agent orchestration |
-| `/sdd-verify` | Final verification |
-| `/sdd-status` | Show current progress |
-| `/sdd-export` | Zip all documents |
+| `/sdd-init` | Bootstrap sdd/ with Rails standards + index.yml + progress tracker |
+| `/sdd-plan` | Create/update product mission, roadmap, tech stack |
+| `/sdd-shape` | Shape a spec: questions → codebase search → inject standards → write spec.md + references.md + standards.md |
+| `/sdd-tasks` | Create task groups with self-contained Claude Code prompts |
+| `/sdd-status` | Show progress and the next suggested action |
+| `/sdd-discover-standards` | Extract tribal knowledge from an existing codebase into new standards |
 
 ### Natural Language Works Too
 
@@ -125,7 +107,7 @@ You don't have to use commands. Just describe what you want:
 - "I want to add a comments feature"
 - "What's the status of my current spec?"
 - "Create tasks for the authentication spec"
-- "Generate prompts so I can use Cursor for implementation"
+- "Shape a spec for the notifications feature"
 
 ---
 
@@ -144,28 +126,20 @@ your-project/
     │   ├── roadmap.md                  # Prioritized feature list
     │   └── tech-stack.md               # Technology choices
     ├── standards/                      # Your coding standards
+    │   ├── index.yml                   # Catalog of all standards
     │   ├── global/
     │   ├── backend/
     │   ├── frontend/
     │   └── testing/
     └── specs/
         └── 2024-12-22-user-auth/       # One folder per feature
-            ├── planning/
-            │   ├── requirements.md     # Gathered requirements
-            │   └── visuals/            # Mockups, wireframes
-            ├── spec.md                 # Formal specification
-            ├── tasks.md                # Task breakdown
-            ├── orchestration.yml       # Multi-agent config (optional)
-            ├── implementation/
-            │   └── prompts/            # Generated prompts
-            │       ├── 1-database-layer.md
-            │       ├── 2-api-endpoints.md
-            │       ├── 3-ui-components.md
-            │       └── 4-test-review.md
-            └── verification/
-                ├── spec-verification.md
-                └── final-verification.md
+            ├── spec.md                 # Requirements, user stories, scope
+            ├── references.md           # Existing code to reuse/follow
+            ├── standards.md            # Standards injected for THIS feature
+            └── tasks.md                # Task groups + self-contained prompts
 ```
+
+Each spec folder is **self-contained**: `standards.md` holds the full text of every standard that applies to the feature, so a Claude Code agent can implement it with zero dependencies outside the folder.
 
 ### Sample Outputs
 
@@ -200,12 +174,14 @@ Allow users to create accounts and securely log in to access their data.
 ```markdown
 # Tasks: User Authentication
 
-## Task Group 1: Database Layer
-- [ ] 1.1 Write 2-8 focused tests for User model
-- [ ] 1.2 Create users migration
-- [ ] 1.3 Create User model with validations
+## Group 1: Database
+- [ ] Write 2–5 focused tests for the User model
+- [ ] Create the users migration
+- [ ] Create the User model with validations and associations
 ...
 ```
+
+Task groups follow a fixed order: **Database → Backend → Frontend → Integration**.
 
 ---
 
@@ -217,13 +193,11 @@ It's tempting to jump straight to "build me X," but spending 10 minutes on produ
 
 ### 2. Provide Visual References
 
-If you have mockups, wireframes, or even screenshots of similar features, add them to `planning/visuals/`. Claude will analyze them and reference specific elements in the spec and tasks.
+If you have mockups, wireframes, or even screenshots of similar features, share them during the Shape phase. Claude will analyze them and reference specific elements in the spec and tasks. If none exist and the feature has meaningful UI, Claude can use the `frontend-design` skill to create an HTML mockup.
 
 ```
-sdd/specs/my-feature/planning/visuals/
-├── dashboard-mockup.png
-├── mobile-wireframe.jpg
-└── lofi-form-sketch.png      # "lofi" in name = treat as wireframe
+"Here's the dashboard mockup: dashboard-mockup.png — treat lofi-form-sketch.png
+as a wireframe, not a pixel-perfect target"
 ```
 
 ### 3. Point to Similar Code
@@ -264,17 +238,9 @@ You: "What's the status of my spec?"
 Claude: [Reads progress.yml, tells you exactly where you left off]
 ```
 
-### 6. Generate Prompts for Other Tools
+### 6. Hand Off Self-Contained Prompts
 
-If you prefer Cursor, Copilot, or another AI tool for implementation:
-
-```
-You: "Generate implementation prompts for this spec"
-
-Claude: [Creates prompt files in implementation/prompts/]
-```
-
-Then copy those prompts into your preferred tool.
+`tasks.md` embeds a self-contained Claude Code prompt for each task group — the checklist, the scoped standards, the reference file paths, and the verify command, all in one place. You can run all groups in a single Claude Code session, or copy one group's prompt into a fresh session (or another tool) and run them in order.
 
 ---
 
@@ -286,27 +252,27 @@ Then copy those prompts into your preferred tool.
 
 **Solution:** The skill writes everything to files. If Claude seems confused:
 ```
-"Read sdd/specs/my-feature/planning/requirements.md and continue"
+"Read sdd/specs/my-feature/spec.md and continue"
 ```
 
 ### 2. "The spec has features I didn't ask for"
 
 **Problem:** Claude added scope beyond your requirements.
 
-**Solution:** Run spec verification before implementation:
+**Solution:** Review the spec's **Out of Scope** section before implementation:
 ```
-"Verify the spec against requirements"
+"Check spec.md — the Out of Scope section should list what we're NOT building"
 ```
 
 This catches scope creep early.
 
 ### 3. "Too many tests being written"
 
-**Problem:** The skill limits tests (2-8 per task group, ~16-34 total per feature) but Claude might ignore this.
+**Problem:** The skill limits tests (2–5 per task group, 10–20 total per feature, never more than 8 per group) but Claude might ignore this.
 
 **Solution:** Be explicit:
 ```
-"Remember: only 2-8 focused tests per task group, not comprehensive coverage"
+"Remember: only 2–5 focused tests per task group, not comprehensive coverage"
 ```
 
 ### 4. "Progress file is out of sync"
@@ -329,7 +295,7 @@ Or manually edit the YAML file.
 "Let's revise the requirements - I need to add X"
 ```
 
-Then regenerate spec, tasks, and prompts.
+Then regenerate the spec and tasks.
 
 ### 6. "Claude is implementing differently than spec"
 
@@ -346,35 +312,26 @@ Then regenerate spec, tasks, and prompts.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    PRODUCT PLANNING                         │
-│                     (Run once)                              │
+│                    PRODUCT PLANNING                          │
+│                     (Run once)                               │
 ├─────────────────────────────────────────────────────────────┤
-│  /sdd-init  →  /sdd-plan                                    │
-│                    ↓                                        │
+│  /sdd-init  →  /sdd-plan                                     │
+│                    ↓                                         │
 │  Creates: mission.md, roadmap.md, tech-stack.md             │
 └─────────────────────────────────────────────────────────────┘
                          ↓
 ┌─────────────────────────────────────────────────────────────┐
-│                 FEATURE DEVELOPMENT                         │
-│                (Repeat for each feature)                    │
+│                 FEATURE DEVELOPMENT                          │
+│                (Repeat for each feature)                     │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│  /sdd-shape  →  /sdd-write  →  /sdd-verify-spec             │
-│       ↓              ↓               ↓                      │
-│  requirements.md   spec.md    spec-verification.md          │
+│  /sdd-shape  →  /sdd-tasks  →  hand off to Claude Code      │
+│       ↓              ↓                  ↓                    │
+│   spec.md        tasks.md          [actual code]            │
+│   references.md  (self-contained                            │
+│   standards.md    prompts)                                  │
 │                                                             │
-│       ↓              ↓               ↓                      │
-│                                                             │
-│  /sdd-tasks  →  /sdd-prompts  →  /sdd-implement             │
-│       ↓              ↓               ↓                      │
-│   tasks.md      prompts/*.md    [actual code]               │
-│                                                             │
-│                      ↓                                      │
-│                                                             │
-│               /sdd-verify  →  /sdd-export                   │
-│                    ↓               ↓                        │
-│         final-verification.md   sdd-export.zip              │
-│                                                             │
+│  Check progress any time with /sdd-status                   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -384,23 +341,23 @@ Then regenerate spec, tasks, and prompts.
 
 **Q: Do I have to use all the phases?**
 
-No. If you already have clear requirements, skip `/sdd-shape` and write them directly to `requirements.md`. If you don't need prompts for other tools, skip `/sdd-prompts`.
+No. For an existing app you can skip product planning (`/sdd-plan`) and go straight to `/sdd-shape`. If you already have clear requirements, give them to Claude during shaping instead of answering the questions one by one.
 
 **Q: Can I use this for existing projects?**
 
-Yes! Run `/sdd-init` in your project, then `/sdd-plan` to document your existing product. The skill works for new features in existing codebases.
+Yes! Run `/sdd-init` in your project, then `/sdd-discover-standards` to capture the codebase's tribal knowledge as standards. The skill works for new features in existing codebases.
 
 **Q: What if I'm working solo, not with a team?**
 
-The skill works great solo. Skip orchestration mode and use simple implementation. The documentation helps future-you remember why decisions were made.
+The skill works great solo. The self-contained spec folder helps future-you remember why decisions were made and lets you resume work in a fresh session with zero context loss.
 
-**Q: How do I use the generated prompts?**
+**Q: How do I use the task-group prompts?**
 
-Copy the contents of each prompt file (e.g., `1-database-layer.md`) and paste it into your AI tool of choice. Run them in order (1, 2, 3, 4).
+Each group in `tasks.md` is a self-contained prompt. Run them all in one Claude Code session, or copy a single group's prompt into a fresh session and run the groups in order (Database → Backend → Frontend → Integration).
 
 **Q: Can I customize the templates?**
 
-Yes! Edit the templates in `references/document-templates.md` or create your own standards in `sdd/standards/`.
+Yes! Edit the templates in `references/document-templates.md` or create your own standards in `sdd/standards/` (and register them in `standards/index.yml`).
 
 ---
 
@@ -409,7 +366,7 @@ Yes! Edit the templates in `references/document-templates.md` or create your own
 - **Check progress:** `/sdd-status` or "What's my current status?"
 - **Resume work:** "Continue where we left off on [feature]"
 - **See what's next:** "What's the next step for this spec?"
-- **Export everything:** `/sdd-export` or "Zip up all my spec documents"
+- **Discover standards:** `/sdd-discover-standards` to capture an existing codebase's conventions
 
 ---
 

@@ -1,3 +1,8 @@
+---
+description: "Shape a feature spec: questions, codebase search, standards injection, spec.md"
+argument-hint: "[feature-name]"
+---
+
 Shape a feature spec for this Rails project using the spec-driven-development skill.
 
 ## Process

@@ -1,3 +1,7 @@
+---
+description: Bootstrap sdd/ with Rails standards, index.yml, and a progress tracker
+---
+
 Initialize Spec-Driven Development for this Rails project.
 
 Run the bootstrap script shipped with the spec-driven-development plugin:

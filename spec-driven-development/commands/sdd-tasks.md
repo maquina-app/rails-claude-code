@@ -1,3 +1,7 @@
+---
+description: Break the current spec into task groups with self-contained Claude Code prompts
+---
+
 Create the task breakdown for the current feature spec using the spec-driven-development skill.
 
 ## Setup

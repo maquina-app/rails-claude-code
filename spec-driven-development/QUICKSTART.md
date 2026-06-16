@@ -2,73 +2,81 @@
 
 ## When to Use
 
-Building features systematically with specifications.
+Building Rails features systematically with self-contained specs that Claude Code can pick up and execute independently.
 
 ## Two Paths
 
-### New Project
+### New Project (from MVP docs or scratch)
 ```bash
-bash scripts/init_sdd.sh my-project
-# Create mission.md, roadmap.md, tech-stack.md
-# Then shape first feature
+bash scripts/init_sdd.sh my-project   # bootstraps sdd/ + Rails standards + index.yml
+# /sdd-plan  — create mission.md, roadmap.md, tech-stack.md
+# /sdd-shape — shape the first feature
 ```
 
 ### Existing App (Adding Features)
 ```bash
-bash scripts/init_sdd.sh          # Only if no sdd/ folder
-bash scripts/new_spec.sh feature-name
-# Skip product planning, go straight to Shape
+bash scripts/init_sdd.sh              # only if no sdd/ folder yet
+bash scripts/new_spec.sh feature-name # create a dated spec folder
+# Skip product planning — go straight to /sdd-shape
 ```
 
 ## Feature Workflow
 
 ```
-Shape → Spec → Verify → Tasks → Implement → Verify
+Shape → Tasks → Hand off to Claude Code
 ```
 
-| Phase | Output | Time |
-|-------|--------|------|
-| Shape | `planning/requirements.md` | 15-30 min |
-| Spec | `spec.md` | 30-60 min |
-| Verify | `verification/spec-verification.md` | 10 min |
-| Tasks | `tasks.md` | 20-30 min |
-| Implement | Working code | Varies |
-| Verify | `verification/final-verification.md` | 15 min |
+| Phase | Command | Output |
+|-------|---------|--------|
+| Product Planning (once) | `/sdd-plan` | `product/mission.md`, `roadmap.md`, `tech-stack.md` |
+| Shape Spec | `/sdd-shape` | `spec.md`, `references.md`, `standards.md` |
+| Create Tasks | `/sdd-tasks` | `tasks.md` (self-contained Claude Code prompts) |
+| Implement | hand off to Claude Code | Working code |
 
 ## Directory Structure
 
 ```
 sdd/
-├── progress.yml           # Track current state
-├── product/               # Mission, roadmap (new projects)
-├── standards/             # Coding standards (optional)
+├── progress.yml              # Track current state
+├── product/                  # mission, roadmap, tech-stack (new projects)
+├── standards/
+│   ├── index.yml             # Catalog of all standards
+│   ├── global/  backend/  frontend/  testing/
 └── specs/
     └── 2024-12-28-user-auth/
-        ├── planning/
-        │   ├── requirements.md
-        │   └── visuals/     # Mockups go here
-        ├── spec.md
-        ├── tasks.md
-        └── verification/
+        ├── spec.md           # Requirements, user stories, scope
+        ├── references.md     # Existing code to reuse/follow
+        ├── standards.md      # Standards injected for THIS feature
+        └── tasks.md          # Task groups + self-contained prompts
 ```
 
 ## Key Commands
 
 | Command | Purpose |
 |---------|---------|
+| `/sdd-init` | Initialize sdd/ with Rails standards + index.yml + progress tracker |
+| `/sdd-plan` | Create product mission, roadmap, tech stack |
+| `/sdd-shape` | Gather requirements → search codebase → inject standards → write spec |
+| `/sdd-tasks` | Create task breakdown with self-contained Claude Code prompts |
+| `/sdd-status` | Show progress and next suggested action |
+| `/sdd-discover-standards` | Extract tribal knowledge from an existing codebase into standards |
+
+Helper scripts (used by the commands, runnable directly):
+
+| Script | Purpose |
+|--------|---------|
 | `bash scripts/init_sdd.sh` | Initialize project |
-| `bash scripts/new_spec.sh name` | Create new spec folder |
+| `bash scripts/new_spec.sh name` | Create a new dated spec folder |
 | `bash scripts/status.sh` | Show progress |
-| `bash scripts/export.sh` | Zip all documents |
 
 ## Shape Phase Questions
 
 Ask about:
-1. Core functionality needed
-2. User interactions
+1. Core functionality needed (the happy path)
+2. User interactions and what success looks like
 3. Data to store
 4. Similar existing code to reuse
-5. Edge cases to handle
+5. Edge cases needed in v1
 
 ## Spec Structure
 
@@ -82,46 +90,43 @@ Ask about:
 - As a [user], I want [action] so that [benefit]
 
 ## Requirements
-### Functional
-### Non-functional
+[Functional only — no implementation details]
 
 ## Visual Design
-[Reference mockups in planning/visuals/]
-
-## Existing Code
-[What to reuse from codebase]
+[Mockup link or layout description]
 
 ## Out of Scope
-[What we're NOT building]
+[What we're NOT building in v1]
 ```
 
 ## Tasks Structure
 
 ```markdown
-### Task Group 1: Database Layer
-- [ ] 1.1 Write 2-8 tests
-- [ ] 1.2 Create migration
-- [ ] 1.3 Create model
-- [ ] 1.4 Run tests
+## Group 1: Database
+- [ ] Write 2–5 focused tests first
+- [ ] Migration, model validations, fixtures
 
-### Task Group 2: API Layer
+## Group 2: Backend
 ...
 
-### Task Group 3: Frontend
+## Group 3: Frontend
 ...
 
-### Task Group 4: Test Review
+## Group 4: Integration
+...
 ```
 
 ## Tips
 
 1. **Always check `progress.yml`** before starting
-2. **Visuals are mandatory** — create mockups if none provided
+2. **Provide visuals** — add mockups, or use `frontend-design` to create one
 3. **Search for reuse** before specifying new code
-4. **2-8 tests per group** — don't over-test
+4. **2–5 tests per group** (10–20 total, never more than 8) — don't over-test
 5. **Use concrete folder names** — never `{{...}}`
 
 ## Related Skills
 
 - `frontend-design` — Create mockups during Shape
 - `maquina-ui-standards` — Implement UI tasks
+- `better-stimulus` — Before any Stimulus controller
+- `rails-simplifier` — After implementing models/controllers

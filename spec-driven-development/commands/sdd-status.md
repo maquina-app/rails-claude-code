@@ -1,3 +1,7 @@
+---
+description: Show SDD progress and suggest the next command
+---
+
 Show the current Spec-Driven Development status for this Rails project.
 
 Read `sdd/progress.yml` and display a summary:

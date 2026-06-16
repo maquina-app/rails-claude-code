@@ -1,3 +1,8 @@
+---
+description: Extract tribal knowledge from an existing Rails codebase into new SDD standards
+argument-hint: "[area]"
+---
+
 Discover and document tribal knowledge from this Rails codebase as new SDD standards.
 
 Use this when adding SDD to an existing Rails app to capture patterns beyond the bootstrapped defaults.

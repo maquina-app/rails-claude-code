@@ -1,3 +1,7 @@
+---
+description: Create or update product mission, roadmap, and tech-stack docs
+---
+
 Create or update the product planning documents for this Rails project using the spec-driven-development skill.
 
 ## If MVP Creator docs exist (docs/MVP_BUSINESS_PLAN.md, docs/TECHNICAL_GUIDE.md):

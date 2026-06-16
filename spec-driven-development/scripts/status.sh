@@ -2,6 +2,10 @@
 
 # Spec-Driven Development - Status Script
 # Usage: bash status.sh
+#
+# Reads the simple sdd/progress.yml schema written by init_sdd.sh:
+#   project, updated, product_planning.status, current_spec.{name,status},
+#   completed_specs[]
 
 set -e
 
@@ -24,7 +28,7 @@ if [ ! -f "$PROGRESS_FILE" ]; then
 fi
 
 echo -e "${BLUE}╔════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║     Spec-Driven Development Status         ║${NC}"
+echo -e "${BLUE}║     Spec-Driven Development Status          ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════════╝${NC}"
 echo ""
 
@@ -38,88 +42,37 @@ echo ""
 
 # Product Planning Status
 echo -e "${YELLOW}━━━ Product Planning ━━━${NC}"
-PROD_STATUS=$(grep -A4 "^product_planning:" "$PROGRESS_FILE" | grep "status:" | sed 's/.*status: *//')
-MISSION=$(grep -A4 "^product_planning:" "$PROGRESS_FILE" | grep "mission:" | sed 's/.*mission: *//')
-ROADMAP=$(grep -A4 "^product_planning:" "$PROGRESS_FILE" | grep "roadmap:" | sed 's/.*roadmap: *//')
-TECH=$(grep -A4 "^product_planning:" "$PROGRESS_FILE" | grep "tech_stack:" | sed 's/.*tech_stack: *//')
-
+PROD_STATUS=$(grep -A2 "^product_planning:" "$PROGRESS_FILE" | grep "status:" | head -1 | sed 's/.*status: *//')
 case $PROD_STATUS in
     "complete") echo -e "  Status: ${GREEN}✓ Complete${NC}" ;;
     "in_progress") echo -e "  Status: ${YELLOW}◐ In Progress${NC}" ;;
     *) echo -e "  Status: ${RED}○ Not Started${NC}" ;;
 esac
-
-[ "$MISSION" = "true" ] && echo -e "  Mission:    ${GREEN}✓${NC}" || echo -e "  Mission:    ${RED}○${NC}"
-[ "$ROADMAP" = "true" ] && echo -e "  Roadmap:    ${GREEN}✓${NC}" || echo -e "  Roadmap:    ${RED}○${NC}"
-[ "$TECH" = "true" ] && echo -e "  Tech Stack: ${GREEN}✓${NC}" || echo -e "  Tech Stack: ${RED}○${NC}"
 echo ""
 
 # Current Spec Status
 echo -e "${YELLOW}━━━ Current Spec ━━━${NC}"
-SPEC_NAME=$(grep -A2 "^current_spec:" "$PROGRESS_FILE" | grep "name:" | sed 's/.*name: *//')
-SPEC_PATH=$(grep -A3 "^current_spec:" "$PROGRESS_FILE" | grep "path:" | sed 's/.*path: *//')
+SPEC_NAME=$(grep -A2 "^current_spec:" "$PROGRESS_FILE" | grep "name:" | head -1 | sed 's/.*name: *//')
+SPEC_STATUS=$(grep -A2 "^current_spec:" "$PROGRESS_FILE" | grep "status:" | head -1 | sed 's/.*status: *//')
 
 if [ "$SPEC_NAME" = "null" ] || [ -z "$SPEC_NAME" ]; then
     echo -e "  ${CYAN}No active spec${NC}"
-    echo "  Run: new_spec.sh <spec-name> to start a new feature"
+    echo "  Run: new_spec.sh <spec-name> (or /sdd-shape) to start a new feature"
 else
     echo -e "  Name: ${CYAN}$SPEC_NAME${NC}"
-    echo -e "  Path: $SPEC_PATH"
-    echo ""
-    
-    # Phase statuses
-    echo "  Phases:"
-    
-    # Shape Spec
-    SHAPE_STATUS=$(grep -A3 "shape_spec:" "$PROGRESS_FILE" | grep "status:" | head -1 | sed 's/.*status: *//')
-    case $SHAPE_STATUS in
-        "complete") echo -e "    Shape Spec:    ${GREEN}✓ Complete${NC}" ;;
-        "in_progress") echo -e "    Shape Spec:    ${YELLOW}◐ In Progress${NC}" ;;
-        *) echo -e "    Shape Spec:    ${RED}○ Not Started${NC}" ;;
-    esac
-    
-    # Write Spec
-    WRITE_STATUS=$(grep -A2 "write_spec:" "$PROGRESS_FILE" | grep "status:" | head -1 | sed 's/.*status: *//')
-    case $WRITE_STATUS in
-        "complete") echo -e "    Write Spec:    ${GREEN}✓ Complete${NC}" ;;
-        "in_progress") echo -e "    Write Spec:    ${YELLOW}◐ In Progress${NC}" ;;
-        *) echo -e "    Write Spec:    ${RED}○ Not Started${NC}" ;;
-    esac
-    
-    # Create Tasks
-    TASKS_STATUS=$(grep -A3 "create_tasks:" "$PROGRESS_FILE" | grep "status:" | head -1 | sed 's/.*status: *//')
-    TASK_COUNT=$(grep -A3 "create_tasks:" "$PROGRESS_FILE" | grep "task_count:" | sed 's/.*task_count: *//')
-    case $TASKS_STATUS in
-        "complete") echo -e "    Create Tasks:  ${GREEN}✓ Complete${NC} ($TASK_COUNT tasks)" ;;
-        "in_progress") echo -e "    Create Tasks:  ${YELLOW}◐ In Progress${NC}" ;;
-        *) echo -e "    Create Tasks:  ${RED}○ Not Started${NC}" ;;
-    esac
-    
-    # Implement
-    IMPL_STATUS=$(grep -A4 "implement:" "$PROGRESS_FILE" | grep "status:" | head -1 | sed 's/.*status: *//')
-    IMPL_MODE=$(grep -A4 "implement:" "$PROGRESS_FILE" | grep "mode:" | sed 's/.*mode: *//')
-    IMPL_DONE=$(grep -A4 "implement:" "$PROGRESS_FILE" | grep "tasks_completed:" | sed 's/.*tasks_completed: *//')
-    IMPL_TOTAL=$(grep -A4 "implement:" "$PROGRESS_FILE" | grep "tasks_total:" | sed 's/.*tasks_total: *//')
-    case $IMPL_STATUS in
-        "complete") echo -e "    Implement:     ${GREEN}✓ Complete${NC} ($IMPL_DONE/$IMPL_TOTAL tasks, $IMPL_MODE mode)" ;;
-        "in_progress") echo -e "    Implement:     ${YELLOW}◐ In Progress${NC} ($IMPL_DONE/$IMPL_TOTAL tasks)" ;;
-        *) echo -e "    Implement:     ${RED}○ Not Started${NC}" ;;
-    esac
-    
-    # Verify
-    VERIFY_STATUS=$(grep -A3 "verify:" "$PROGRESS_FILE" | grep "status:" | head -1 | sed 's/.*status: *//')
-    case $VERIFY_STATUS in
-        "complete") echo -e "    Verify:        ${GREEN}✓ Complete${NC}" ;;
-        "in_progress") echo -e "    Verify:        ${YELLOW}◐ In Progress${NC}" ;;
-        *) echo -e "    Verify:        ${RED}○ Not Started${NC}" ;;
+    case $SPEC_STATUS in
+        "complete")     echo -e "  Status: ${GREEN}✓ Complete${NC}" ;;
+        "implementing") echo -e "  Status: ${YELLOW}◐ Implementing${NC}" ;;
+        "tasks")        echo -e "  Status: ${YELLOW}◐ Tasks created${NC}" ;;
+        "shaping")      echo -e "  Status: ${YELLOW}◐ Shaping${NC}" ;;
+        *)              echo -e "  Status: ${CYAN}$SPEC_STATUS${NC}" ;;
     esac
 fi
-
 echo ""
 
 # Completed Specs
 echo -e "${YELLOW}━━━ Completed Specs ━━━${NC}"
-COMPLETED=$(grep -A100 "^completed_specs:" "$PROGRESS_FILE" | grep -E "^\s+-\s+name:" | sed 's/.*name: *//' | head -5)
+COMPLETED=$(grep -A100 "^completed_specs:" "$PROGRESS_FILE" | grep -E "^\s+-\s+name:" | sed 's/.*name: *//' | head -10)
 if [ -z "$COMPLETED" ]; then
     echo -e "  ${CYAN}No completed specs yet${NC}"
 else
