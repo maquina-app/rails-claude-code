@@ -1,7 +1,7 @@
 {
     "name": "rails-simplifier",
     "version": "1.0.0",
-    "description": "Agent that simplifies and refines Ruby on Rails code following 37signals patterns and the One Person Framework philosophy",
+    "description": "Simplifies and refines Ruby on Rails code following 37signals patterns and the One Person Framework philosophy",
     "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"

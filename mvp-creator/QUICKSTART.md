@@ -79,5 +79,4 @@ your-app/
 ## Next Steps
 
 After MVP docs are complete:
-- Use `startup-pitch-creator` for investor deck
 - Use `spec-driven-development` to build features

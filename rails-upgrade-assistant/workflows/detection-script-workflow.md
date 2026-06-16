@@ -431,5 +431,5 @@ Same content saved to `rails_81_upgrade_findings.txt`
 **Related Files:**
 - Template: `detection-scripts/templates/detection-script-template.sh`
 - Patterns: `detection-scripts/patterns/rails-{VERSION}-patterns.yml`
-- Guide: `reference/pattern-file-guide.md`
+- Guide: `reference/reference-files-package.md` §1 (Pattern File Guide)
 - Examples: `examples/detection-script-only.md`

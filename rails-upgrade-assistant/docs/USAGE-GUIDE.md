@@ -13,7 +13,8 @@ The Rails Upgrade Assistant was redesigned with a **modular architecture** for i
 ```
 rails-upgrade-assistant/
 │
-├── SKILL.md (300 lines)               ← Entry point, references
+├── agents/
+│   └── rails-upgrade-assistant.md     ← Entry point, references
 │
 ├── workflows/ (3 files)               ← HOW to generate
 │   ├── upgrade-report-workflow.md         (~400 lines)
@@ -22,7 +23,7 @@ rails-upgrade-assistant/
 │
 ├── examples/ (4 files)                ← WHAT output looks like
 │   ├── simple-upgrade.md                  (~350 lines)
-│   ├── multi-hop-upgrade.md               (~300 lines)
+│   ├── multi-hop-upgrade.md
 │   ├── detection-script-only.md           (~250 lines)
 │   └── preview-only.md                    (~100 lines)
 │
@@ -79,7 +80,7 @@ rails-upgrade-assistant/
 ```
 User Request
     ↓
-1. Claude reads SKILL.md (300 lines)
+1. Claude reads the agent file (`agents/rails-upgrade-assistant.md`)
     ↓
 2. Identifies request type and needed workflows
     ↓
@@ -105,7 +106,7 @@ Output to User
 **User says:** "Upgrade my Rails app to 8.1"
 
 **Claude's process:**
-1. Reads `SKILL.md` (300 lines)
+1. Reads the agent file (`agents/rails-upgrade-assistant.md`)
    - Understands this is a full upgrade request
    - Identifies needs all 3 deliverables
    
@@ -130,7 +131,7 @@ Output to User
 **User says:** "Create a detection script for Rails 8.0"
 
 **Claude's process:**
-1. Reads `SKILL.md` (300 lines)
+1. Reads the agent file (`agents/rails-upgrade-assistant.md`)
    - Understands this is detection-script-only request
    - Skips other deliverables
    
@@ -154,7 +155,7 @@ Output to User
 **User says:** "Show me what config files will change for Rails 8.1"
 
 **Claude's process:**
-1. Reads `SKILL.md` (300 lines)
+1. Reads the agent file (`agents/rails-upgrade-assistant.md`)
 2. Loads specific workflow (400 lines):
    - `workflows/app-update-preview-workflow.md`
 3. Loads example (100 lines):
@@ -170,10 +171,10 @@ Output to User
 **User says:** "Help me upgrade from Rails 7.0 to 8.1"
 
 **Claude's process:**
-1. Reads `SKILL.md` (300 lines)
+1. Reads the agent file (`agents/rails-upgrade-assistant.md`)
    - Recognizes multi-hop scenario
    
-2. Loads strategy example (300 lines):
+2. Loads strategy example:
    - `examples/multi-hop-upgrade.md` - Sequential requirement explanation
    
 3. **Initial total:** ~600 lines
@@ -187,7 +188,7 @@ Output to User
 **User says:** "What ActiveRecord changes are in Rails 8.0?"
 
 **Claude's process:**
-1. Reads `SKILL.md` (300 lines)
+1. Reads the agent file (`agents/rails-upgrade-assistant.md`)
 2. Loads version guide (~800 lines):
    - `version-guides/upgrade-7.2-to-8.0.md`
 3. **Total loaded:** ~1,100 lines
@@ -344,7 +345,7 @@ Output to User
 
 #### Clear Separation of Concerns
 
-**SKILL.md** - "What am I?"
+**`agents/rails-upgrade-assistant.md`** - "What am I?"
 - Compact overview
 - Trigger patterns
 - File references
@@ -541,7 +542,7 @@ Each workflow file follows this pattern:
 2. Follow workflow file structure pattern
 3. Define steps clearly
 4. Add quality checks
-5. Update `SKILL.md`:
+5. Update the agent file (`agents/rails-upgrade-assistant.md`):
    ```markdown
    ## Deliverables
    - Upgrade Report (workflows/upgrade-report-workflow.md)
@@ -566,7 +567,7 @@ Each workflow file follows this pattern:
 5. Verify: Improvement applied
 
 **Benefits:**
-- No need to update SKILL.md
+- No need to update the agent file (`agents/rails-upgrade-assistant.md`)
 - No need to update examples
 - No need to update other workflows
 - Change is immediately effective
@@ -579,9 +580,9 @@ Add this introduction paragraph:
 
 ### How Workflows Are Loaded
 
-In the modular architecture, workflows are no longer embedded in SKILL.md. Instead, they exist as separate files in the `workflows/` directory. When you make a request, Claude:
+In the modular architecture, workflows are no longer embedded in the agent file (`agents/rails-upgrade-assistant.md`). Instead, they exist as separate files in the `workflows/` directory. When you make a request, Claude:
 
-1. Reads `SKILL.md` to understand your request
+1. Reads the agent file (`agents/rails-upgrade-assistant.md`) to understand your request
 2. Identifies which workflow files are needed
 3. Loads those specific workflow files
 4. Follows the step-by-step instructions in each workflow
@@ -605,7 +606,7 @@ The workflows below describe WHAT happens. The actual HOW instructions are in th
 
 ### Quick Reference: What Loads When
 
-| Your Request | SKILL.md | Workflows | Examples | References | Version Guides |
+| Your Request | Agent file | Workflows | Examples | References | Version Guides |
 |--------------|----------|-----------|----------|------------|----------------|
 | "Upgrade to 8.1" | ✅ Always | ✅ All 3 | ❌ No | ✅ Quality | ✅ Relevant |
 | "Detection script for 8.0" | ✅ Always | ✅ Script | ✅ Script-only | ❌ No | ✅ Relevant |
@@ -621,7 +622,7 @@ The workflows below describe WHAT happens. The actual HOW instructions are in th
 User: "Upgrade my Rails app to 8.1"
 
 Loading sequence:
-1. SKILL.md (300 lines)
+1. agents/rails-upgrade-assistant.md
    → Identifies: full upgrade request
    → Needs: all 3 deliverables
 
@@ -650,7 +651,7 @@ Result: All 3 deliverables + quality validation
 User: "Create a detection script for Rails 8.0 upgrade"
 
 Loading sequence:
-1. SKILL.md (300 lines)
+1. agents/rails-upgrade-assistant.md
    → Identifies: detection-script-only request
    → Needs: just script
 
@@ -674,11 +675,11 @@ Result: Just detection script
 User: "Help me upgrade from Rails 7.0 to 8.1"
 
 Loading sequence:
-1. SKILL.md (300 lines)
+1. agents/rails-upgrade-assistant.md
    → Identifies: multi-hop scenario (7.0 → 8.1 = 4 hops)
    → Needs: strategy explanation first
 
-2. examples/multi-hop-upgrade.md (300 lines)
+2. examples/multi-hop-upgrade.md
    → Sequential requirement explanation
    → Two approaches (one-at-a-time vs all-upfront)
 
@@ -694,7 +695,7 @@ Result: Strategic planning first, execution second
 User: "What ActiveRecord changes are in Rails 8.0?"
 
 Loading sequence:
-1. SKILL.md (300 lines)
+1. agents/rails-upgrade-assistant.md
    → Identifies: query about specific component
    → Needs: just version guide
 
@@ -741,7 +742,7 @@ Understanding the structure helps you:
 
 **For Maintainers:**
 The modular structure makes maintenance easy:
-- Update workflows without touching SKILL.md
+- Update workflows without touching the agent file (`agents/rails-upgrade-assistant.md`)
 - Add examples without restructuring
 - Extend with new features cleanly
 - Scale without technical debt

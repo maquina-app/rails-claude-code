@@ -60,15 +60,7 @@ Generate each deliverable sequentially. **Before presenting any deliverable, run
 4. **Claude Setup** → `CLAUDE.md`, `.mcp.json`, `.claudeignore`, `.claude/commands/`
    - Template: [claude-setup.md](references/deliverable-templates/claude-setup.md)
 
-### Phase 4: Marketing & Pitch Materials (Optional)
-
-After core documentation is complete, ask once:
-
-> "All MVP foundation documents are complete. Would you like me to create investor pitch materials or a marketing plan using the `startup-pitch-creator` skill?"
-
-Then proceed to the SDD handoff regardless of the answer.
-
-### Phase 5: Handoff to SDD
+### Phase 4: Handoff to SDD
 
 After all deliverables are approved, always suggest:
 
@@ -306,6 +298,5 @@ Run the relevant checklist before presenting each deliverable.
 | Skill | When to Use |
 |-------|-------------|
 | `frontend-design` | UI screen mockups and design rationale — after brand guide is approved |
-| `startup-pitch-creator` | After MVP docs are complete — investor decks, marketing plans, video storyboards |
 | `spec-driven-development` | Implementation planning — convert MVP docs into specs and tasks |
 | `maquina-ui-standards` | When building UI for Rails apps with maquina_components |

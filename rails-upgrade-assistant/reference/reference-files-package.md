@@ -250,7 +250,7 @@ If issue not listed:
 1. Review relevant workflow in `workflows/`
 2. Check example in `examples/`
 3. Verify pattern file structure
-4. Re-read SKILL.md instructions
+4. Re-read the agent instructions in `agents/rails-upgrade-assistant.md`
 
 ---
 

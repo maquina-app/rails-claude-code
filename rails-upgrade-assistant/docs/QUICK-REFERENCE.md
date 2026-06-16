@@ -1465,10 +1465,10 @@ bin/rails test && echo "✅ All tests pass"
 
 ### Documentation in This Package
 
-- **Main Skill File:** `SKILL.md` - Complete instructions for Claude
+- **Main Skill File:** `agents/rails-upgrade-assistant.md` - Complete instructions for Claude
 - **README:** `README.md` - Getting started guide
 - **Usage Guide:** `USAGE-GUIDE.md` - Detailed how-to
-- **Troubleshooting:** `TROUBLESHOOTING.md` - Common issues & solutions
+- **Troubleshooting:** `reference/reference-files-package.md` (§3 Troubleshooting) - Common issues & solutions
 
 ### Version-Specific Guides
 
@@ -1581,5 +1581,15 @@ After any upgrade, verify these items:
 
 For detailed explanations and complete upgrade workflows, see the version-specific guides in `version-guides/`.
 
-For interactive upgrade assistance, upload `SKILL.md` to your Claude Project and say:  
+For interactive upgrade assistance, install the plugin:
+
+```bash
+# Add the marketplace
+/plugin marketplace add maquina/rails-claude-code
+
+# Install the plugin
+/plugin install rails-upgrade-assistant@rails
+```
+
+Then say:  
 `"Upgrade my Rails app to [version]"`

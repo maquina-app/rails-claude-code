@@ -55,8 +55,9 @@ A comprehensive Claude skill that:
 ```
 rails-upgrade-assistant/
 │
-├── SKILL.md (300 lines)          ⭐ Compact entry point
-│   └── Overview, triggers, file references
+├── agents/
+│   └── rails-upgrade-assistant.md  ⭐ Entry point
+│       └── Overview, triggers, file references
 │
 ├── workflows/                     📋 How to generate deliverables
 │   ├── upgrade-report-workflow.md      (~400 lines)
@@ -65,7 +66,7 @@ rails-upgrade-assistant/
 │
 ├── examples/                      💡 Real usage scenarios
 │   ├── simple-upgrade.md               (~350 lines)
-│   ├── multi-hop-upgrade.md            (~300 lines)
+│   ├── multi-hop-upgrade.md
 │   ├── detection-script-only.md        (~250 lines)
 │   └── preview-only.md                 (~100 lines)
 │
@@ -110,12 +111,15 @@ reference/
 
 ### Step 1: Install the Skill
 
-**Upload to Claude Project:**
+**Install the plugin:**
 
-1. Open your Claude Project
-2. Go to Project Settings → Knowledge
-3. Upload the entire `rails-upgrade-assistant/` folder
-4. Or upload just `SKILL.md` for minimal setup
+```bash
+# Add the marketplace
+/plugin marketplace add maquina/rails-claude-code
+
+# Install the plugin
+/plugin install rails-upgrade-assistant@rails
+```
 
 ### Step 2: Verify MCP Connection
 
@@ -789,7 +793,7 @@ This is normal! The skill is being thorough. Focus on:
 **Solution:**
 
 1. Ask Claude: "My tests are failing with [error message]"
-2. Check `TROUBLESHOOTING.md` for your error
+2. Check `reference/reference-files-package.md` (§3 Troubleshooting) for your error
 3. Review the breaking changes section for your upgrade
 4. Verify you applied all required changes
 
@@ -801,7 +805,7 @@ This is the Sprockets → Propshaft migration. See:
 1. `version-guides/upgrade-7.2-to-8.0.md` → Asset Pipeline section
 2. Check `app/assets/config/manifest.js` exists
 3. Verify asset paths in views
-4. Review `TROUBLESHOOTING.md` → Assets section
+4. Review `reference/reference-files-package.md` (§3 Troubleshooting) → Assets section
 
 ---
 
@@ -839,7 +843,7 @@ This is the Sprockets → Propshaft migration. See:
 
 ### Troubleshooting Guide
 
-**File:** `TROUBLESHOOTING.md`
+**File:** `reference/reference-files-package.md` (§3 Troubleshooting)
 
 **Contents:**
 - Common errors & solutions
@@ -1002,7 +1006,7 @@ Your upgrade is successful when:
 → `USAGE-GUIDE.md`
 
 **Troubleshooting:**
-→ `TROUBLESHOOTING.md`
+→ `reference/reference-files-package.md` (§3 Troubleshooting)
 
 **Specific version:**
 → `version-guides/upgrade-X-to-Y.md`

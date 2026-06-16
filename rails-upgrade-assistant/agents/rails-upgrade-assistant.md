@@ -130,9 +130,7 @@ If user requests a multi-hop upgrade (e.g., 7.0 → 8.1):
 - `reference/multi-hop-strategy.md` - Multi-version planning
 - `reference/deprecations-timeline.md` - Deprecation tracking
 - `reference/testing-checklist.md` - Comprehensive testing
-- `reference/pattern-file-guide.md` - How to use pattern files
-- `reference/quality-checklist.md` - Pre-delivery verification
-- `reference/troubleshooting.md` - Common issues and solutions
+- `reference/reference-files-package.md` - Pattern file guide (§1), pre-delivery quality checklist (§2), and troubleshooting (§3)
 
 ### Detection Script Resources
 - `detection-scripts/patterns/rails-61-patterns.yml` - Rails 6.1 patterns
@@ -247,9 +245,9 @@ Load workflow files when you need detailed instructions:
 - `examples/preview-only.md` - User wants only preview
 
 **Load When You Need Reference:**
-- `reference/pattern-file-guide.md` - When processing YAML pattern files
-- `reference/quality-checklist.md` - Before delivering any output
-- `reference/troubleshooting.md` - When encountering issues
+- `reference/reference-files-package.md` §1 - When processing YAML pattern files
+- `reference/reference-files-package.md` §2 - Before delivering any output
+- `reference/reference-files-package.md` §3 - When encountering issues
 
 ---
 
@@ -279,7 +277,7 @@ Before delivering, verify:
 - [ ] Configuration changes preview uses real config diffs
 - [ ] Next steps clearly outlined
 
-**Detailed Checklist:** See `reference/quality-checklist.md`
+**Detailed Checklist:** See `reference/reference-files-package.md` §2 (Quality Checklist)
 
 ---
 
@@ -356,7 +354,7 @@ This skill follows a modular structure:
 
 ```
 rails-upgrade-assistant/
-├── SKILL.md                          # This file (high-level)
+├── agents/rails-upgrade-assistant.md # This file (high-level)
 ├── workflows/                        # Detailed how-to guides
 │   ├── upgrade-report-workflow.md
 │   └── detection-script-workflow.md
@@ -366,9 +364,11 @@ rails-upgrade-assistant/
 │   ├── detection-script-only.md
 │   └── preview-only.md
 ├── reference/                        # Reference documentation
-│   ├── pattern-file-guide.md
-│   ├── quality-checklist.md
-│   └── troubleshooting.md
+│   ├── breaking-changes-by-version.md
+│   ├── multi-hop-strategy.md
+│   ├── deprecations-timeline.md
+│   ├── testing-checklist.md
+│   └── reference-files-package.md    # Pattern guide (§1), quality checklist (§2), troubleshooting (§3)
 ├── version-guides/                   # Version-specific guides
 ├── templates/                        # Report templates
 └── detection-scripts/                # Pattern files and templates
@@ -393,7 +393,7 @@ A successful upgrade assistance session:
 ✅ Provided clear next steps  
 ✅ Offered interactive help (if Neovim available)  
 
-**Verification:** See `reference/quality-checklist.md`
+**Verification:** See `reference/reference-files-package.md` §2 (Quality Checklist)
 
 ---
 

@@ -319,7 +319,7 @@ Before delivering, verify:
 - [ ] Configuration changes preview included with real diffs
 - [ ] Resources section completed
 
-**Full Checklist:** See `reference/quality-checklist.md`
+**Full Checklist:** See `reference/reference-files-package.md` §2 (Quality Checklist)
 
 ---
 
@@ -417,4 +417,4 @@ Manual Redis configuration
 **Related Files:**
 - Template: `templates/upgrade-report-template.md`
 - Examples: `examples/simple-upgrade.md`
-- Quality Check: `reference/quality-checklist.md`
+- Quality Check: `reference/reference-files-package.md` §2 (Quality Checklist)

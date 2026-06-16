@@ -55,8 +55,9 @@ docs/
 ```
 rails-upgrade-assistant/
 │
-├── SKILL.md                 ⭐ Compact entry point (300 lines)
-│   └── Overview, trigger patterns, file references
+├── agents/
+│   └── rails-upgrade-assistant.md  ⭐ Entry point
+│       └── Overview, trigger patterns, file references
 │
 ├── workflows/               📋 How to generate deliverables
 │   ├── upgrade-report-workflow.md
@@ -104,7 +105,7 @@ rails-upgrade-assistant/
 ## 🆕 What's New: Modular Architecture
 
 ### New Design (Modular)
-- ✅ Compact SKILL.md (300 lines)
+- ✅ Compact agent file (`agents/rails-upgrade-assistant.md`)
 - ✅ Selective loading based on request
 - ✅ Single source of truth
 - ✅ Easy to maintain and extend
@@ -113,7 +114,7 @@ rails-upgrade-assistant/
 
 **Simple request:** "Upgrade my Rails app to 8.1"
 ```
-1. Read: SKILL.md (300 lines) → Get overview
+1. Read: the agent file (`agents/rails-upgrade-assistant.md`) → Get overview
 2. Load: workflows/upgrade-report-workflow.md → How to generate report
 3. Load: workflows/detection-script-workflow.md → How to generate script
 4. Load: workflows/app-update-preview-workflow.md → How to generate preview
@@ -124,7 +125,7 @@ rails-upgrade-assistant/
 
 **Detection script only:** "Create detection script for Rails 8.0"
 ```
-1. Read: SKILL.md (300 lines) → Get overview
+1. Read: the agent file (`agents/rails-upgrade-assistant.md`) → Get overview
 2. Load: workflows/detection-script-workflow.md → How to generate script
 3. Reference: examples/detection-script-only.md → Example structure
 4. Generate: Just detection script
@@ -133,7 +134,7 @@ rails-upgrade-assistant/
 
 **Multi-hop upgrade:** "Upgrade from Rails 7.0 to 8.1"
 ```
-1. Read: SKILL.md (300 lines) → Get overview  
+1. Read: the agent file (`agents/rails-upgrade-assistant.md`) → Get overview  
 2. Load: examples/multi-hop-upgrade.md → Understand approach
 3. Confirm: Which approach user wants
 4. Load workflows: As needed for each hop
@@ -146,11 +147,15 @@ rails-upgrade-assistant/
 
 ### Step 1: Install the Skill (2 minutes)
 
-**Upload to Claude Project:**
-1. Open your Claude Project
-2. Go to Project Settings → Knowledge
-3. Upload the entire `rails-upgrade-assistant/` folder
-4. Verify all directories are uploaded (SKILL.md, workflows/, examples/, etc.)
+**Install the plugin:**
+
+```bash
+# Add the marketplace
+/plugin marketplace add maquina/rails-claude-code
+
+# Install the plugin
+/plugin install rails-upgrade-assistant@rails
+```
 
 ### Step 2: Verify MCP Connection (1 minute)
 
@@ -172,7 +177,7 @@ Say to Claude:
 ```
 
 Claude will:
-1. Load SKILL.md to understand the request
+1. Load the agent file (`agents/rails-upgrade-assistant.md`) to understand the request
 2. Load relevant workflow files for deliverable generation
 3. Detect your current Rails version
 4. Plan the upgrade path
@@ -484,7 +489,7 @@ Full troubleshooting in USAGE-GUIDE.md and `reference/reference-files-package.md
 ### For Skill Maintainers
 
 **Easy Updates:**
-- Add new Rails version: Create new version guide, update SKILL.md reference (2 lines)
+- Add new Rails version: Create new version guide, update the agent file (`agents/rails-upgrade-assistant.md`) reference
 - Improve workflow: Edit specific workflow file (no impact on others)
 - Add example: Create new file in examples/
 
@@ -497,7 +502,7 @@ Full troubleshooting in USAGE-GUIDE.md and `reference/reference-files-package.md
 **Scalability:**
 - Add new patterns: Create YAML in detection-scripts/patterns/
 - Add new templates: Create MD in templates/
-- No need to touch SKILL.md for most updates
+- No need to touch the agent file (`agents/rails-upgrade-assistant.md`) for most updates
 
 ---
 
@@ -505,7 +510,7 @@ Full troubleshooting in USAGE-GUIDE.md and `reference/reference-files-package.md
 
 ### File Counts
 - **Core Documentation:** 4 files (~120 KB)
-- **Skill Files:** 1 compact SKILL.md (300 lines)
+- **Skill Files:** 1 compact agent file (`agents/rails-upgrade-assistant.md`)
 - **Workflows:** 3 files (~1,200 lines)
 - **Examples:** 4 files (~1,000 lines)
 - **References:** 1 package file (~250 lines)
@@ -611,7 +616,7 @@ Just ask! Examples:
 ## 🌟 What Makes This Modular Skill Special?
 
 ### Intelligent Loading
-- Reads SKILL.md first (300 lines)
+- Reads the agent file (`agents/rails-upgrade-assistant.md`) first
 - Loads only relevant workflows for your request
 - No wasted processing on irrelevant content
 - Faster, more focused responses
@@ -624,7 +629,7 @@ Just ask! Examples:
 ### Easy to Extend
 - Add new Rails version without touching workflows
 - Improve workflow without changing examples
-- Add examples without modifying SKILL.md
+- Add examples without modifying the agent file (`agents/rails-upgrade-assistant.md`)
 - Maintainer-friendly design
 
 ### Official Sources
@@ -657,7 +662,7 @@ Just ask! Examples:
 - USAGE-GUIDE.md - Comprehensive Guide
 
 **Skill Structure:**
-- Compact SKILL.md (300 lines)
+- Compact agent file (`agents/rails-upgrade-assistant.md`)
 - Workflows (3 files)
 - Examples (4 files)
 - References (1 package)
