@@ -109,14 +109,14 @@
     {
       "name": "rails-hotwire-driver",
       "source": "./rails-hotwire-driver",
-      "description": "Drive a running local Rails dev server from the terminal — CSRF-correct form submits, OTP-from-log login, Turbo Stream inspection, request-id log correlation, and Playwright session bridging",
-      "version": "0.1.0",
+      "description": "Drive a running local Rails dev server from the terminal — CSRF-correct form submits, OTP-from-log login, Turbo Stream inspection, request-id log correlation, and session bridging to a real browser. Optional agent-browser layer adds screenshots, visual regression, Turbo-event/DOM-condition waits, Stimulus introspection, and structural diffs.",
+      "version": "0.2.0",
       "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"
       },
       "category": "development",
-      "tags": ["rails", "hotwire", "turbo", "testing", "debugging", "curl", "playwright"]
+      "tags": ["rails", "hotwire", "turbo", "stimulus", "testing", "debugging", "curl", "playwright", "agent-browser", "screenshots"]
     }
   ]
 }

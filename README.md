@@ -34,7 +34,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 | [better-stimulus](#6-better-stimulus) | StimulusJS best practices from betterstimulus.com | 1.0.0 |
 | [spec-driven-development](#7-spec-driven-development) | Spec-driven development workflow for Rails | 1.3.0 |
 | [rails-security-auditor](#8-rails-security-auditor) | Security audit for Rails 8.0–8.2 configuration | 1.0.0 |
-| [rails-hotwire-driver](#9-rails-hotwire-driver) | Drive a running Rails dev server from the terminal | 0.1.0 |
+| [rails-hotwire-driver](#9-rails-hotwire-driver) | Drive a running Rails dev server from the terminal, optional screenshots/browser layer | 0.2.0 |
 
 ---
 
@@ -529,22 +529,30 @@ rails-security-auditor/
 
 ## 9. rails-hotwire-driver
 
-Drive a **running local Rails dev server from the terminal** — no browser required. The runtime complement to static code tools: it exercises the server-rendered Hotwire contract directly, so you can verify what the app actually does at request time.
+Drive a **running local Rails dev server from the terminal** — no browser required for the core workflow. The runtime complement to static code tools: it exercises the server-rendered Hotwire contract directly, so you can verify what the app actually does at request time. An **optional** layer adds a real (headless) browser via [agent-browser](https://github.com/vercel-labs/agent-browser) for the JS-dependent residual — screenshots, visual regression, Turbo-event waits, Stimulus introspection.
 
 ### What It Does
 
+Core (curl + Ruby, no browser):
 - **Submits ERB forms with the correct CSRF token** — GETs the page, reads the hidden `authenticity_token`, merges your fields, and posts (the #1 hand-driving failure, eliminated)
 - **Logs in via OTP/magic-link** by reading the code straight from the development log, scoped to the login's request id
 - **Inspects Turbo Stream responses** — parses the returned `action #target` pairs
 - **Correlates by request id** — pulls the exact log slice (params, SQL, partial renders) for any request
-- **Bridges sessions to/from Playwright** (`storageState`) so you log in once and share the session between curl and a real browser
+- **Bridges sessions to/from a real browser** (`storageState`) so you log in once and share the session between curl and agent-browser/Playwright
+
+Optional (requires agent-browser):
+- **Screenshots** — full page, scoped to an element, device emulation, dark/light mode
+- **Visual regression** — pixel diff against a saved baseline, fixed viewport
+- **Turbo-aware waits** — poll a DOM condition or listen for a named Turbo event, instead of a fixed sleep or `networkidle` (which hangs on apps with an open ActionCable connection)
+- **Stimulus introspection** — connected controllers, their targets, and their values
+- **Structural diffs** — accessibility-tree diff scoped to a selector, to confirm a Turbo action changed exactly what it should
+- **Console/error capture** — paired with the request id of the action that triggered it
 
 ### Guardrails
 
-- **Local only** — refuses any non-localhost host (`localhost`, loopback, `*.localhost` for kamal-proxy)
+- **Local only** — refuses any non-localhost host (`localhost`, loopback, `*.localhost` for kamal-proxy); the browser scripts enforce this independently
 - **No production logs** — the log reader refuses any path containing `production`
 - **Cookie hygiene** — `Set-Cookie` is redacted; the session value never enters the transcript
-- Does **not** execute JavaScript — pair with a Playwright tool for Stimulus/DOM assertions
 
 ### Usage
 
@@ -552,7 +560,9 @@ Drive a **running local Rails dev server from the terminal** — no browser requ
 > Log into the app from the terminal and read the OTP from the log
 > Submit the new post form and show me the turbo-stream targets
 > Trace what request <id> did in the dev log
-> Bridge this curl session to Playwright so I can verify the DOM
+> Screenshot the cart page after adding an item
+> Wait for the turbo-stream broadcast to actually update #cart_summary
+> Inspect the Stimulus controller on this element
 ```
 
 ### Package Contents
@@ -566,8 +576,14 @@ rails-hotwire-driver/
 │       ├── submit_form.rb              # Submit a form with the right CSRF token
 │       ├── readlog.sh                  # Read the dev log (request-id correlation)
 │       ├── flow.sh                     # Full login → OTP → action in one command
-│       ├── jar_to_storage.rb           # curl session → Playwright storageState
-│       └── storage_to_jar.rb           # Playwright storageState → curl jar
+│       ├── jar_to_storage.rb           # curl session → browser storageState
+│       ├── storage_to_jar.rb           # Browser storageState → curl jar
+│       ├── screenshot.sh               # Full-page/scoped/device/dark-light screenshots (agent-browser)
+│       ├── screenshot-diff.sh          # Visual regression against a baseline (agent-browser)
+│       ├── turbo-wait.sh               # Wait for a Turbo event or DOM condition (agent-browser)
+│       ├── stimulus.sh                 # Stimulus controller introspection (agent-browser)
+│       ├── dom-diff.sh                 # Scoped structural (a11y-tree) diff (agent-browser)
+│       └── browser-errors.sh           # Console/error capture (agent-browser)
 └── .claude-plugin/plugin.json          # Plugin metadata
 ```
 
@@ -576,6 +592,13 @@ rails-hotwire-driver/
 - A Rails app **running locally** in development; set `BASE_URL` (default `http://localhost:3000`)
 - `Nokogiri` on the load path — run the Ruby scripts via the app's bundle (`bundle exec ruby ...`)
 - Recommended: `config.log_tags = [ :request_id ]` for exact log correlation
+- **Optional**, only for the browser scripts: [agent-browser](https://github.com/vercel-labs/agent-browser)
+  ```
+  npm install -g agent-browser
+  agent-browser install            # downloads its own Chrome for Testing, first run only
+  agent-browser install --with-deps  # Linux: also installs system libs
+  ```
+  Detects and reuses an existing Chrome/Brave/Playwright/Puppeteer install instead of downloading a second copy.
 
 ---
 
