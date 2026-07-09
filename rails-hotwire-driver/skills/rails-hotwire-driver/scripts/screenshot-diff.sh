@@ -103,7 +103,7 @@ fi
 # --- 2. open at a fixed viewport, wait, position ------------------------------
 url="${BASE_URL}${page_path}"
 echo "==> open $url (viewport ${w}x${h})"
-"$AGENT_BROWSER" --session "$SESSION" "${state_args[@]}" open "$url"
+"$AGENT_BROWSER" --session "$SESSION" ${state_args[@]+"${state_args[@]}"} open "$url"
 ab set viewport "$w" "$h"
 ab wait --load "$WAIT_LOAD" || echo "    (load-state wait didn't resolve cleanly, continuing)" >&2
 ab wait "$SETTLE_MS"

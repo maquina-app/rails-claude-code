@@ -153,7 +153,7 @@ fi
 # --- 2. open + wait -----------------------------------------------------------
 url="${BASE_URL}${page_path}"
 echo "==> [2/4] open $url"
-"$AGENT_BROWSER" --session "$SESSION" "${state_args[@]}" open "$url"
+"$AGENT_BROWSER" --session "$SESSION" ${state_args[@]+"${state_args[@]}"} open "$url"
 ab wait --load "$WAIT_LOAD" || echo "    (load-state wait didn't resolve cleanly, continuing)" >&2
 ab wait "$SETTLE_MS"
 

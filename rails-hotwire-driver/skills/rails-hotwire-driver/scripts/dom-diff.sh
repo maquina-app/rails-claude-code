@@ -76,7 +76,7 @@ if [ "$mode" = mark ]; then
     echo "marked (in-session — run diff in the same SESSION: $SESSION)"
   fi
 else
-  diff_args=(diff snapshot --selector "$selector" "${compact_flag[@]}")
+  diff_args=(diff snapshot --selector "$selector" ${compact_flag[@]+"${compact_flag[@]}"})
   [ -n "$baseline" ] && diff_args+=(--baseline "$baseline")
   ab "${diff_args[@]}"
 fi
