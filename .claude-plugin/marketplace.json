@@ -20,7 +20,12 @@
         "email": "mario@maquina.app"
       },
       "category": "productivity",
-      "tags": ["rails", "refactoring", "37signals", "code-quality"]
+      "tags": [
+        "rails",
+        "refactoring",
+        "37signals",
+        "code-quality"
+      ]
     },
     {
       "name": "rails-upgrade-assistant",
@@ -32,19 +37,30 @@
         "email": "mario@maquina.app"
       },
       "category": "development",
-      "tags": ["rails", "upgrade", "migration", "breaking-changes"]
+      "tags": [
+        "rails",
+        "upgrade",
+        "migration",
+        "breaking-changes"
+      ]
     },
     {
       "name": "maquina-ui-standards",
       "source": "./maquina-ui-standards",
       "description": "Build consistent, accessible UIs in Rails using maquina_components — ERB partials styled with Tailwind CSS 4, inspired by shadcn/ui",
-      "version": "0.4.4",
+      "version": "0.5.0",
       "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"
       },
       "category": "development",
-      "tags": ["rails", "ui", "components", "tailwind", "shadcn"]
+      "tags": [
+        "rails",
+        "ui",
+        "components",
+        "tailwind",
+        "shadcn"
+      ]
     },
     {
       "name": "recuerd0",
@@ -56,7 +72,12 @@
         "email": "mario@maquina.app"
       },
       "category": "productivity",
-      "tags": ["knowledge", "memory", "cli", "ai-conversations"]
+      "tags": [
+        "knowledge",
+        "memory",
+        "cli",
+        "ai-conversations"
+      ]
     },
     {
       "name": "mvp-creator",
@@ -68,7 +89,13 @@
         "email": "mario@maquina.app"
       },
       "category": "productivity",
-      "tags": ["rails", "mvp", "documentation", "planning", "business"]
+      "tags": [
+        "rails",
+        "mvp",
+        "documentation",
+        "planning",
+        "business"
+      ]
     },
     {
       "name": "better-stimulus",
@@ -80,7 +107,13 @@
         "email": "mario@maquina.app"
       },
       "category": "development",
-      "tags": ["stimulus", "hotwire", "javascript", "best-practices", "rails"]
+      "tags": [
+        "stimulus",
+        "hotwire",
+        "javascript",
+        "best-practices",
+        "rails"
+      ]
     },
     {
       "name": "spec-driven-development",
@@ -92,7 +125,13 @@
         "email": "mario@maquina.app"
       },
       "category": "development",
-      "tags": ["rails", "specs", "planning", "workflow", "ai-agents"]
+      "tags": [
+        "rails",
+        "specs",
+        "planning",
+        "workflow",
+        "ai-agents"
+      ]
     },
     {
       "name": "rails-security-auditor",
@@ -104,7 +143,13 @@
         "email": "mario@maquina.app"
       },
       "category": "development",
-      "tags": ["rails", "security", "audit", "csp", "csrf"]
+      "tags": [
+        "rails",
+        "security",
+        "audit",
+        "csp",
+        "csrf"
+      ]
     },
     {
       "name": "rails-hotwire-driver",
@@ -116,7 +161,18 @@
         "email": "mario@maquina.app"
       },
       "category": "development",
-      "tags": ["rails", "hotwire", "turbo", "stimulus", "testing", "debugging", "curl", "playwright", "agent-browser", "screenshots"]
+      "tags": [
+        "rails",
+        "hotwire",
+        "turbo",
+        "stimulus",
+        "testing",
+        "debugging",
+        "curl",
+        "playwright",
+        "agent-browser",
+        "screenshots"
+      ]
     }
   ]
 }

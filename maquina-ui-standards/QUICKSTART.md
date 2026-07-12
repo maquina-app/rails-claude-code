@@ -44,7 +44,7 @@ Build Rails UIs with maquina_components — server-rendered ERB partials with Ta
 
 ## Component Categories
 
-- **Layout:** Sidebar, Header
+- **Layout:** Sidebar, Header, Drawer
 - **Content:** Card, Alert, Badge, Table, Empty, Separator, Stats
 - **Navigation:** Breadcrumbs, Dropdown Menu, Pagination
 - **Interactive:** Toggle Group, Calendar, Date Picker, Combobox, Toast
@@ -53,11 +53,11 @@ Build Rails UIs with maquina_components — server-rendered ERB partials with Ta
 
 ## Quick Tips
 
-1. **Compose, don't configure** — Build UIs from small parts
+1. **Composition first** — Build UIs from small parts
 2. **Use helpers for complex components** — `simple_table`, `combobox_simple`, `dropdown_menu_simple`, `toggle_group_simple` are one-liner shortcuts
 3. **Inline errors** — Show errors next to fields, not in lists
 4. **Data attributes** — Components identify via `data-component="..."`
 5. **Icons** — Use `icon_for :name, class: "size-4"`
 6. **Theme** — Colors via CSS variables (`--primary`, `--destructive`, etc.)
 
-Read the main skill file for complete guidelines.
+Read the ui skill (skills/ui/SKILL.md) for complete guidelines.

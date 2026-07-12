@@ -141,7 +141,7 @@ Block form with full builder control.
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `id` | String | auto-generated | Unique combobox ID |
+| `id` | String | deterministic | Derived from the input name; stable across Turbo morphs |
 | `name` | String | `nil` | Hidden input name |
 | `value` | String | `nil` | Pre-selected value |
 | `placeholder` | String | `"Select..."` | Placeholder text |
@@ -256,6 +256,26 @@ Block form with full builder control.
   <% end %>
 <% end %>
 ```
+
+---
+
+## DrawerHelper
+
+Cookie-backed state readers for server-rendering the drawer in its persisted state.
+
+```erb
+<%= render "components/drawer/provider", default_open: drawer_open? do %>
+  <%= render "components/drawer", state: drawer_state do %>
+    ...
+  <% end %>
+<% end %>
+```
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `drawer_state(cookie_name = "drawer_state")` | Symbol | `:open` or `:closed` from the cookie |
+| `drawer_open?(cookie_name = "drawer_state")` | Boolean | True when the cookie says open |
+| `drawer_closed?(cookie_name = "drawer_state")` | Boolean | True when closed |
 
 ---
 
@@ -537,6 +557,10 @@ FLASH_VARIANTS = {
   info: :info
 }.freeze
 ```
+
+---
+
+**JavaScript API (from the toaster controller):** `Toast.success/info/warning/error/destructive(title, options)`, `Toast.show`, `Toast.dismiss(id)`, `Toast.dismissAll()`. `Toast.destructive` is an alias of `Toast.error` — `:destructive` is the library-wide danger variant.
 
 ---
 

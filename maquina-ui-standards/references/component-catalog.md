@@ -11,13 +11,14 @@ Complete reference for all maquina_components. Each entry includes when to use, 
 | Component | Variants | Sizes | Docs Link |
 |-----------|----------|-------|-----------|
 | Alert | default, success, warning, destructive | — | [docs](https://maquina.app/documentation/components/alert) |
-| Badge | default, primary, secondary, success, warning, destructive, outline | sm, md, lg | [docs](https://maquina.app/documentation/components/badge) |
+| Badge | default, primary, secondary, success, warning, destructive (error = alias), outline | sm, md (default = alias), lg | [docs](https://maquina.app/documentation/components/badge) |
 | Breadcrumbs | — | — | [docs](https://maquina.app/documentation/components/breadcrumbs) |
 | Button | default, primary, secondary, destructive, outline, ghost, link | sm, md, lg, icon, icon-sm, icon-lg | [docs](https://maquina.app/documentation/components/button) |
 | Calendar | — | — | [docs](https://maquina.app/documentation/components/calendar) |
 | Card | — | — | [docs](https://maquina.app/documentation/components/card) |
 | Combobox | — | — | [docs](https://maquina.app/documentation/components/combobox) |
 | Date Picker | — | — | [docs](https://maquina.app/documentation/components/date-picker) |
+| Drawer | — | — | [docs](https://maquina.app/documentation/components/drawer) |
 | Dropdown Menu | — | — | [docs](https://maquina.app/documentation/components/dropdown-menu) |
 | Empty State | — | — | [docs](https://maquina.app/documentation/components/empty) |
 | Header | — | — | [docs](https://maquina.app/documentation/components/header) |
@@ -26,8 +27,8 @@ Complete reference for all maquina_components. Each entry includes when to use, 
 | Sidebar | default, inset | — | [docs](https://maquina.app/documentation/components/sidebar) |
 | Stats | — | — | [docs](https://maquina.app/documentation/components/stats) |
 | Table | — | — | [docs](https://maquina.app/documentation/components/table) |
-| Toast | default, success, warning, destructive | — | [docs](https://maquina.app/documentation/components/toast) |
-| Toggle Group | default, outline | sm, md, lg | [docs](https://maquina.app/documentation/components/toggle-group) |
+| Toast | default, success, info, warning, error (destructive = alias of error) | — | [docs](https://maquina.app/documentation/components/toast) |
+| Toggle Group | default, outline | sm, default, lg | [docs](https://maquina.app/documentation/components/toggle-group) |
 
 ---
 
@@ -78,6 +79,7 @@ Choose the approach that fits your use case. There's no "right" level of abstrac
    - [Calendar](#calendar)
    - [Date Picker](#date-picker)
    - [Combobox](#combobox)
+   - [Drawer](#drawer)
    - [Toast](#toast)
 5. [Form Components](#form-components)
    - [Button](#button)
@@ -512,7 +514,7 @@ Visual divider between content sections.
 
 ### Stats
 
-Statistics display cards for dashboards and overview pages.
+Metric cards in a responsive grid for dashboards and overview pages.
 
 **When to Use:**
 - Dashboard KPIs
@@ -522,37 +524,43 @@ Statistics display cards for dashboards and overview pages.
 
 **Structure:**
 ```erb
-<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-  <%= render "components/stats/card",
-      title: "Total Revenue",
-      value: "$45,231.89",
-      description: "+20.1% from last month",
-      icon: :dollar_sign %>
-  
-  <%= render "components/stats/card",
-      title: "Subscriptions",
-      value: "+2350",
-      description: "+180.1% from last month",
-      icon: :users %>
-  
-  <%= render "components/stats/card",
-      title: "Sales",
-      value: "+12,234",
-      description: "+19% from last month",
-      icon: :credit_card %>
-  
-  <%= render "components/stats/card",
-      title: "Active Now",
-      value: "+573",
-      description: "+201 since last hour",
-      icon: :activity %>
-</div>
+<%= render "components/stats/stats_grid", columns: 4, cards: [
+  { title: "Total Revenue", value: "$45,231.89", icon: :dollar, subtitle: "+20.1% from last month" },
+  { title: "Subscriptions", value: "+2350", icon: :users, subtitle: "+180.1% from last month" },
+  { title: "Sales", value: "+12,234", icon: :credit_card, subtitle: "+19% from last month" },
+  { title: "Active Now", value: "+573", icon: :activity, subtitle: "+201 since last hour" }
+] %>
+
+<%# Single card, with a color accent on the value %>
+<%= render "components/stats/stats_card",
+    title: "Open Tickets",
+    value: "12",
+    icon: :circle_alert,
+    icon_classes: "text-amber-500",
+    subtitle: "3 urgent" %>
 ```
 
-**Props:**
+**Stats Grid Props:**
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
+| `cards` | Array | `[]` | Hashes of stats_card props |
+| `columns` | Integer | `3` | Grid columns from the sm breakpoint up, 1-6 |
+| `action` | String | `nil` | Captured HTML rendered beside the grid |
+| `action_position` | Symbol | `:end` | `:start` or `:end` |
+
+**Stats Card Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | String | required | Metric label |
+| `value` | String | required | Main value display |
+| `icon` | Symbol | `nil` | Built-in icon name; custom HTML also accepted |
+| `subtitle` | String | `nil` | Trend or comparison text |
+| `icon_classes` | String | `""` | Color utility for the icon area |
+| `value_classes` | String | `""` | Color utility for the value |
+
+------|------|---------|-------------|
 | `title` | String | required | Metric label |
 | `value` | String | required | Main value display |
 | `description` | String | `nil` | Trend or comparison text |
@@ -1017,6 +1025,57 @@ Searchable select with autocomplete functionality.
 
 ---
 
+### Drawer
+
+Slide-out panel with overlay, cookie persistence, and keyboard shortcut. The panel is a `role="dialog"` with `aria-modal`; while closed it is `aria-hidden` and `inert`. Escape closes it; focus moves into the panel on open and returns to the trigger on close.
+
+**When to Use:**
+- Contextual detail panels (notifications, filters, settings)
+- Secondary content that shouldn't navigate away from the page
+- Persistent side panels whose open state should survive navigation
+
+**Structure:**
+```erb
+<%= render "components/drawer/trigger" do %>Open Drawer<% end %>
+
+<%= render "components/drawer/provider", default_open: drawer_open? do %>
+  <%= render "components/drawer", state: drawer_state, aria_label: "Filters" do %>
+    <%= render "components/drawer/header" do %>
+      <h2 class="text-lg font-semibold">Filters</h2>
+    <% end %>
+    <%= render "components/drawer/content" do %>
+      <%# panel content %>
+    <% end %>
+    <%= render "components/drawer/footer" do %>
+      <%# actions %>
+    <% end %>
+  <% end %>
+<% end %>
+```
+
+**Provider Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `id` | String | `"drawer-provider"` | Stable id for morph matching |
+| `default_open` | Boolean | `false` | Initial open state |
+| `cookie_name` | String | `"drawer_state"` | Persistence cookie |
+| `keyboard_shortcut` | String | `"d"` | Cmd/Ctrl + key toggle |
+
+**Drawer Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `state` | Symbol | `:closed` | `:open` or `:closed` — pass `drawer_state` for persistence |
+| `side` | Symbol | `:right` | `:left` or `:right` |
+| `aria_label` | String | `"Drawer"` | Accessible name for the dialog panel |
+
+**Parts:** `drawer/header` (with built-in close button), `drawer/content` (scrollable), `drawer/footer`, `drawer/close`, `drawer/trigger` (syncs `aria-expanded`, placeable anywhere).
+
+**Helpers:** `drawer_state(cookie_name)`, `drawer_open?(cookie_name)`, `drawer_closed?(cookie_name)`.
+
+---
+
 ### Toast
 
 Temporary notification messages.
@@ -1034,7 +1093,7 @@ Temporary notification messages.
 | `:default` | General information |
 | `:success` | Positive confirmations |
 | `:warning` | Caution notices |
-| `:destructive` | Error messages |
+| `:error` | Error messages (`:destructive` accepted as an alias) |
 
 **Basic Usage (via Stimulus/Turbo):**
 ```erb
