@@ -209,15 +209,20 @@ Build consistent, accessible UIs in Rails using **maquina_components** — ERB p
 
 ```
 maquina-ui-standards/
-├── agents/maquina-ui-standards.md    # Main skill
-├── QUICKSTART.md                      # Quick reference
+├── skills/ui/SKILL.md                 # Model-invoked skill (loads standards into the working context)
+├── QUICKSTART.md                      # Quick reference for humans
 └── references/
     ├── component-catalog.md           # All available components
+    ├── helpers-reference.md           # Ruby helper builders and _simple methods
+    ├── stimulus-controllers.md        # Component JavaScript reference
+    ├── installation-guide.md          # Setup, theme, icons
     ├── form-patterns.md               # Validation, error handling
     ├── layout-patterns.md             # Pages, dashboards
     ├── turbo-integration.md           # Frames, streams
     └── spec-checklist.md              # Accessibility, consistency
 ```
+
+As of 0.5.0 this ships as a **skill** rather than a subagent: Claude loads the standards into the same conversation where the feature is being built, keeping full context of your models, controllers, and spec while writing views.
 
 ### Requirements
 

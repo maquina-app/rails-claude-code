@@ -13,9 +13,11 @@ Reference for all Stimulus controllers provided by maquina_components. Controlle
 | `combobox` | trigger, content, input, option, empty, label | value, name, placeholder | Popover API, type-ahead filtering |
 | `date-picker` | trigger, popover, calendar, input, inputEnd, display | mode, selected, selectedEnd, format, placeholder, placeholderRange | Wraps calendar in popover |
 | `dropdown-menu` | trigger, content, chevron | open, autoClose | Toggle, keyboard nav, focus management |
-| `menu-button` | button, content | — | Minimal generic dropdown |
+| `menu-button` | button, content | open | Sidebar menu dropdown, Escape + aria-expanded |
 | `sidebar` | sidebar, container, backdrop | open, defaultOpen, cookieName, cookieMaxAge, keyboardShortcut | Responsive, cookie persistence |
-| `sidebar-trigger` | — (uses outlet) | — | Outlet-based sidebar toggle |
+| `sidebar-trigger` | — (uses outlet) | — | Outlet-based sidebar toggle, syncs aria-expanded |
+| `drawer` | drawer, container, backdrop, panel | open, defaultOpen, cookieName, cookieMaxAge, keyboardShortcut | Dialog a11y, cookie persistence, Escape |
+| `drawer-trigger` | — (uses outlet) | — | Outlet-based drawer toggle, syncs aria-expanded |
 | `toast` | — | duration, dismissible, actionCallback | Auto-dismiss, hover pause |
 | `toaster` | container | maxVisible | Container management, global API |
 | `toggle-group` | item | type, selected | Single/multiple selection |
@@ -39,9 +41,9 @@ Responsive breadcrumb that collapses middle items into a dropdown when the conta
 - When `collapseAfter` is `0` or omitted, uses pure overflow detection (`scrollWidth > clientWidth`)
 - Both modes can work together — count-based collapse runs first, then overflow detection handles remaining items
 - Hides items from the middle, keeping first and last visible
-- Creates a dropdown menu of hidden items on ellipsis click
+- Creates a dropdown of hidden items on ellipsis click, rendered as a native `popover="auto"` — light dismiss and Escape come from the platform
+- Positioned by CSS anchor positioning in modern browsers, with a measured fallback elsewhere
 - Handles window resize dynamically
-- Escape key closes dropdown, click outside closes dropdown
 
 **`collapseAfter` semantics:**
 - `2` — show first + last, collapse all middle into ellipsis
@@ -108,6 +110,7 @@ Searchable select using the HTML5 Popover API.
 
 **Behavior Notes:**
 - Uses Popover API for light-dismiss (click outside closes)
+- Positioned by CSS anchor positioning in modern browsers (`positionPopover()` is a fallback for the rest); flips above the trigger when there is no room below
 - Type-ahead: typing in input filters visible options
 - Single selection with toggle (click selected item to deselect)
 - Hidden input stores selected value for form submission
@@ -174,17 +177,23 @@ Accessible dropdown with full keyboard navigation and focus management.
 
 ## menu-button
 
-Minimal controller for simple dropdown-style button groups.
+Sidebar-flavored button (title, subtitle, avatar) that toggles a dropdown panel. Pairs `components/menu_button` with `components/dropdown` as its content.
 
 **Targets:** `button`, `content`
 
+**Values:**
+
+| Value | Type | Default | Description |
+|-------|------|---------|-------------|
+| `open` | Boolean | `false` | Open state |
+
 **Key Methods:**
-- `toggle()` — Toggle open/closed
+- `toggle(event)` — Toggle open/closed
 
 **Behavior Notes:**
-- Click outside to close
-- State tracked via `button.dataset.state` (`"open"` / `"closed"`)
-- Uses `hidden` class for visibility
+- Click outside and Escape close the panel
+- Syncs `aria-expanded` on the trigger; animation states via `data-state` (`open` / `closing` / `closed`)
+- Turbo cache teardown closes the panel before caching
 
 ---
 
@@ -219,7 +228,7 @@ Responsive sidebar with cookie-based state persistence.
 
 ## sidebar-trigger
 
-Simple outlet-based trigger for sidebar toggle.
+Outlet-based trigger for sidebar toggle. Mirrors sidebar state on the trigger: `aria-expanded` syncs from the sidebar's `stateChanged` event and `aria-controls` wires to the sidebar id on outlet connect.
 
 **Outlets:** `sidebar`
 
@@ -227,6 +236,44 @@ Simple outlet-based trigger for sidebar toggle.
 - `triggerClick()` — Calls `toggle()` on all connected sidebar outlets
 
 **Usage:** Place anywhere on the page. Connect via outlet selector.
+
+---
+
+## drawer
+
+Slide-out panel with cookie persistence, keyboard shortcut, and dialog accessibility.
+
+**Targets:** `drawer`, `container`, `backdrop`, `panel`
+
+**Values:**
+
+| Value | Type | Default | Description |
+|-------|------|---------|-------------|
+| `open` | Boolean | `false` | Open state |
+| `defaultOpen` | Boolean | `false` | Initial state without a cookie |
+| `cookieName` | String | `"drawer_state"` | Persistence cookie |
+| `cookieMaxAge` | Number | 1 year | Cookie lifetime |
+| `keyboardShortcut` | String | `"d"` | Cmd/Ctrl + key toggle |
+
+**Key Methods:**
+- `toggle()` / `open()` / `close()` — State changes (persisted to the cookie)
+- `closeOnEscape(event)` — Bound declaratively on the provider (`keydown.esc@window`)
+
+**Behavior Notes:**
+- Panel syncs `aria-hidden` + `inert` while closed; focus moves into the panel on open and returns on close
+- Body scroll lock via a `data-maquina-scroll-locked` attribute (styling in CSS)
+- Morph-aware: re-reads the cookie after `turbo:morph`; closes before Turbo caches the page
+
+---
+
+## drawer-trigger
+
+Outlet-based trigger for the drawer. Sets `aria-haspopup="dialog"`, syncs `aria-expanded` from the drawer's `stateChanged` event, and wires `aria-controls` to the panel id.
+
+**Outlets:** `drawer`
+
+**Key Methods:**
+- `triggerClick()` — Calls `toggle()` on all connected drawer outlets
 
 ---
 
