@@ -31,7 +31,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 | [maquina-ui-standards](#3-maquina-ui-standards) | UI components with maquina_components | 0.4.4 |
 | [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.3.1 |
 | [mvp-creator](#5-mvp-creator) | MVP documentation for Rails applications | 1.0.1 |
-| [better-stimulus](#6-better-stimulus) | StimulusJS best practices from betterstimulus.com | 1.0.0 |
+| [better-stimulus](#6-better-stimulus) | StimulusJS best practices from betterstimulus.com | 1.1.0 |
 | [spec-driven-development](#7-spec-driven-development) | Spec-driven development workflow for Rails | 1.3.0 |
 | [rails-security-auditor](#8-rails-security-auditor) | Security audit for Rails 8.0–8.2 configuration | 1.0.0 |
 | [rails-hotwire-driver](#9-rails-hotwire-driver) | Drive a running Rails dev server from the terminal, optional screenshots/browser layer | 0.2.0 |
@@ -417,10 +417,13 @@ Apply opinionated **StimulusJS best practices** sourced from [betterstimulus.com
 
 ```
 better-stimulus/
-├── agents/better-stimulus.md          # Main skill
-└── references/
-    ├── cookbook.md                     # Common patterns
-    └── solid.md                       # SOLID principles for Stimulus
+└── skills/better-stimulus/
+    ├── SKILL.md                        # Main skill
+    └── references/
+        ├── cookbook.md                 # Common patterns
+        ├── inter-controller.md         # Outlets, callbacks, custom events
+        ├── error-handling.md           # Global error handler
+        └── solid.md                    # SOLID principles for Stimulus
 ```
 
 ### Resources
