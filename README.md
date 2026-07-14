@@ -29,7 +29,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 | [rails-simplifier](#1-rails-simplifier) | Code quality following 37signals patterns | 1.1.0 |
 | [rails-upgrade-assistant](#2-rails-upgrade-assistant) | Rails 6.0→8.1 upgrade planning | 1.1.1 |
 | [maquina-ui-standards](#3-maquina-ui-standards) | UI components with maquina_components | 0.4.4 |
-| [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.3.1 |
+| [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.4.0 |
 | [mvp-creator](#5-mvp-creator) | MVP documentation for Rails applications | 1.0.1 |
 | [better-stimulus](#6-better-stimulus) | StimulusJS best practices from betterstimulus.com | 1.1.0 |
 | [spec-driven-development](#7-spec-driven-development) | Spec-driven development workflow for Rails | 1.3.0 |
@@ -284,66 +284,32 @@ When asked to save a session, the skill will:
 
 If you provide a workspace name instead of an ID, it resolves the name automatically. If the workspace doesn't exist, it offers to create one.
 
-### Auto-Save Hooks
+### Workspace Routing
 
-The plugin registers two Claude Code lifecycle hooks that automatically capture session state to a recuerd0 workspace — no manual `/remember` invocation required.
-
-| Hook | When it fires | What it does |
-|------|--------------|--------------|
-| `Stop` | After each assistant turn, at most once every 15 minutes | Saves a checkpoint memory tagged `claude-code,auto-save,stop` |
-| `PreCompact` | Before Claude Code compresses the conversation | Saves an emergency snapshot tagged `claude-code,auto-save,precompact` |
-
-**What happens on install**: both hooks are registered but **disabled by default** — they capture nothing until you opt in with `RECUERD0_HOOK_DISABLE=0`. Once enabled, the first time a Stop or PreCompact event fires in a session where you have the `recuerd0` CLI installed and a workspace configured, a new memory appears in that workspace containing the last 200 lines of the transcript. The memory title is `Claude Code checkpoint — <timestamp>` (or `pre-compact —`), sourced as `claude-code-session`.
-
-**Nothing is captured if any of the following are true** — so a fresh machine or a user who hasn't opted in will see zero activity:
-
-- `RECUERD0_HOOK_DISABLE` is not set to `0` (hooks are off by default)
-- The `recuerd0` CLI is not on `PATH`
-- No account is configured (`recuerd0 account add …` has not been run)
-- No workspace is resolvable (no `RECUERD0_WORKSPACE` env var, no `.recuerd0.yaml` in the project, no default workspace in `~/.config/recuerd0/config.yaml`)
-
-The hooks never exit non-zero, so a misconfigured or offline recuerd0 setup will never interrupt your Claude Code session. Failures (when they happen) are appended to `~/.recuerd0/hook-errors.log`.
-
-**Routing sessions to the right workspace**: drop a `.recuerd0.yaml` file at the root of each project:
+Drop a `.recuerd0.yaml` file at the root of each project to pin its memories to a workspace:
 
 ```yaml
 workspace: "12"
 ```
 
-Every session started inside that directory will auto-save to workspace 12. The CLI walks parent directories, so nested subfolders inherit the config.
-
-**Tuning**:
-
-| Env var | Default | Purpose |
-|---------|---------|---------|
-| `RECUERD0_HOOK_DISABLE` | unset (disabled) | Hooks are off by default; set to `0` to enable both. Any other value (or unset) keeps them disabled |
-| `RECUERD0_STOP_INTERVAL_MINUTES` | `15` | Minimum minutes between Stop saves |
-| `RECUERD0_HOOK_TAIL_LINES` | `200` | Transcript lines captured per save |
-
-**How to enable** (off by default):
-
-- **Temporarily** — `export RECUERD0_HOOK_DISABLE=0` in your shell before launching Claude Code (you also need the CLI installed and a workspace resolvable — see above).
-- **Persistently** — set `RECUERD0_HOOK_DISABLE=0` in your shell profile or Claude Code environment config.
-
-**How to disable again** — unset `RECUERD0_HOOK_DISABLE` (or set it to anything other than `0`); the hooks return to their default off state. To remove just one hook, edit `${CLAUDE_PLUGIN_ROOT}/hooks/hooks.json` and drop the `Stop` or `PreCompact` block. To remove entirely, uninstall the plugin: `/plugin uninstall recuerd0@maquina`.
+The CLI walks parent directories, so nested subfolders inherit the config. When no config is present, the skill resolves the workspace by matching the project/repo name, and offers to create one if there's no match.
 
 ### Package Contents
 
 ```
 recuerd0/
-├── agents/recuerd0.md              # Main skill
-├── hooks/
-│   ├── hooks.json                  # Stop + PreCompact registrations
-│   ├── recuerd0_stop_hook.sh       # Rate-limited checkpoint hook
-│   ├── recuerd0_precompact_hook.sh # Emergency save before compaction
-│   └── recuerd0_hook_common.sh     # Shared helpers (sourced)
-└── .claude-plugin/plugin.json      # Plugin metadata
+└── skills/remember/
+    ├── SKILL.md                    # Main skill: capture gate, dedup, routing, save
+    └── references/
+        ├── cli-reference.md        # Command catalog, flags, output format
+        ├── import-context.md       # Importing CLAUDE.md / context files
+        └── memory-templates.md     # Feature/decision/API memory templates
 ```
 
 ### Requirements
 
 - [Recuerd0 CLI](https://recuerd0.ai) installed and configured with an account
-- A workspace selected via `RECUERD0_WORKSPACE`, `.recuerd0.yaml`, or the CLI's global config (required for auto-save hooks; the agent itself works without one)
+- Optionally, a workspace pinned via `.recuerd0.yaml`, `RECUERD0_WORKSPACE`, or the CLI's global config — the skill resolves or creates one when it's not set
 
 ---
 

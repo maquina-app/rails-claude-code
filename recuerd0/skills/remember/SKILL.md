@@ -1,14 +1,13 @@
 ---
 name: remember
 description: Manages workspaces and memories in the Recuerd0 platform via the recuerd0 CLI. Use PROACTIVELY after architectural decisions, debugging sessions that resolved an issue, when the user states a strong preference, when a non-obvious discovery is made, or at the natural end of a focused working session. Also handles explicit save, search, version, and organize requests.
-model: sonnet
-effort: medium
-tools: Read, Bash, Grep, Glob
 ---
 
-You are a specialist in using the Recuerd0 CLI (`recuerd0`) — a command-line tool for preserving, versioning, and organizing knowledge from AI conversations. You execute commands via Bash and interpret the structured JSON output to help users manage their workspaces and memories.
+# Recuerd0 Memory
 
-You operate **proactively**: you watch the conversation for capture-worthy moments and act on them without waiting to be asked. You also operate **with discipline**: you never write a duplicate memory, you always route to the right workspace, and you announce every save in one line so the user knows it happened.
+Preserve, version, and organize knowledge from AI conversations using the Recuerd0 CLI (`recuerd0`). Run commands via Bash and interpret the structured JSON output to manage the user's workspaces and memories. The full command catalog, flags, and output format live in `references/cli-reference.md` — read it for exact syntax.
+
+Operate **proactively**: watch the conversation for capture-worthy moments and act on them without waiting to be asked. Operate **with discipline**: write no duplicate memory, always route to the right workspace, and announce every save in one line so the user knows it happened.
 
 **All memory content MUST be Markdown.** When creating, updating, or versioning memories, always format the `--content` value as valid Markdown.
 
@@ -103,7 +102,6 @@ Before any `memory create`, you MUST:
 
    If a candidate "duplicate" memory is large, use `recuerd0 memory read grep <id> "<key term>"` to confirm the fact already exists before loading the full body — this is much cheaper than `memory show` for long memories.
 5. **Pick a category** from the four values in the Categories section above (`decision`, `discovery`, `preference`, `general`). Pass it via `--category` on create or version create.
-6. **After creation/update**: distill any raw `auto-save` memories that contributed to this curated memory and delete them (see Hook Coordination below).
 
 ### Examples
 
@@ -185,26 +183,6 @@ Final save notice:
 
 ---
 
-## Hook Coordination
-
-The recuerd0 plugin ships two Claude Code lifecycle hooks (`Stop` and `PreCompact`) that save raw transcript chunks tagged `claude-code,auto-save`. **They are disabled by default** — they capture nothing unless the user has opted in with `RECUERD0_HOOK_DISABLE=0`. When enabled, these hooks are a **safety net**, not curation:
-
-- **Hooks store**: raw transcript tails, titled `Claude Code checkpoint — <timestamp>` or `Claude Code pre-compact — <timestamp>`, with source `claude-code-session` and tag `auto-save`.
-- **You produce**: properly titled, scoped, deduplicated memories drawn from those raw chunks (and from the live conversation).
-
-### Cleanup workflow
-
-When invoked at the end of a session, or when you notice raw `auto-save` memories piling up:
-
-1. List them: `recuerd0 search "auto-save" --workspace <id> --pretty`
-2. Read the relevant ones: `recuerd0 memory show --workspace <id> <id>`
-3. Distill into curated memories using the dedup protocol above
-4. **Delete the raw originals** once distilled: `recuerd0 memory delete --workspace <id> <id>`. Leaving them clutters search.
-
-Never delete an `auto-save` memory before its content has been distilled into a curated memory or confirmed irrelevant.
-
----
-
 ## Categories
 
 Every memory carries a `category`, picked from a locked four-value enum. The server defaults new memories to `general` when no category is sent, but you should always pass `--category` explicitly on every `memory create` and `memory version create` so the choice is deliberate.
@@ -224,7 +202,7 @@ Every memory carries a `category`, picked from a locked four-value enum. The ser
 
 ## Memory Links
 
-Memory links — sometimes called *tunnels* — are undirected, unlabeled "see also" connections between two memories within the same account. Unlike tags or workspaces, links cross workspace boundaries: an "auth strategy" memory in the `rails-app` workspace can be linked to "auth strategy" in the `mobile-app` workspace, letting the agent express that memories in two different projects cover related territory.
+Memory links — sometimes called *tunnels* — are undirected, unlabeled "see also" connections between two memories within the same account. Unlike tags or workspaces, links cross workspace boundaries: an "auth strategy" memory in the `rails-app` workspace can be linked to "auth strategy" in the `mobile-app` workspace, letting you express that memories in two different projects cover related territory.
 
 **Key constraints:**
 
@@ -233,7 +211,7 @@ Memory links — sometimes called *tunnels* — are undirected, unlabeled "see a
 - **No labels, no metadata** — a link is just a connection. There is no relationship type, no description, no weight.
 - **No self-links** — a memory cannot link to itself.
 - **Both endpoints must exist** at link time.
-- **No automatic linking** — the agent never creates a link without explicit user confirmation.
+- **No automatic linking** — create a link only after explicit user confirmation.
 
 **Commands:**
 
@@ -245,7 +223,7 @@ recuerd0 memory link remove <memory_id> --to <other_memory_id> [--workspace ID] 
 
 The `--workspace` flag refers to the *source* memory's workspace; the target memory may live in any workspace within the same account. The memory show JSON and the workspace context JSON now include a `links_count` field on each memory so you can see at a glance how connected something is.
 
-**Confirm before linking — always.** The agent's job is to *suggest* a link when a strong cross-workspace match surfaces during dedup. Ask the user in one line and wait for a one-word approval. Never create a link silently. A noisy link graph is worse than no graph.
+**Confirm before linking — always.** Your job is to *suggest* a link when a strong cross-workspace match surfaces during dedup. Ask the user in one line and wait for a one-word approval. Create a link only with that approval. A noisy link graph is worse than no graph.
 
 ### When to link
 
@@ -290,210 +268,9 @@ Do not narrate the dedup process, the search results, or the workspace resolutio
 
 ---
 
-## Output Format
+## CLI Reference
 
-All commands output structured JSON:
-
-```json
-{
-  "success": true,
-  "data": { ... },
-  "pagination": { "has_next": true, "next_url": "..." },
-  "breadcrumbs": [
-    { "action": "show", "cmd": "recuerd0 memory show --workspace 1 42", "description": "View memory" }
-  ],
-  "summary": "5 memory(ies)",
-  "meta": { "timestamp": "2026-02-06T..." }
-}
-```
-
-Errors:
-```json
-{
-  "success": false,
-  "error": { "code": "NOT_FOUND", "message": "...", "status": 404 }
-}
-```
-
-**Always use `--pretty` when displaying output to the user** for readability.
-
----
-
-## Commands
-
-### Account Management
-
-```bash
-recuerd0 account add <name> --token TOKEN [--api-url URL]
-recuerd0 account list
-recuerd0 account select <name>
-recuerd0 account remove <name>
-```
-
-### Workspaces
-
-```bash
-recuerd0 workspace list [--page N]
-recuerd0 workspace show <id>
-recuerd0 workspace create --name NAME [--description DESC]
-recuerd0 workspace update <id> [--name NAME] [--description DESC]
-recuerd0 workspace archive <id>
-recuerd0 workspace unarchive <id>
-recuerd0 workspace context <id> [--limit N] [--no-body] [--max-body-chars N]
-```
-
-### Memories
-
-```bash
-recuerd0 memory list [--workspace ID] [--page N] [--category CAT]
-recuerd0 memory show [--workspace ID] <memory_id>
-recuerd0 memory create [--workspace ID] [--title TITLE] [--content CONTENT | --content -] [--source SRC] [--tags tag1,tag2] [--category CAT]
-recuerd0 memory update [--workspace ID] <memory_id> [--title T] [--content C | --content -] [--source S] [--tags T] [--category CAT]
-recuerd0 memory delete [--workspace ID] <memory_id>
-recuerd0 memory link list <memory_id> [--workspace ID]
-recuerd0 memory link add <memory_id> --to <other_memory_id> [--workspace ID]
-recuerd0 memory link remove <memory_id> --to <other_memory_id> [--workspace ID]
-```
-
-#### Memory content reading
-
-```bash
-recuerd0 memory read head <memory_id> --lines N                                  # First N lines of a memory's content
-recuerd0 memory read tail <memory_id> --lines N                                  # Last N lines of a memory's content
-recuerd0 memory read lines <memory_id> --start S --end E                         # A specific line window [S, E]
-recuerd0 memory read grep <memory_id> <pattern> [--context N] [--before N] [--after N]  # Search inside a memory; returns matching lines with line numbers and surrounding context
-```
-
-- `--workspace` falls back to the workspace in `.recuerd0.yaml` or `RECUERD0_WORKSPACE`
-- `--content -` reads content from stdin (supported in create, update, and version create)
-
-### Memory Versions
-
-```bash
-recuerd0 memory version create [--workspace ID] <memory_id> [--title T] [--content C | --content -] [--source S] [--tags T] [--category CAT]
-```
-
-### Search
-
-```bash
-recuerd0 search <query> [--workspace ID] [--page N] [--category CAT]
-```
-
-Search is backed by SQLite FTS5 and supports operators:
-
-```bash
-# Prefix matching
-recuerd0 search "auth*"
-
-# AND — both terms required
-recuerd0 search "rails AND caching"
-
-# OR — either term
-recuerd0 search "postgres OR sqlite"
-
-# NOT — exclude terms
-recuerd0 search "deploy NOT heroku"
-
-# Phrases
-recuerd0 search '"error handling"'
-
-# Field-specific search
-recuerd0 search "title:authentication"
-recuerd0 search "body:caching"
-```
-
-### Version
-
-```bash
-recuerd0 version
-```
-
----
-
-## Global Flags
-
-| Flag | Description |
-|------|-------------|
-| `--account` | Account name to use |
-| `--token` | API token override |
-| `--api-url` | API URL override |
-| `--workspace` | Workspace ID override |
-| `--verbose` | Show HTTP request/response details |
-| `--pretty` | Pretty-print JSON output |
-
----
-
-## Breadcrumbs
-
-Every response includes `breadcrumbs` — suggested next actions as CLI commands. Use these to discover workflows and suggest follow-up actions to the user:
-
-```json
-"breadcrumbs": [
-  { "action": "show", "cmd": "recuerd0 workspace show 1", "description": "View workspace details" },
-  { "action": "create", "cmd": "recuerd0 memory create --workspace 1 --title TITLE", "description": "Create a memory" }
-]
-```
-
----
-
-## Usage Patterns
-
-### Store a memory from AI conversation
-```bash
-recuerd0 memory create --workspace 1 --title "Go error handling" --content "Always wrap errors with context..." --tags "go,patterns"
-```
-
-### Pipe content from stdin
-```bash
-cat notes.md | recuerd0 memory create --workspace 1 --title "Session Notes" --content -
-```
-
-### Search and retrieve
-```bash
-recuerd0 search "error handling" --workspace 1
-recuerd0 memory show --workspace 1 42
-```
-
-### Version a memory
-```bash
-recuerd0 memory version create --workspace 1 42 --title "Updated patterns" --content "Revised content..."
-```
-
-### Reading large memories efficiently
-
-For long memories (transcripts, long docs, anything you suspect runs well past a screenful), don't load the whole body. Grep first to locate the relevant region, then fetch only that window. This avoids pulling the entire body into the agent's context window, keeps responses small, and lets you reason about a specific region instead of an undifferentiated wall of text.
-
-**Searching within a memory before deciding to version:**
-
-```bash
-recuerd0 memory read grep 42 "TODO" --context 2 --pretty
-# → notice match at line 47
-recuerd0 memory read lines 42 --start 40 --end 55 --pretty
-```
-
-**Peeking at the end of a long transcript:**
-
-```bash
-recuerd0 memory read tail 42 --lines 30 --pretty
-```
-
-Reserve `memory show` for the cases where you genuinely need the whole body.
-
----
-
-## Exit Codes
-
-| Code | Meaning |
-|------|---------|
-| 0 | Success |
-| 1 | General error |
-| 2 | Invalid arguments |
-| 3 | Authentication failure |
-| 4 | Forbidden |
-| 5 | Not found |
-| 6 | Validation error |
-| 7 | Network error |
-| 8 | Rate limited |
+The command catalog, output format, global flags, breadcrumbs, exit codes, and usage patterns live in `references/cli-reference.md`. Every command emits structured JSON — check `success`, read `data`, follow the suggested `breadcrumbs`, and pass `--pretty` when showing output to the user.
 
 ---
 
@@ -552,7 +329,7 @@ When the user asks to "import my CLAUDE.md", "scan for context files", "import p
 
 Tag each memory with `--source "import:<filename>"` for later identification.
 
-See [references/import-context.md](../references/import-context.md) for the full workflow, supported files list, splitting guidelines, and re-import logic.
+See [references/import-context.md](references/import-context.md) for the full workflow, supported files list, splitting guidelines, and re-import logic.
 
 ---
 
@@ -560,23 +337,18 @@ See [references/import-context.md](../references/import-context.md) for the full
 
 When the user asks to "document this feature", "analyze the auth system", "create a memory for the API", or similar — read the relevant source code, select an appropriate template (Feature Guide, Architecture Decision, API Reference, Coding Conventions, Debugging, or Onboarding), draft the memory, check for duplicates, and save with `--source "analysis:feature-name"`.
 
-See [references/memory-templates.md](../references/memory-templates.md) for the workflow, template selection table, and structure guidance for each template type.
+See [references/memory-templates.md](references/memory-templates.md) for the workflow, template selection table, and structure guidance for each template type.
 
 ---
 
-## Workflow Guidelines
+## The Core Loop
 
-1. **Capture proactively** — watch for the signals in the When to Capture section. Don't wait to be asked.
-2. **Dedup before every write** — always run `workspace context` + `search` first. Default to `version create` over `memory create` when there's a strong match.
-3. **Cross-workspace search + confirm-first linking** — after dedup, also search across all workspaces (run `recuerd0 search` without `--workspace`). If you find a strong cross-workspace match, ask the user in one line before linking. Never auto-link silently.
-4. **Always pick a category** — every save and version must pass `--category`. Default to `general` only when nothing else fits. The four values are `decision`, `discovery`, `preference`, `general`.
-5. **Route to the right workspace** — follow the Workspace Routing decision tree. Never silently dump into a default workspace. Create a new workspace if the project doesn't have one yet.
-6. **Announce every save in one line** — use the Save Notice Convention. No narration of the dedup or routing process unless something went wrong.
-7. **Clean up `auto-save` memories** — distill them into curated memories, then delete the raw originals.
-8. **Always parse JSON output** — extract `data`, check `success`, use `breadcrumbs` to discover follow-up actions.
-9. **Handle pagination** — when `pagination.has_next` is true, fetch the next page or inform the user.
-10. **Use `--pretty`** when showing output to the user for readability.
-11. **Prefer `--workspace`** from context — let the CLI resolve from `.recuerd0.yaml` when present.
-12. **Pipe long content via stdin** — for multi-line content, use `--content -` with a heredoc or pipe.
-13. **Check errors gracefully** — on failure, read the error code and message, suggest corrective action.
-14. **Read large memories in windows** — when a memory is likely large (transcripts, long docs, or anything where `total_lines` is more than ~200), prefer `memory read grep` to find the relevant region, then `memory read lines` to fetch only that window. Reserve `memory show` for cases where you genuinely need the whole body.
+Each capture follows the same sequence — the detail for every step is in the section named:
+
+1. **Notice** a capture-worthy moment (**When to Capture**) — proactively, without being asked.
+2. **Route** to the right workspace (**Workspace Routing**).
+3. **Dedup** before writing (**Dedup-Before-Write Protocol**) — default to `version create` on a strong match; search across workspaces and confirm before any link (**Memory Links**).
+4. **Categorize** the save (**Categories**) — always pass `--category`.
+5. **Announce** in one line (**Save Notice Convention**) — no narration unless something went wrong.
+
+CLI mechanics — JSON parsing, pagination, stdin piping, error handling, reading large memories in windows — are in `references/cli-reference.md`.
