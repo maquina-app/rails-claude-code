@@ -32,7 +32,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 | [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.4.0 |
 | [mvp-creator](#5-mvp-creator) | MVP documentation for Rails applications | 1.1.0 |
 | [better-stimulus](#6-better-stimulus) | StimulusJS best practices from betterstimulus.com | 1.1.0 |
-| [spec-driven-development](#7-spec-driven-development) | Spec-driven development workflow for Rails | 1.3.0 |
+| [spec-driven-development](#7-spec-driven-development) | Spec-driven development workflow for Rails | 1.4.0 |
 | [rails-security-auditor](#8-rails-security-auditor) | Security audit for Rails 8.0–8.2 configuration | 1.0.1 |
 | [rails-hotwire-driver](#9-rails-hotwire-driver) | Drive a running Rails dev server from the terminal, optional screenshots/browser layer | 0.3.0 |
 
@@ -445,20 +445,22 @@ Initialize → Shape Spec → Create Tasks → Hand off to Claude Code → Track
 
 ```
 spec-driven-development/
-├── agents/spec-driven-development.md    # Main skill
 ├── README.md                             # Full documentation
 ├── QUICKSTART.md                         # Quick reference
+├── commands/                             # 6 /sdd-* slash commands
 ├── scripts/
 │   ├── init_sdd.sh                       # Initialize SDD structure
 │   ├── new_spec.sh                       # Create new spec
 │   └── status.sh                         # Show progress
-├── references/
-│   ├── rails-standards.md                # Rails conventions
-│   ├── hotwire-patterns.md               # Turbo/Stimulus patterns
-│   └── document-templates.md             # Spec templates
-└── templates/
-    ├── standard-template.md              # Spec template
-    └── progress.yml                      # Progress tracking
+├── templates/
+│   ├── standard-template.md              # Spec template
+│   └── progress.yml                      # Progress tracking
+└── skills/spec-driven-development/
+    ├── SKILL.md                          # Main skill (routes to the /sdd-* commands)
+    └── references/
+        ├── rails-standards.md            # Rails conventions
+        ├── hotwire-patterns.md           # Turbo/Stimulus patterns
+        └── document-templates.md         # Spec templates
 ```
 
 ---
