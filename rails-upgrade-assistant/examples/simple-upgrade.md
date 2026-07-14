@@ -17,8 +17,8 @@ User: "Upgrade my Rails app to 8.1"
 ### Step 1: Detect Version
 
 ```
-Call: railsMcpServer:project_info
-Result: Current = 8.0.4, Target = 8.1.1, Type = Full Stack
+Read: Gemfile.lock  → Current = 8.0.4, Target = 8.1.1
+Read: config/application.rb → Type = Full Stack
 ```
 
 ### Step 2: Load Resources
@@ -64,7 +64,7 @@ Output: Executable bash script that:
 - Searches for SSL config patterns
 - Searches for bundler-audit references
 - Generates findings report
-- Lists affected files for Neovim
+- Lists affected files
 ```
 
 ### Step 6: Generate Deliverable #3 - app:update Preview
@@ -76,7 +76,7 @@ Output: Configuration preview showing:
 - config/application.rb changes (load_defaults 8.1)
 - config/environments/production.rb changes (SSL config)
 - Gemfile changes (Rails 8.1.1)
-- Neovim file list
+- Affected file list
 ```
 
 ---
@@ -347,16 +347,12 @@ Here's what will change in your configuration files:
 ## 🚀 Next Steps
 
 1. Review all three deliverables above
-2. Run the detection script
-3. Share the findings report with me if issues found
-4. Choose your update approach:
-   - **Manual:** Apply changes one by one
-   - **Interactive:** Open files in Neovim, I'll help update them
-   - **rails app:update:** Let Rails update, resolve conflicts
+2. Choose how to apply the changes:
+   - **I apply them:** I edit the affected files directly, one breaking change at a time
+   - **rails app:update:** Let Rails update, then resolve conflicts together
 
 Would you like me to:
-- Help you fix specific issues found by the detection script?
-- Update files interactively (requires Neovim)?
+- Apply the fixes for the issues found by the detection script?
 - Explain any breaking change in more detail?
 ```
 

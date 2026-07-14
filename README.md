@@ -27,7 +27,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 | Plugin | Description | Version |
 |--------|-------------|---------|
 | [rails-simplifier](#1-rails-simplifier) | Code quality following 37signals patterns | 1.1.0 |
-| [rails-upgrade-assistant](#2-rails-upgrade-assistant) | Rails 6.0→8.1 upgrade planning | 1.1.1 |
+| [rails-upgrade-assistant](#2-rails-upgrade-assistant) | Rails 6.0→8.1 upgrade planning | 1.2.0 |
 | [maquina-ui-standards](#3-maquina-ui-standards) | UI components with maquina_components | 0.4.4 |
 | [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.4.0 |
 | [mvp-creator](#5-mvp-creator) | MVP documentation for Rails applications | 1.0.1 |
@@ -95,11 +95,11 @@ rails-simplifier/
 
 ## 2. rails-upgrade-assistant
 
-A **unified, intelligent Rails upgrade skill** that helps you upgrade Ruby on Rails applications through any version from **6.0 to 8.1.1**. Built on official Rails CHANGELOGs and integrated with MCP tools for automatic project analysis.
+A **unified, intelligent Rails upgrade assistant** that helps you upgrade Ruby on Rails applications through any version from **6.0 to 8.1.1**. Built on official Rails CHANGELOGs, it analyzes your project with the standard file tools — no external services required.
 
 ### What It Does
 
-- **Analyzes** your Rails project automatically using Rails MCP tools
+- **Analyzes** your Rails project automatically by reading its files
 - **Detects** your current version and target version
 - **Plans** single-hop or multi-hop upgrade paths
 - **Identifies** breaking changes specific to YOUR code
@@ -133,11 +133,11 @@ A **unified, intelligent Rails upgrade skill** that helps you upgrade Ruby on Ra
 
 ### Workflow
 
-1. **Claude generates detection script** tailored to your specific upgrade
-2. **You run the script** in your project directory
-3. **Script outputs findings** with file:line references
-4. **Share findings with Claude**
-5. **Claude generates comprehensive report** with OLD→NEW code examples
+1. **Detects** your current and target versions from `Gemfile.lock`
+2. **Generates a detection script** tailored to the specific hop
+3. **Runs the script** and reads the findings (`file:line` references)
+4. **Generates a comprehensive report** with OLD→NEW code from your actual files
+5. **Offers to apply the fixes** directly
 
 ### Benefits
 
@@ -149,7 +149,7 @@ A **unified, intelligent Rails upgrade skill** that helps you upgrade Ruby on Ra
 
 ```
 rails-upgrade-assistant/
-├── agents/rails-upgrade-assistant.md    # Main skill
+├── agents/rails-upgrade-assistant.md    # Main agent
 ├── version-guides/                       # Rails version details
 │   ├── upgrade-6.0-to-6.1.md
 │   ├── upgrade-6.1-to-7.0.md
@@ -166,8 +166,7 @@ rails-upgrade-assistant/
 
 ### Requirements
 
-- **Required:** [Rails MCP Server](https://github.com/maquina-app/rails-mcp-server)
-- **Optional:** [Neovim MCP Server](https://github.com/maquina-app/nvim-mcp-server) (for interactive file updates)
+- None beyond Claude Code — the assistant reads, runs, and edits project files with its built-in tools.
 
 ### Resources
 

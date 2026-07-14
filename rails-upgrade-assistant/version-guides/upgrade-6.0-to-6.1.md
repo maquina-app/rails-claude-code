@@ -756,7 +756,6 @@ request.content_type == "text/
 - [ ] Staging environment available
 - [ ] Team notified of upgrade
 - [ ] Documentation updated
-- [ ] Rails MCP server connected
 
 ### Step 1: Analysis
 

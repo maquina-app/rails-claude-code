@@ -16,8 +16,7 @@ User: "Create a detection script for Rails 8.0 breaking changes"
 
 ### Step 1: Detect Version
 ```
-Call: railsMcpServer:project_info
-Result: Current = 7.2.3
+Read: Gemfile.lock  → Current = 7.2.3
 ```
 
 ### Step 2: Load Only What's Needed
@@ -139,10 +138,6 @@ ALL_FILES="$SPROCKETS_FILES ..."
 echo "$ALL_FILES" | tr ' ' '\n' | sort -u | tee -a "$OUTPUT_FILE"
 
 echo "" | tee -a "$OUTPUT_FILE"
-echo "Neovim command:" | tee -a "$OUTPUT_FILE"
-echo "nvim $ALL_FILES" | tee -a "$OUTPUT_FILE"
-
-echo "" | tee -a "$OUTPUT_FILE"
 echo "================================================" | tee -a "$OUTPUT_FILE"
 echo "Report saved to: $OUTPUT_FILE" | tee -a "$OUTPUT_FILE"
 echo "================================================" | tee -a "$OUTPUT_FILE"
@@ -158,7 +153,6 @@ echo "================================================" | tee -a "$OUTPUT_FILE"
 4. ✅ Shows file:line references for each issue
 5. ✅ Generates `rails_80_upgrade_findings.txt` report
 6. ✅ Lists all affected files
-7. ✅ Provides Neovim command to open files
 
 ---
 
@@ -181,7 +175,7 @@ cd /path/to/your/rails/project
 ### Step 4: Review Output
 - Check console for summary
 - Read `rails_80_upgrade_findings.txt` for details
-- Use Neovim command to open affected files
+- Open the affected files to apply fixes
 
 ---
 
@@ -225,23 +219,17 @@ config/application.rb
 config/environments/production.rb
 config/initializers/assets.rb
 config/initializers/redis.rb
-
-Neovim command:
-nvim config/application.rb config/environments/production.rb ...
 \```
 
 ---
 
 ## 💡 Next Steps
 
-After running the script:
+After the script runs:
 
 1. **Review the findings report**
-2. **Share it with me** for help fixing issues
-3. **Open files in Neovim** using the command provided
-4. **Ask me:** "Help me fix these breaking changes"
-
-I can then help you fix each issue interactively!
+2. **Ask me:** "Help me fix these breaking changes" — I read each affected file and apply the fixes directly
+3. Or request the full upgrade report to see every change with OLD→NEW code
 
 ---
 

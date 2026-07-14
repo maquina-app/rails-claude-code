@@ -30,10 +30,10 @@ Rails 8.1 → detection-scripts/patterns/rails-81-patterns.yml
 
 ### Step 2: Load Pattern File
 
-Read the YAML pattern file:
+Read the YAML pattern file with the Read tool:
 
 ```
-railsMcpServer:get_file("detection-scripts/patterns/rails-{VERSION}-patterns.yml")
+detection-scripts/patterns/rails-{VERSION}-patterns.yml
 ```
 
 **Pattern File Structure:**
@@ -61,10 +61,10 @@ breaking_changes:
 
 ### Step 3: Load Script Template
 
-Read the bash script template:
+Read the bash script template with the Read tool:
 
 ```
-railsMcpServer:get_file("detection-scripts/templates/detection-script-template.sh")
+detection-scripts/templates/detection-script-template.sh
 ```
 
 **Template Placeholders:**
@@ -228,9 +228,6 @@ done
 
 if [ -n "$ALL_FILES" ]; then
   echo "$ALL_FILES" | tr ' ' '\n' | sort -u | tee -a "$OUTPUT_FILE"
-  echo "" | tee -a "$OUTPUT_FILE"
-  echo "Neovim command:" | tee -a "$OUTPUT_FILE"
-  echo "nvim $ALL_FILES" | tee -a "$OUTPUT_FILE"
 fi
 ```
 
@@ -286,7 +283,7 @@ chmod +x detect_rails_{VERSION_SLUG}_changes.sh
 1. ✅ Searches for all breaking change patterns
 2. ✅ Shows file:line references for each issue
 3. ✅ Generates a findings report (TXT file)
-4. ✅ Lists affected files for Neovim
+4. ✅ Lists affected files
 5. ✅ Provides fix instructions for each issue
 6. ✅ Completes in < 30 seconds
 
@@ -308,11 +305,10 @@ After running, you'll get:
 - `rails_{VERSION_SLUG}_upgrade_findings.txt` - Full report with findings
 - Console output with color-coded results
 - List of affected files
-- Neovim command to open all files
 
 ## If Issues Found
 
-Share the `rails_{VERSION_SLUG}_upgrade_findings.txt` file with me for interactive help fixing each issue!
+Read the `rails_{VERSION_SLUG}_upgrade_findings.txt` file, then work through each issue — reading the affected files and applying fixes directly.
 ```
 
 ---
@@ -412,15 +408,12 @@ Date: November 2, 2025
    - bundler-audit: 2 occurrence(s)
    - Cache configuration: 1 occurrence(s)
 
-📋 AFFECTED FILES (for Neovim)
-==============================
+📋 AFFECTED FILES
+=================
 
 config/environments/production.rb
 Gemfile
 config/environments/development.rb
-
-Neovim command:
-nvim config/environments/production.rb Gemfile config/environments/development.rb
 ```
 
 **TXT File Output:**

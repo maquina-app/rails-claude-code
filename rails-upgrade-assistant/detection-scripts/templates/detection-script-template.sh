@@ -91,10 +91,8 @@ else
 fi
 
 echo "" | tee -a "$OUTPUT_FILE"
-echo "📋 AFFECTED FILES (for Neovim)" | tee -a "$OUTPUT_FILE"
-echo "==============================" | tee -a "$OUTPUT_FILE"
-echo "" | tee -a "$OUTPUT_FILE"
-echo "If you want to fix these interactively with Claude, open these files in Neovim:" | tee -a "$OUTPUT_FILE"
+echo "📋 AFFECTED FILES" | tee -a "$OUTPUT_FILE"
+echo "=================" | tee -a "$OUTPUT_FILE"
 echo "" | tee -a "$OUTPUT_FILE"
 
 # NOTE: {FILE_LIST_GENERATION} will be replaced with code to collect affected files
@@ -117,10 +115,9 @@ echo "Full report saved to: $OUTPUT_FILE" | tee -a "$OUTPUT_FILE"
 echo "" | tee -a "$OUTPUT_FILE"
 echo "Next steps:" | tee -a "$OUTPUT_FILE"
 echo "1. Review this report" | tee -a "$OUTPUT_FILE"
-echo "2. Share findings with Claude for interactive help" | tee -a "$OUTPUT_FILE"
-echo "3. Fix breaking changes" | tee -a "$OUTPUT_FILE"
-echo "4. Run test suite" | tee -a "$OUTPUT_FILE"
-echo "5. Re-run this script to verify all issues resolved" | tee -a "$OUTPUT_FILE"
+echo "2. Fix the breaking changes in the affected files" | tee -a "$OUTPUT_FILE"
+echo "3. Run the test suite" | tee -a "$OUTPUT_FILE"
+echo "4. Re-run this script to verify all issues resolved" | tee -a "$OUTPUT_FILE"
 echo "" | tee -a "$OUTPUT_FILE"
 
 echo ""

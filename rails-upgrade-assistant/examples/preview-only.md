@@ -113,15 +113,14 @@ gem 'rails', '~> 7.2.3'
 
 ---
 
-## 📝 Neovim Buffer List
+## 📝 Affected Files
 
-\```bash
-nvim \
-  config/application.rb \
-  Gemfile \
-  config/environments/production.rb \
-  config/environments/development.rb
-\```
+```
+config/application.rb
+Gemfile
+config/environments/production.rb
+config/environments/development.rb
+```
 
 ---
 
