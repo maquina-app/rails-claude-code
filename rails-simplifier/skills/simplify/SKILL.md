@@ -158,9 +158,9 @@ end
 - A replacement for proper object-oriented design
 - An excuse to avoid creating additional classes when complexity warrants it
 
-### 5. Apply State as Records, Not Booleans
+### 5. Model State as Records
 
-Model states as separate records to track who, when, and why:
+Model states as separate records to track who, when, and why — instead of boolean columns, which lose that context:
 
 ```ruby
 # ❌ BAD: Boolean columns (loses context)
@@ -200,32 +200,9 @@ end
 - Easy to query (`joins(:closure)` vs `where(closed: true)`)
 - Reversible (delete record to reopen)
 
-### 6. Apply Controller Concerns for Shared Behavior
+### 6. Extract Shared Controller Behavior into Concerns
 
-```ruby
-# app/controllers/concerns/card_scoped.rb
-module CardScoped
-  extend ActiveSupport::Concern
-
-  included do
-    before_action :set_card
-  end
-
-  private
-    def set_card
-      @card = Current.user.accessible_cards.find_by!(number: params[:card_id])
-    end
-
-    def render_card_replacement
-      render turbo_stream: turbo_stream.replace(
-        [@card, :card_container],
-        partial: "cards/container",
-        method: :morph,
-        locals: { card: @card.reload }
-      )
-    end
-end
-```
+Pull a resource-scoping `before_action` and its shared render helpers into a small controller concern (e.g. `CardScoped`), so each thin controller just includes it. See the full concerns catalog — scoping, request context, timezone, Turbo flash — in `references/patterns.md`.
 
 ---
 
@@ -408,7 +385,7 @@ test "creates booking for today" do
 end
 ```
 
-### I18n: Never Hardcode User-Facing Strings
+### I18n: Localize All User-Facing Strings
 
 ```ruby
 # ✅ GOOD: I18n everywhere
@@ -453,23 +430,7 @@ def create
 end
 ```
 
-### Turbo Flash Concern
-
-```ruby
-# app/controllers/concerns/turbo_flash.rb
-module TurboFlash
-  extend ActiveSupport::Concern
-
-  included do
-    helper_method :turbo_stream_flash
-  end
-
-  private
-    def turbo_stream_flash(**flash_options)
-      turbo_stream.replace(:flash, partial: "shared/flash", locals: { flash: flash_options })
-    end
-end
-```
+The `turbo_stream_flash` helper above comes from a small `TurboFlash` controller concern — see `references/patterns.md` for its definition alongside the rest of the concerns catalog.
 
 ---
 
@@ -492,42 +453,6 @@ end
 | N+1 queries | `includes` / `preload` | Performance |
 | Hardcoded strings | I18n keys | Localization |
 | Date scope tests without `travel_to` | Freeze time to fixture date | Parallel test stability |
-
----
-
-## Quick Reference
-
-### Do This (Compress Complexity)
-
-- ✅ New resource over new action
-- ✅ Model methods over service objects
-- ✅ Concerns for horizontal behavior ("has trait" semantics)
-- ✅ State records over booleans
-- ✅ Verb methods for actions (`close`, not `set_closed`)
-- ✅ `Time.current` not `Time.now`
-- ✅ Integer cents for money
-- ✅ `includes` to avoid N+1
-- ✅ Always scope to `current_account` or `current_user`
-- ✅ I18n for all user-facing strings
-- ✅ `travel_to` for date-sensitive tests
-- ✅ Minitest + fixtures
-- ✅ Database-backed jobs/cache/cable (Solid Queue/Cache/Cable)
-- ✅ Hotwire for frontend interactivity
-
-### Not This (Expands Complexity)
-
-- ❌ Custom controller actions
-- ❌ Service/interactor objects
-- ❌ Boolean columns for state
-- ❌ Fat controllers
-- ❌ RSpec + factories
-- ❌ Redis for jobs/cache/cable
-- ❌ Devise for auth
-- ❌ React/Vue/JSON APIs
-- ❌ Hardcoded user-facing strings
-- ❌ Unscoped queries
-- ❌ `Time.now`
-- ❌ Float for money
 
 ---
 
