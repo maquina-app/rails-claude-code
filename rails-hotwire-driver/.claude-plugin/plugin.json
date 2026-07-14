@@ -1,6 +1,6 @@
 {
     "name": "rails-hotwire-driver",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Drive a running local Rails dev server from the terminal — CSRF-correct form submits, OTP-from-log login, Turbo Stream inspection, request-id log correlation, and session bridging to a real browser. Optional agent-browser layer adds screenshots, visual regression, Turbo-event/DOM-condition waits, Stimulus introspection, and structural diffs.",
     "author": {
         "name": "Mario Alberto Chávez",

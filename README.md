@@ -34,7 +34,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 | [better-stimulus](#6-better-stimulus) | StimulusJS best practices from betterstimulus.com | 1.1.0 |
 | [spec-driven-development](#7-spec-driven-development) | Spec-driven development workflow for Rails | 1.3.0 |
 | [rails-security-auditor](#8-rails-security-auditor) | Security audit for Rails 8.0–8.2 configuration | 1.0.0 |
-| [rails-hotwire-driver](#9-rails-hotwire-driver) | Drive a running Rails dev server from the terminal, optional screenshots/browser layer | 0.2.0 |
+| [rails-hotwire-driver](#9-rails-hotwire-driver) | Drive a running Rails dev server from the terminal, optional screenshots/browser layer | 0.3.0 |
 
 ---
 
@@ -591,6 +591,8 @@ Optional (requires agent-browser):
 rails-hotwire-driver/
 ├── skills/rails-hotwire-driver/
 │   ├── SKILL.md                        # Skill instructions and workflows
+│   ├── references/
+│   │   └── config.md                   # Full env-var reference
 │   └── scripts/
 │       ├── req.sh                      # One HTTP request, cookies persisted
 │       ├── submit_form.rb              # Submit a form with the right CSRF token

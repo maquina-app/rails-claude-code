@@ -1,6 +1,6 @@
 ---
 name: rails-hotwire-driver
-description: Drive a running local Rails dev server without a browser — log in (incl. OTP/magic-link codes read straight from the log), submit ERB forms with correct CSRF tokens, and inspect Turbo Stream responses — then correlate everything against the development log by request id. Optionally pairs with the agent-browser CLI for the JS-dependent residual — full-page/scoped/device screenshots, visual regression diffing, waiting on Turbo events or DOM conditions instead of guessing timeouts, Stimulus controller introspection, structural (accessibility-tree) diffs around a Turbo action, and console/error capture. Use this whenever the user wants to exercise a Rails app's UI from the terminal with curl instead of a browser, debug Hotwire/Turbo behavior, verify a server-rendered turbo-stream, read OTP or verification codes out of the dev log, follow an authenticated session flow, trace what a specific request did in the logs, screenshot a page or Turbo Frame, wait for a broadcast to land, or inspect Stimulus controller state. Especially apt for ERB + Hotwire apps with minimal JavaScript. Pairs with the rails-mcp-server (which does static code analysis) by adding live runtime interaction, and bridges sessions to/from Playwright or agent-browser (storageState) so you can log in once and share the authenticated session between curl and a real browser.
+description: Drive a running local Rails dev server from the terminal instead of a browser — log in (incl. OTP/magic-link codes read straight from the dev log), submit ERB forms with correct CSRF tokens, trigger and inspect Turbo Stream responses, and trace each request through the development log by request id. Ships an optional agent-browser (or Playwright) layer for the JS-dependent residual — screenshots, visual-regression diffs, waiting on Turbo events or DOM conditions, Stimulus controller introspection, and console/error capture. Use whenever exercising or debugging a Rails app's UI from the shell with curl instead of a browser — verifying a server-rendered turbo-stream, reading OTP/verification codes from the log, following an authenticated session, tracing what a request did, screenshotting a page or Turbo Frame, waiting for a broadcast to land, or inspecting Stimulus state. Especially apt for ERB + Hotwire apps with minimal JavaScript; bridges a logged-in session (storageState) between curl and a real browser so you authenticate once.
 ---
 
 # Rails Hotwire Driver
@@ -342,30 +342,13 @@ it only sees the log line, not the browser. The browser-script half can:
   don't import it from `req.sh`, so don't weaken it there either if you touch them.
 
 ## Config (env vars)
-- `BASE_URL`  — default `http://localhost:3000`. For kamal-proxy use the routed
-  name, e.g. `http://fragua.localhost`.
-- `RESOLVE`   — force the host to resolve to an IP when `*.localhost` doesn't
-  resolve on its own. `RESOLVE=1` → `127.0.0.1`; `RESOLVE=<ip>` → that IP. Host
-  header is preserved either way.
-- `JAR`       — cookie jar path, default `./.hotwire/cookies.txt`
-- `LOG_FILE`  — default `./log/development.log` (point at the specific app's log)
-- `MAX_BYTES` — response body cap for `req.sh`, default `100000`
 
-### Browser scripts only
-- `STATE`           — bridged storageState cache, default `./.hotwire/state.json`
-- `SESSION`         — agent-browser session name, default derived from `BASE_URL`'s
-  host (e.g. `hotwire-fragua-localhost`), so calls against different apps don't
-  collide
-- `SCREENSHOT_DIR`  — default `./.hotwire/screenshots`
-- `FORMAT`/`QUALITY` — `screenshot.sh` output format (`png`/`jpeg`) and JPEG quality,
-  default `png`/`80`
-- `WAIT_LOAD`       — default `domcontentloaded`, deliberately not `networkidle`
-- `SETTLE_MS`       — extra wait after load for Turbo morph/animations, default `300`
-- `MIN_DIM`/`MAX_DIM` — clamp for `screenshot.sh`'s element-scoped viewport size,
-  default `100`/`1600`
-- `VIEWPORT`        — fixed viewport for `screenshot-diff.sh`, default `1280x800`
-  (changing it invalidates old baselines)
-- `STIMULUS_GLOBAL` — window property holding the Stimulus `Application` instance,
-  default `Stimulus`
-- `AGENT_BROWSER`   — binary name/path, default `agent-browser`
-- `RUBY`            — how to run the `.rb` bridge scripts, default `bundle exec ruby`
+The vars you'll set most often: `BASE_URL` (default `http://localhost:3000`; for
+kamal-proxy use the routed name, e.g. `http://fragua.localhost`), `RESOLVE` (force
+`*.localhost` to loopback when it doesn't resolve), `JAR` (cookie jar, default
+`./.hotwire/cookies.txt`), `LOG_FILE` (default `./log/development.log`), and `RUBY`
+(default `bundle exec ruby`).
+
+The full list — including the browser-script vars (`SESSION`, `VIEWPORT`,
+`WAIT_LOAD`, `STIMULUS_GLOBAL`, …) and their defaults — is in
+[references/config.md](references/config.md).
