@@ -137,7 +137,7 @@
       "name": "rails-security-auditor",
       "source": "./rails-security-auditor",
       "description": "Audits a Rails application's security configuration and produces a structured, actionable report grounded in Rails 8.0–8.2 defaults",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"
