@@ -1,9 +1,6 @@
 ---
 name: mvp-creator
-description: Create comprehensive MVP documentation for Rails applications. Use this agent whenever a user describes a new app idea, wants to explore a SaaS concept, needs competitor research, or is starting a new project from scratch — even if they don't explicitly say "MVP". Triggers on "I have an idea for...", "I want to build...", "help me plan...", "research competitors for...", "create a business plan for...", "design a brand for my app", "set up Claude for my Rails project", "bootstrap an app", or any request to plan, research, or document a new application concept.
-model: sonnet
-effort: high
-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch, WebSearch
+description: Create comprehensive MVP documentation for Rails applications. Use this skill whenever a user describes a new app idea, wants to explore a SaaS concept, needs competitor research, or is starting a new project from scratch — even if they don't explicitly say "MVP". Triggers on "I have an idea for...", "I want to build...", "help me plan...", "research competitors for...", "create a business plan for...", "design a brand for my app", "set up Claude for my Rails project", "bootstrap an app", or any request to plan, research, or document a new application concept.
 ---
 
 # MVP Creator
@@ -151,7 +148,7 @@ Before I create the brand guide:
 
 ## Logo Generation
 
-Logos are always generated as SVG code inline in the Brand Guide — do not delegate logo creation to another skill.
+Always generate logos yourself, as SVG code written inline in the Brand Guide (rather than delegating to another skill).
 
 1. **Concept first:** Describe the visual metaphor before generating SVG
 2. **Simple shapes:** Use basic geometric forms only
@@ -209,7 +206,7 @@ User: "The brand guide doesn't feel right — too corporate"
 Response:
 1. Acknowledge specifically what missed the mark
 2. Ask 1–2 targeted questions to redirect (e.g., "What aesthetic would feel more right — can you point to an app or brand as reference?")
-3. Re-generate the deliverable from scratch — don't patch it
+3. Re-generate the deliverable from scratch rather than patching it
 4. Note explicitly what changed in the new version
 
 ---
@@ -232,7 +229,7 @@ Run the relevant checklist before presenting each deliverable.
 - [ ] Success metrics defined
 
 ### Brand Guide
-- [ ] Logo SVG code included (primary + icon) — generated inline, not delegated
+- [ ] Logo SVG code included (primary + icon), generated inline
 - [ ] Full color palette with hex values
 - [ ] Typography scale defined
 - [ ] Component patterns documented
@@ -284,12 +281,10 @@ Run the relevant checklist before presenting each deliverable.
 
 ## Tips
 
-1. **Research first** — Even quick research improves all subsequent deliverables
-2. **Ask before assuming** — Discovery questions prevent rework
-3. **One at a time** — Generate and get approval on each deliverable before moving on
-4. **Show don't tell** — Use concrete examples from the user's domain
-5. **Bilingual by default** — If LATAM or multilingual, show Spanish/English examples
-6. **Logos inline** — Always write SVG code directly; never outsource logo creation
+1. **Show, don't tell** — ground every deliverable in concrete examples from the user's own domain.
+2. **Bilingual by default** — for a LATAM or multilingual audience, show Spanish/English examples throughout.
+
+(The core discipline — research first, ask before assuming, one deliverable at a time with approval — is the Workflow above.)
 
 ---
 

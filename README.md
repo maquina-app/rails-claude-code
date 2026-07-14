@@ -30,7 +30,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 | [rails-upgrade-assistant](#2-rails-upgrade-assistant) | Rails 6.0→8.1 upgrade planning | 1.2.0 |
 | [maquina-ui-standards](#3-maquina-ui-standards) | UI components with maquina_components | 0.4.4 |
 | [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.4.0 |
-| [mvp-creator](#5-mvp-creator) | MVP documentation for Rails applications | 1.0.1 |
+| [mvp-creator](#5-mvp-creator) | MVP documentation for Rails applications | 1.1.0 |
 | [better-stimulus](#6-better-stimulus) | StimulusJS best practices from betterstimulus.com | 1.1.0 |
 | [spec-driven-development](#7-spec-driven-development) | Spec-driven development workflow for Rails | 1.3.0 |
 | [rails-security-auditor](#8-rails-security-auditor) | Security audit for Rails 8.0–8.2 configuration | 1.0.1 |
@@ -348,20 +348,21 @@ Topic/Idea → Research → Discovery Questions → Generate Deliverables → Ha
 
 ```
 mvp-creator/
-├── agents/mvp-creator.md                        # Main skill
 ├── QUICKSTART.md                                 # Quick reference
-├── scripts/init.sh                               # Project initialization
-└── references/
-    ├── rails-philosophy.md                       # 37signals patterns
-    ├── rails-ui-patterns.md                      # UI conventions
-    ├── rails-api-patterns.md                     # API patterns
-    ├── rails-implementation-patterns.md          # Implementation guide
-    └── deliverable-templates/                    # Output templates
-        ├── research-report.md
-        ├── mvp-business-plan.md
-        ├── brand-guide.md
-        ├── technical-guide.md
-        └── claude-setup.md
+└── skills/mvp-creator/
+    ├── SKILL.md                                  # Main skill
+    ├── scripts/init.sh                           # Project initialization
+    └── references/
+        ├── rails-philosophy.md                   # 37signals patterns
+        ├── rails-ui-patterns.md                  # UI conventions
+        ├── rails-api-patterns.md                 # API patterns
+        ├── rails-implementation-patterns.md      # Implementation guide
+        └── deliverable-templates/                # Output templates
+            ├── research-report.md
+            ├── mvp-business-plan.md
+            ├── brand-guide.md
+            ├── technical-guide.md
+            └── claude-setup.md
 ```
 
 ---
