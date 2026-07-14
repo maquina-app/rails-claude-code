@@ -173,6 +173,25 @@
         "agent-browser",
         "screenshots"
       ]
+    },
+    {
+      "name": "hotwire-patterns",
+      "source": "./hotwire-patterns",
+      "description": "Deep, internals-informed Hotwire mental models, decision frameworks, and debugging for Rails — Turbo Drive/Frames/Streams, Morphing (idiomorph), Turbo Cache, ActionCable broadcasting, Stimulus design, and Hotwire Native.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Mario Alberto Chávez",
+        "email": "mario@maquina.app"
+      },
+      "category": "development",
+      "tags": [
+        "hotwire",
+        "turbo",
+        "stimulus",
+        "morphing",
+        "hotwire-native",
+        "rails"
+      ]
     }
   ]
 }

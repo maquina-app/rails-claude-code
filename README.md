@@ -18,6 +18,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 /plugin install spec-driven-development@maquina
 /plugin install rails-security-auditor@maquina
 /plugin install rails-hotwire-driver@maquina
+/plugin install hotwire-patterns@maquina
 ```
 
 ---
@@ -35,6 +36,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 | [spec-driven-development](#7-spec-driven-development) | Spec-driven development workflow for Rails | 1.4.0 |
 | [rails-security-auditor](#8-rails-security-auditor) | Security audit for Rails 8.0–8.2 configuration | 1.0.1 |
 | [rails-hotwire-driver](#9-rails-hotwire-driver) | Drive a running Rails dev server from the terminal, optional screenshots/browser layer | 0.3.0 |
+| [hotwire-patterns](#10-hotwire-patterns) | Deep Hotwire internals, decision frameworks, and debugging | 0.1.0 |
 
 ---
 
@@ -592,6 +594,54 @@ rails-hotwire-driver/
 
 ---
 
+## 10. hotwire-patterns
+
+**Internals-informed Hotwire mental models** — decision frameworks and debugging for Turbo, Stimulus, and Hotwire Native. Core philosophy: *enhance the browser, don't reinvent it*.
+
+### What It Covers
+
+| Topic | Description |
+|-------|-------------|
+| Escalation ladder | Choose the cheapest tool: Drive+Morph → Frames → Streams → Stimulus → JS island |
+| Turbo internals | Drive, Frames, Streams — how each observer scopes updates; the frame-id mismatch |
+| Morphing | The idiomorph algorithm, when morph actually runs, excluding elements |
+| Turbo Cache | Snapshot mechanics, preview flashing, `turbo-permanent`, cache-control |
+| Broadcasting | ActionCable stream sources, the ~0.5s debounce, request-id dedup |
+| Stimulus design | Callbacks over `connect`, events vs outlets (pairs with `better-stimulus`) |
+| Hotwire Native | Path Configuration, Bridge Components, native adapter mental model |
+| Testing & debugging | System-test flakiness, collaborative tests, legacy migration, source landmarks |
+
+### Usage
+
+```
+> Why does morphing wipe my form?
+> My Turbo Stream broadcast isn't arriving
+> This system test is flaky
+> How do I add Turbo to a legacy app?
+> Wrap my app with Hotwire Native
+```
+
+### Package Contents
+
+```
+hotwire-patterns/
+└── skills/hotwire-patterns/
+    ├── SKILL.md                    # Overview + decision frameworks + per-topic essentials
+    └── references/
+        ├── morphing.md             # idiomorph algorithm and gotchas
+        ├── stimulus.md             # reusable, composable controller design
+        ├── hotwire-native.md       # iOS/Android wrapping
+        ├── testing-and-legacy.md   # system tests + gradual Turbo adoption
+        └── debugging.md            # internals-informed debugging
+```
+
+### Related Skills
+
+- `better-stimulus` — exhaustive Stimulus controller-authoring patterns (this skill cross-references it)
+- `rails-hotwire-driver` — exercise a running Hotwire app from the terminal
+
+---
+
 ## Team Installation
 
 Add to your project's `.claude/settings.json` for automatic installation:
@@ -615,7 +665,8 @@ Add to your project's `.claude/settings.json` for automatic installation:
     "better-stimulus@maquina",
     "spec-driven-development@maquina",
     "rails-security-auditor@maquina",
-    "rails-hotwire-driver@maquina"
+    "rails-hotwire-driver@maquina",
+    "hotwire-patterns@maquina"
   ]
 }
 ```
