@@ -2,14 +2,11 @@
 name: better-stimulus
 description: >
   Apply opinionated StimulusJS best practices from betterstimulus.com. Use this
-  agent whenever writing, reviewing, debugging, or refactoring Stimulus
+  skill whenever writing, reviewing, debugging, or refactoring Stimulus
   controllers. Triggers when user asks to write, fix, or review a Stimulus
   controller, asks about data-controller, data-action, data-target, data-values,
   outlets, lifecycle callbacks, state management in Stimulus, Hotwire patterns,
   or Turbo and Stimulus integration.
-model: sonnet
-effort: medium
-tools: Read, Edit, Write, Grep, Glob
 ---
 
 # Better Stimulus
@@ -186,12 +183,12 @@ Good — split into two focused controllers:
 
 ## LIFECYCLE
 
-### 7. Don't Overuse `connect()`
+### 7. Reserve `connect()` for Plugin Init & DOM Preconditions
 `connect()` is the correct place for: initializing 3rd party plugins (Swiper, Dropzone, Chart.js), DOM preconditions, browser capability checks.
 
-`connect()` is **NOT** the right place for:
-- Setting up state → use Values instead
-- Adding event listeners → use `data-action` in markup instead
+Keep two things out of it, using the purpose-built API instead:
+- **State** → declare it with the Values API
+- **Event listeners** → declare them with `data-action` in the markup
 
 Bad:
 ```js
@@ -227,8 +224,8 @@ openValueChanged() {
 
 ## EVENTS
 
-### 8. Register Global Events in Markup, Not in `connect()`
-Stimulus automatically adds and removes event listeners declared in `data-action`.
+### 8. Declare Global Events in Markup with `data-action`
+Stimulus automatically adds and removes event listeners declared in `data-action` — including window/document events via the `@window`/`@document` suffix. Let it manage the listener lifecycle for you.
 
 Bad:
 ```js
@@ -269,58 +266,14 @@ disconnect() {
 
 ## INTERACTION (INTER-CONTROLLER COMMUNICATION)
 
-### 9. Outlets — Direct Controller-to-Controller Messaging
-Use the Outlets API when you need to call methods directly on another controller.
-
-```html
-<body data-controller="job-dashboard"
-      data-job-dashboard-job-outlet=".job">
-  <button data-action="job-dashboard#refresh"></button>
-  <ul>
-    <li data-controller="job" class="job"></li>
-  </ul>
-</body>
-```
-
-```js
-// job_dashboard_controller.js
-static outlets = ['job'];
-
-refresh() {
-  this.jobOutlets.forEach(outlet => outlet.update({...}));
-}
-```
-
-**Use sparingly** — outlet selectors in HTML can become bloated. Prefer custom events for broadcasting.
-
----
-
-### 10. Callbacks — Loose Controller Coupling
-When one controller needs data from another without tight coupling, use a callback pattern (request/respond via events).
-
-Good:
-```js
-// first_controller.js — exposes itself via callback event
-connect() {
-  $(document).on('first_controller.state', (event, callback) => {
-    callback(this);
-  });
-}
-setName(value) { this.name = value; }
-
-// second_controller.js — requests data when needed
-render() {
-  $(document).trigger('first_controller.state', firstController => {
-    this.name = firstController.name;
-  });
-}
-```
+### 9. Make Controllers Talk via Events, Outlets, or Callbacks
+Prefer **custom events** for broadcasting, **outlets** for direct method calls on other controllers, and **callbacks** for pulling data from another controller on demand. For the full patterns with examples, read `references/inter-controller.md`.
 
 ---
 
 ## DOM MANIPULATION
 
-### 11. Use `<template>` to Restore DOM State
+### 10. Use `<template>` to Restore DOM State
 When an external library removes HTML from the page (e.g., after closing a Bootstrap modal), use a `<template>` element to restore it.
 
 ```html
@@ -357,8 +310,8 @@ hide(e) {
 
 ## INTEGRATING THIRD-PARTY LIBRARIES
 
-### 12. Use Lifecycle Events for Setup and Teardown
-Don't manage library instances globally — use `connect`/`disconnect`.
+### 11. Use Lifecycle Events for Setup and Teardown
+Scope each library instance to a controller: create it in `connect`, tear it down in `disconnect`.
 
 Bad (global array, manual DOM querying):
 ```js
@@ -393,59 +346,14 @@ export default class extends Controller {
 
 ## ERROR HANDLING
 
-### 13. Global Error Handler via Application Controller
-Catch all Stimulus and application errors in one place using the `handleError` hook.
-
-```js
-// application_controller.js
-import { Controller } from "@hotwired/stimulus";
-
-export default class extends Controller {
-  handleError = (error) => {
-    const context = {
-      controller: this.identifier,
-      user_id: this.userId,
-    };
-    this.application.handleError(
-      error,
-      `Error in controller: ${this.identifier}`,
-      context
-    );
-  };
-
-  get userId() {
-    return document.head.querySelector(`meta[name="user_id"]`)?.content;
-  }
-}
-
-// some_controller.js
-export default class extends ApplicationController {
-  someFunc() {
-    try {
-      // ...
-    } catch (err) {
-      this.handleError(err);
-    }
-  }
-}
-```
-
-Plug in an error reporting service (e.g., Sentry) at the application level:
-
-```js
-// application.js
-const defaultErrorHandler = application.handleError.bind(application);
-application.handleError = (error, message, detail = {}) => {
-  defaultErrorHandler(error, message, detail);
-  Sentry.captureException(error, { message, ...detail });
-};
-```
+### 12. Centralize Error Handling in the Application Controller
+Catch all Stimulus and application errors in one place with a `handleError` hook on the base `ApplicationController`, and forward them to a reporting service (e.g. Sentry) at the application level. For the full implementation, read `references/error-handling.md`.
 
 ---
 
 ## TURBO INTEGRATION
 
-### 14. Global Teardown Before Turbo Caching
+### 13. Global Teardown Before Turbo Caching
 When a controller manipulates the DOM, implement a `teardown()` method so the page can be cleanly cached by Turbo. Trigger it globally via `turbo:before-cache`.
 
 ```js
@@ -472,7 +380,7 @@ export default class extends Controller {
 
 ---
 
-### 15. Form Submits
+### 14. Form Submits
 Submit forms in response to arbitrary events or intercept them for client-side logic.
 
 Trigger submit on change:

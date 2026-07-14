@@ -1,83 +1,45 @@
 ---
 name: simplify
-description: Simplifies and refines Ruby on Rails code following 37signals patterns and the One Person Framework philosophy. Focuses on recently modified code unless instructed otherwise.
-model: opus
-effort: high
-tools: Read, Edit, Write, Grep, Glob, Bash
+description: >
+  Simplifies and refines Ruby on Rails code following 37signals patterns and the
+  One Person Framework philosophy, while preserving exact functionality. Focuses
+  on recently modified code unless instructed otherwise. Use this skill when
+  simplifying or refactoring Rails code, reviewing recently written Rails code
+  for 37signals/vanilla-Rails conformance, or when asked to make Rails code more
+  vanilla. Triggers on "simplify this", "refactor to 37signals", "make this more
+  vanilla Rails", removing service objects, thinning fat controllers, converting
+  boolean state columns to records, or CRUD-ifying custom controller actions.
 ---
 
-You are an expert Ruby on Rails code simplification specialist focused on enhancing code clarity, consistency, and maintainability while preserving exact functionality. Your expertise lies in applying 37signals patterns and the One Person Framework philosophy to simplify and improve Rails code without altering its behavior.
+# Rails Simplifier
 
----
+Simplify and refine Ruby on Rails code to enhance clarity, consistency, and maintainability **while preserving exact functionality**. Apply 37signals patterns and the One Person Framework philosophy to make Rails code more vanilla without altering its behavior.
 
-## The One Person Framework
-
-DHH introduced this concept in December 2021 with Rails 7:
-
-> "A toolkit so powerful that it allows a single individual to create modern applications upon which they might build a competitive business. The way it used to be."
-
-**The Problem:** Modern web development has fragmented into narrow specializations. The conventional path (React + Node + Redis + Kubernetes) requires learning so many tools that "you might well die of dysentery before you ever get to your destination" — like The Oregon Trail game.
-
-**The Solution:** Rails seeks to be "the wormhole that folds the time-learning-shipping-continuum, and allows you to travel grand distances without knowing all the physics of interstellar travel. Giving the individual rebel a fighting chance against The Empire."
-
-**Rails 8 delivers this through:**
-- **Solid Queue** — Background jobs without Redis
-- **Solid Cache** — Caching without Redis/Memcached
-- **Solid Cable** — WebSockets without Redis
-- **Built-in Authentication** — ~150 lines, no Devise
-- **Kamal 2 + Thruster** — Deployment without Kubernetes/PaaS
-- **Hotwire** — Rich UIs without React/Vue build pipelines
-
-**The test:** Can one person understand this codebase in an afternoon? If not, simplify.
+Deeper material lives in two references, read them when a refinement needs more than the summaries below:
+- `references/philosophy.md` — the *why*, distilled from the 37signals / Jorge Manrubia writing.
+- `references/patterns.md` — the *how*, an implementation catalog of concrete patterns from the Fizzy codebase (routing, controllers, concerns, state records, auth, jobs, testing, caching, POROs).
 
 ---
 
-## Conceptual Compression
+## Guiding Philosophy
 
-From DHH's RailsConf 2018 keynote — the key engine powering the One Person Framework:
+Three ideas drive every refinement. For the full treatment — quotes, examples, and the design principles behind them — read `references/philosophy.md`.
 
-> "Like a video codec that throws away irrelevant details such that you might download the film in real-time rather than buffer for an hour."
-
-**Definition:** Taking a concept and simplifying it such that a developer gets 80% of the value with 20% of the effort.
-
-**Classic Example — ActiveRecord:**
-Basecamp 3 has 42,000 lines of code with zero raw SQL statements. ActiveRecord "compresses" SQL knowledge so developers can focus on domain problems instead of query optimization.
-
-**What conceptual compression means in Rails:**
-- ActiveRecord compresses SQL
-- Hotwire compresses frontend complexity
-- Solid Queue/Cache/Cable compress infrastructure
-- Kamal compresses deployment
-- Concerns compress model organization
-- CRUD resources compress controller actions
-
-**The warning:** "New concepts are being created rapidly, but in an absence of any corresponding surge in compression. The list of things a person ought to know to get into web development is much longer than it used to be."
-
-**Your job:** Compress complexity. When you see code that expands cognitive load without proportional value, simplify it.
-
----
-
-## Core Philosophy: Vanilla Rails is Plenty
-
-> "If you have the luxury of starting a new Rails app today, go vanilla." — Jorge Manrubia, 37signals
-
-Jorge's approach rejects the common advice that "vanilla Rails can only get you so far." At 37signals, they build complex applications (Basecamp, HEY) without service objects, use case interactors, repositories, or command patterns.
-
-**Rich domain models** expose natural APIs:
+- **One Person Framework** (DHH, 2021) — a toolkit powerful enough that one developer can build and maintain a whole competitive app. Rails 8 delivers it via Solid Queue/Cache/Cable, built-in auth, Kamal, and Hotwire. **The test:** can one person understand this codebase in an afternoon? If not, simplify.
+- **Conceptual Compression** (DHH, RailsConf 2018) — simplify a concept so a developer gets 80% of the value with 20% of the effort (ActiveRecord compresses SQL; Hotwire compresses the frontend; concerns compress model organization). **Your job:** when code expands cognitive load without proportional value, compress it.
+- **Vanilla Rails is Plenty** (Jorge Manrubia, 37signals) — build even complex apps without service objects, interactors, repositories, or command patterns. Rich domain models expose natural, domain-oriented APIs:
 
 ```ruby
 # ✅ GOOD: Natural, domain-oriented API (conceptual compression)
 recording.incinerate
-recording.copy_to(destination_bucket)
 card.close
-card.gild
 
 # ❌ BAD: Service/procedural style (expands complexity)
 Recording::IncinerationService.execute(recording)
 CardClosureService.new(card, user).call
 ```
 
-> "We strongly prefer the first form. It does a better job of hiding complexity, as it doesn't shift the burden of composition to the caller. It feels more natural, like plain English. It feels more Ruby."
+> "We strongly prefer the first form. It does a better job of hiding complexity, as it doesn't shift the burden of composition to the caller. It feels more natural, like plain English. It feels more Ruby." — Jorge Manrubia
 
 ---
 
@@ -196,9 +158,9 @@ end
 - A replacement for proper object-oriented design
 - An excuse to avoid creating additional classes when complexity warrants it
 
-### 5. Apply State as Records, Not Booleans
+### 5. Model State as Records
 
-Model states as separate records to track who, when, and why:
+Model states as separate records to track who, when, and why — instead of boolean columns, which lose that context:
 
 ```ruby
 # ❌ BAD: Boolean columns (loses context)
@@ -238,32 +200,9 @@ end
 - Easy to query (`joins(:closure)` vs `where(closed: true)`)
 - Reversible (delete record to reopen)
 
-### 6. Apply Controller Concerns for Shared Behavior
+### 6. Extract Shared Controller Behavior into Concerns
 
-```ruby
-# app/controllers/concerns/card_scoped.rb
-module CardScoped
-  extend ActiveSupport::Concern
-
-  included do
-    before_action :set_card
-  end
-
-  private
-    def set_card
-      @card = Current.user.accessible_cards.find_by!(number: params[:card_id])
-    end
-
-    def render_card_replacement
-      render turbo_stream: turbo_stream.replace(
-        [@card, :card_container],
-        partial: "cards/container",
-        method: :morph,
-        locals: { card: @card.reload }
-      )
-    end
-end
-```
+Pull a resource-scoping `before_action` and its shared render helpers into a small controller concern (e.g. `CardScoped`), so each thin controller just includes it. See the full concerns catalog — scoping, request context, timezone, Turbo flash — in `references/patterns.md`.
 
 ---
 
@@ -446,7 +385,7 @@ test "creates booking for today" do
 end
 ```
 
-### I18n: Never Hardcode User-Facing Strings
+### I18n: Localize All User-Facing Strings
 
 ```ruby
 # ✅ GOOD: I18n everywhere
@@ -491,23 +430,7 @@ def create
 end
 ```
 
-### Turbo Flash Concern
-
-```ruby
-# app/controllers/concerns/turbo_flash.rb
-module TurboFlash
-  extend ActiveSupport::Concern
-
-  included do
-    helper_method :turbo_stream_flash
-  end
-
-  private
-    def turbo_stream_flash(**flash_options)
-      turbo_stream.replace(:flash, partial: "shared/flash", locals: { flash: flash_options })
-    end
-end
-```
+The `turbo_stream_flash` helper above comes from a small `TurboFlash` controller concern — see `references/patterns.md` for its definition alongside the rest of the concerns catalog.
 
 ---
 
@@ -530,42 +453,6 @@ end
 | N+1 queries | `includes` / `preload` | Performance |
 | Hardcoded strings | I18n keys | Localization |
 | Date scope tests without `travel_to` | Freeze time to fixture date | Parallel test stability |
-
----
-
-## Quick Reference
-
-### Do This (Compress Complexity)
-
-- ✅ New resource over new action
-- ✅ Model methods over service objects
-- ✅ Concerns for horizontal behavior ("has trait" semantics)
-- ✅ State records over booleans
-- ✅ Verb methods for actions (`close`, not `set_closed`)
-- ✅ `Time.current` not `Time.now`
-- ✅ Integer cents for money
-- ✅ `includes` to avoid N+1
-- ✅ Always scope to `current_account` or `current_user`
-- ✅ I18n for all user-facing strings
-- ✅ `travel_to` for date-sensitive tests
-- ✅ Minitest + fixtures
-- ✅ Database-backed jobs/cache/cable (Solid Queue/Cache/Cable)
-- ✅ Hotwire for frontend interactivity
-
-### Not This (Expands Complexity)
-
-- ❌ Custom controller actions
-- ❌ Service/interactor objects
-- ❌ Boolean columns for state
-- ❌ Fat controllers
-- ❌ RSpec + factories
-- ❌ Redis for jobs/cache/cable
-- ❌ Devise for auth
-- ❌ React/Vue/JSON APIs
-- ❌ Hardcoded user-facing strings
-- ❌ Unscoped queries
-- ❌ `Time.now`
-- ❌ Float for money
 
 ---
 
@@ -603,9 +490,7 @@ Avoid over-simplification that could:
 
 ## Focus Scope
 
-Only refine code that has been recently modified or touched in the current session, unless explicitly instructed to review a broader scope.
-
-You operate autonomously and proactively, refining code immediately after it's written or modified without requiring explicit requests. Your goal is to ensure all Rails code follows the One Person Framework philosophy — simple enough that one developer can understand and maintain the entire system.
+Refine only code that has been recently modified or touched in the current session, unless explicitly instructed to review a broader scope. Apply refinements proactively right after Rails code is written or modified, without waiting for an explicit request. The goal is Rails code that follows the One Person Framework philosophy — simple enough that one developer can understand and maintain the entire system.
 
 > "The best code is the code you don't write. The second best is the code that's obviously correct."
 

@@ -26,12 +26,12 @@ A collection of Claude Code plugins for Ruby on Rails development.
 
 | Plugin | Description | Version |
 |--------|-------------|---------|
-| [rails-simplifier](#1-rails-simplifier) | Code quality following 37signals patterns | 1.0.1 |
+| [rails-simplifier](#1-rails-simplifier) | Code quality following 37signals patterns | 1.1.0 |
 | [rails-upgrade-assistant](#2-rails-upgrade-assistant) | Rails 6.0→8.1 upgrade planning | 1.1.1 |
 | [maquina-ui-standards](#3-maquina-ui-standards) | UI components with maquina_components | 0.4.4 |
 | [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.3.1 |
 | [mvp-creator](#5-mvp-creator) | MVP documentation for Rails applications | 1.0.1 |
-| [better-stimulus](#6-better-stimulus) | StimulusJS best practices from betterstimulus.com | 1.0.0 |
+| [better-stimulus](#6-better-stimulus) | StimulusJS best practices from betterstimulus.com | 1.1.0 |
 | [spec-driven-development](#7-spec-driven-development) | Spec-driven development workflow for Rails | 1.3.0 |
 | [rails-security-auditor](#8-rails-security-auditor) | Security audit for Rails 8.0–8.2 configuration | 1.0.0 |
 | [rails-hotwire-driver](#9-rails-hotwire-driver) | Drive a running Rails dev server from the terminal, optional screenshots/browser layer | 0.2.0 |
@@ -40,7 +40,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 
 ## 1. rails-simplifier
 
-A code simplification agent that refines Ruby on Rails code following **37signals patterns** and the **One Person Framework** philosophy.
+A code simplification skill that refines Ruby on Rails code following **37signals patterns** and the **One Person Framework** philosophy.
 
 ### Philosophy
 
@@ -69,8 +69,20 @@ A code simplification agent that refines Ruby on Rails code following **37signal
 ### Usage
 
 ```
-> Review recent changes using the rails-simplifier agent
-> Use rails-simplifier to review the bookings controller
+> Simplify the recent changes to the bookings controller
+> Refactor this to vanilla Rails / 37signals patterns
+> Review this model against the rails-simplifier standards
+```
+
+### Package Contents
+
+```
+rails-simplifier/
+└── skills/simplify/
+    ├── SKILL.md                # Main skill: rules, patterns, process
+    └── references/
+        ├── philosophy.md       # The "why" — 37signals / Jorge Manrubia philosophy
+        └── patterns.md         # The "how" — implementation catalog from Fizzy
 ```
 
 ### Resources
@@ -417,10 +429,13 @@ Apply opinionated **StimulusJS best practices** sourced from [betterstimulus.com
 
 ```
 better-stimulus/
-├── agents/better-stimulus.md          # Main skill
-└── references/
-    ├── cookbook.md                     # Common patterns
-    └── solid.md                       # SOLID principles for Stimulus
+└── skills/better-stimulus/
+    ├── SKILL.md                        # Main skill
+    └── references/
+        ├── cookbook.md                 # Common patterns
+        ├── inter-controller.md         # Outlets, callbacks, custom events
+        ├── error-handling.md           # Global error handler
+        └── solid.md                    # SOLID principles for Stimulus
 ```
 
 ### Resources
