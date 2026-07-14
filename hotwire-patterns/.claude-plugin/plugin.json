@@ -1,0 +1,13 @@
+{
+    "name": "hotwire-patterns",
+    "version": "0.1.0",
+    "description": "Deep, internals-informed Hotwire mental models, decision frameworks, and debugging for Rails — Turbo, Morphing, Streams, Cache, broadcasting, Stimulus, Hotwire Native",
+    "author": {
+        "name": "Mario Alberto Chávez",
+        "email": "mario@maquina.app"
+    },
+    "repository": "https://github.com/maquina-app/rails-claude-code",
+    "homepage": "https://turbo.hotwired.dev",
+    "license": "MIT",
+    "keywords": ["hotwire", "turbo", "stimulus", "morphing", "rails"]
+}

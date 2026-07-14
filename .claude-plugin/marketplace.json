@@ -31,7 +31,7 @@
       "name": "rails-upgrade-assistant",
       "source": "./rails-upgrade-assistant",
       "description": "Analyzes Rails applications and generates comprehensive upgrade reports with breaking changes, deprecations, and step-by-step migration guides for Rails 6.0 through 8.1.1",
-      "version": "1.1.1",
+      "version": "1.2.0",
       "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"
@@ -66,7 +66,7 @@
       "name": "recuerd0",
       "source": "./recuerd0",
       "description": "Manages workspaces and memories in the Recuerd0 platform — a CLI tool for preserving, versioning, and organizing knowledge from AI conversations",
-      "version": "1.3.1",
+      "version": "1.4.0",
       "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"
@@ -83,7 +83,7 @@
       "name": "mvp-creator",
       "source": "./mvp-creator",
       "description": "Create comprehensive MVP documentation for Rails applications — research reports, business plans, brand guides, technical guides, and Claude setup",
-      "version": "1.0.1",
+      "version": "1.1.0",
       "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"
@@ -119,7 +119,7 @@
       "name": "spec-driven-development",
       "source": "./spec-driven-development",
       "description": "A Rails-focused spec-driven development workflow for building features with AI agents through systematic planning and self-contained specs",
-      "version": "1.3.0",
+      "version": "1.4.0",
       "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"
@@ -137,7 +137,7 @@
       "name": "rails-security-auditor",
       "source": "./rails-security-auditor",
       "description": "Audits a Rails application's security configuration and produces a structured, actionable report grounded in Rails 8.0–8.2 defaults",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"
@@ -155,7 +155,7 @@
       "name": "rails-hotwire-driver",
       "source": "./rails-hotwire-driver",
       "description": "Drive a running local Rails dev server from the terminal — CSRF-correct form submits, OTP-from-log login, Turbo Stream inspection, request-id log correlation, and session bridging to a real browser. Optional agent-browser layer adds screenshots, visual regression, Turbo-event/DOM-condition waits, Stimulus introspection, and structural diffs.",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "author": {
         "name": "Mario Alberto Chávez",
         "email": "mario@maquina.app"
@@ -172,6 +172,25 @@
         "playwright",
         "agent-browser",
         "screenshots"
+      ]
+    },
+    {
+      "name": "hotwire-patterns",
+      "source": "./hotwire-patterns",
+      "description": "Deep, internals-informed Hotwire mental models, decision frameworks, and debugging for Rails — Turbo Drive/Frames/Streams, Morphing (idiomorph), Turbo Cache, ActionCable broadcasting, Stimulus design, and Hotwire Native.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Mario Alberto Chávez",
+        "email": "mario@maquina.app"
+      },
+      "category": "development",
+      "tags": [
+        "hotwire",
+        "turbo",
+        "stimulus",
+        "morphing",
+        "hotwire-native",
+        "rails"
       ]
     }
   ]

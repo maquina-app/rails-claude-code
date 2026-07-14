@@ -1,9 +1,6 @@
 ---
 name: spec-driven-development
-description: A Rails-focused spec-driven development workflow for building features with AI agents. Use this agent when users want to plan features, write specs, create task breakdowns, or generate implementation prompts for Rails apps. Triggers on "sdd", "spec-driven", "shape spec", "create tasks", "initialize SDD", "feature planning", "implementation prompts", or any request to systematically plan and implement a Rails feature. Also triggers when moving from MVP documentation to implementation planning.
-model: sonnet
-effort: high
-tools: Read, Write, Edit, Bash, Grep, Glob
+description: A Rails-focused spec-driven development workflow for building features with AI agents. Use this skill when users want to plan features, write specs, create task breakdowns, or generate implementation prompts for Rails apps. Triggers on "sdd", "spec-driven", "shape spec", "create tasks", "initialize SDD", "feature planning", "implementation prompts", or any request to systematically plan and implement a Rails feature. Also triggers when moving from MVP documentation to implementation planning.
 ---
 
 # Spec-Driven Development
@@ -12,17 +9,19 @@ A lightweight workflow for building production-quality Rails features with AI ag
 
 Each spec is designed to be **picked up and executed independently** by Claude Code or a subagent — no extra context needed beyond the spec folder itself.
 
+Each phase is driven by a `/sdd-*` slash command (see the **Commands** table at the end). The phase sections below are the reference each command follows — read them when running a phase, whether the user typed the command or asked in natural language.
+
 ## Quick Start
 
 **New Rails Project (from MVP docs):**
-1. `bash scripts/init_sdd.sh` — creates `sdd/` with pre-built Rails standards + index
-2. Convert MVP docs → product planning files
-3. For each feature: Shape → Tasks → Hand off to Claude Code
+1. `/sdd-init` — creates `sdd/` with pre-built Rails standards + index
+2. `/sdd-plan` — convert MVP docs → product planning files
+3. For each feature: `/sdd-shape` → `/sdd-tasks` → hand off to Claude Code
 
 **Adding Features to Existing App:**
-1. `bash scripts/init_sdd.sh` (if no `sdd/` yet)
-2. Discover additional standards from the codebase
-3. Shape the spec → Tasks → Hand off to Claude Code
+1. `/sdd-init` (if no `sdd/` yet)
+2. `/sdd-discover-standards` — capture patterns from the codebase
+3. `/sdd-shape` → `/sdd-tasks` → hand off to Claude Code
 
 ---
 
@@ -91,7 +90,7 @@ testing:
 
 ### Rails Standards (Auto-Bootstrapped on Init)
 
-`bash scripts/init_sdd.sh` writes all standards files and `index.yml` automatically.
+`/sdd-init` writes all standards files and `index.yml` automatically.
 
 Read [references/rails-standards.md](references/rails-standards.md) for the full content of each file.
 
@@ -105,6 +104,8 @@ Read [references/rails-standards.md](references/rails-standards.md) for the full
 
 ### Discovering Additional Standards (Existing Apps)
 
+*Command: `/sdd-discover-standards [area]`.*
+
 When adding SDD to an existing app, analyze the codebase for tribal knowledge to supplement the bootstrapped standards:
 
 1. Read 5–10 representative files per area (models, controllers, views, tests)
@@ -117,6 +118,8 @@ When adding SDD to an existing app, analyze the codebase for tribal knowledge to
 ---
 
 ## Phase 1: Product Planning (Once per project)
+
+*Command: `/sdd-plan`.*
 
 > Skip for existing apps — go to Phase 2.
 
@@ -141,6 +144,8 @@ Ask one at a time:
 ---
 
 ## Phase 2: Shape Spec (Per feature)
+
+*Command: `/sdd-shape [feature-name]`.*
 
 **This is the most important phase.** Shape well and the Claude Code handoff is seamless.
 
@@ -220,6 +225,8 @@ Structure:
 ---
 
 ## Phase 3: Create Tasks (Per feature)
+
+*Command: `/sdd-tasks`.*
 
 Break the spec into task groups: **Database → Backend → Frontend → Testing**
 

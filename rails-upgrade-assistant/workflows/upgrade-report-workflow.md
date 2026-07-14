@@ -9,9 +9,9 @@
 ## Prerequisites
 
 Before starting, ensure you have:
-- Current Rails version (from `railsMcpServer:project_info`)
+- Current Rails version (read from `Gemfile.lock`)
 - Target Rails version (from user request)
-- Project type (API-only or Full stack)
+- Project type (API-only or Full stack — from `config/application.rb`)
 
 ---
 
@@ -19,10 +19,10 @@ Before starting, ensure you have:
 
 ### Step 1: Load Template
 
-Read the upgrade report template:
+Read the upgrade report template with the Read tool:
 
 ```
-railsMcpServer:get_file("templates/upgrade-report-template.md")
+templates/upgrade-report-template.md
 ```
 
 Note all `{PLACEHOLDER}` variables that need replacement.
@@ -31,23 +31,14 @@ Note all `{PLACEHOLDER}` variables that need replacement.
 
 ### Step 2: Gather Project Data
 
-**Use MCP tools to collect:**
+**Read these files directly (Read/Grep) to collect:**
 
 ```
-1. railsMcpServer:project_info
-   → Rails version, structure, type
-
-2. railsMcpServer:get_file("Gemfile")
-   → Gem dependencies
-
-3. railsMcpServer:get_file("config/application.rb")
-   → Application configuration
-
-4. railsMcpServer:get_file("config/environments/production.rb")
-   → Production settings
-
-5. railsMcpServer:list_files("config/initializers")
-   → Custom initializers
+1. Gemfile.lock              → current Rails version, structure, type
+2. Gemfile                   → gem dependencies
+3. config/application.rb     → application configuration
+4. config/environments/production.rb  → production settings
+5. config/initializers/      → custom initializers (Glob/list the directory)
 ```
 
 ---

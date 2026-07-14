@@ -81,7 +81,7 @@ breaking_changes:
 - [ ] User's actual config files read
 - [ ] OLD vs NEW diffs shown
 - [ ] New files listed (if any)
-- [ ] Neovim file list generated
+- [ ] Affected file list generated
 - [ ] Impact levels assigned
 - [ ] Custom warnings included
 - [ ] All files accounted for
@@ -91,8 +91,8 @@ breaking_changes:
 - [ ] Generated requested deliverables
 - [ ] Sequential path explained (if multi-hop)
 - [ ] Next steps clearly outlined
-- [ ] Offer interactive help (if Neovim available)
-- [ ] No generic code examples
+- [ ] Offered to apply the fixes directly
+- [ ] Real code examples only (no generic placeholders)
 - [ ] Quality verified
 
 ---
@@ -135,10 +135,10 @@ breaking_changes:
 **Cause:** Didn't read user's actual files
 
 **Solution:**
-- Must call: `railsMcpServer:get_file("config/application.rb")`
-- Must call: `railsMcpServer:get_file("config/environments/production.rb")`
+- Read `config/application.rb`
+- Read `config/environments/production.rb`
 - Extract their actual code
-- Show THEIR code in OLD section, not generic
+- Show THEIR code in the OLD section, using real snippets
 
 ---
 
@@ -200,17 +200,16 @@ breaking_changes:
 
 ---
 
-### Issue 8: Can't access MCP tools
+### Issue 8: Can't read a project file
 
-**Symptom:** MCP tool calls fail
+**Symptom:** A file read fails or returns nothing
 
-**Cause:** Tool not available or project not connected
+**Cause:** File missing or wrong path
 
 **Solution:**
-- Verify Rails MCP server connected
-- Check project switched correctly
-- Ensure files exist at specified paths
-- Read error message for details
+- Confirm you are at the Rails project root
+- Verify the file exists at the specified path (Glob to locate it)
+- Read the error message for details
 
 ---
 

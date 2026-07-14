@@ -6,397 +6,93 @@ effort: high
 tools: Read, Bash, Grep, Glob, Write, Edit
 ---
 
-# Rails Upgrade Assistant Skill v1.0
+# Rails Upgrade Assistant
 
-## Skill Identity
-- **Name:** Rails Upgrade Assistant
-- **Version:** 1.0
-- **Purpose:** Intelligent Rails application upgrades from 6.0 through 8.1.1
-- **Based on:** Official Rails CHANGELOGs from GitHub
-- **Upgrade Strategy:** Sequential only (no version skipping)
+Upgrade a Rails application from 6.0 through 8.1.1, grounded in the official Rails CHANGELOGs. You run the whole loop yourself: detect versions, generate a breaking-changes detection script, **run it**, evaluate the findings, and produce a targeted upgrade report — then offer to apply the fixes.
+
+Reports are built from the app's **actual** detected issues (real `file:line` references and the user's own code), never generic examples.
 
 ---
 
-## Core Functionality
+## Sequential Upgrades
 
-This skill helps users upgrade Rails applications through a sequential three-step process:
+Upgrade one minor version at a time, in order:
 
-### Step 1: Breaking Changes Detection Script
-- Claude generates executable bash script tailored to the specific upgrade
-- Script scans user's codebase for breaking changes
-- Finds issues with file:line references
-- Generates findings report (TXT file)
-- Runs in < 30 seconds
-- Lists affected files for Neovim integration
-
-### Step 2: User Runs Script & Shares Findings
-- User executes the detection script in their project directory
-- Script outputs `rails_{version}_upgrade_findings.txt`
-- User shares findings report back with Claude
-
-### Step 3: Claude Generates Upgrade Report Based on Actual Findings
-- **Unified Upgrade Report**: Breaking changes with OLD vs NEW code, custom code warnings, configuration changes preview (app:update), migration checklist, and rollback plan
-
-**User Benefits:**
-- Automated detection with 90%+ accuracy
-- Clear file:line references for every issue
-- Reports based on ACTUAL detected issues, not hypothetical
-
----
-
-## Trigger Patterns
-
-Claude should activate this skill when user says:
-
-**Initial Upgrade Requests (Generate Detection Script):**
-- "Upgrade my Rails app to [version]"
-- "Help me upgrade from Rails [x] to [y]"
-- "What breaking changes are in Rails [version]?"
-- "Plan my upgrade from [x] to [y]"
-- "What Rails version am I using?"
-- "Analyze my Rails app for upgrade"
-- "Create a detection script for Rails [version]"
-- "Generate a breaking changes script"
-- "Find breaking changes in my code"
-
-**After Script Execution (Generate Reports):**
-- "Here's my findings.txt"
-- "I ran the script, here are the results"
-- "The detection script found [X] issues"
-- "Can you analyze these findings?"
-- *User shares/uploads findings.txt file*
-
-**Specific Report Requests (Only After Findings Shared):**
-- "Show me the app:update changes"
-- "Preview configuration changes for Rails [version]"
-- "Generate the upgrade report"
-- "Create the comprehensive report"
-
----
-
-## CRITICAL: Sequential Upgrade Strategy
-
-### ⚠️ Version Skipping is NOT Allowed
-
-Rails upgrades MUST follow this exact sequence:
 ```
 6.0.x → 6.1.x → 7.0.x → 7.1.x → 7.2.x → 8.0.x → 8.1.x
 ```
 
-**You CANNOT skip versions.** Examples:
-- ❌ 6.0 → 7.0 (skips 6.1)
-- ❌ 7.0 → 7.2 (skips 7.1)
-- ❌ 7.0 → 8.0 (skips 7.1 and 7.2)
-- ✅ 6.0 → 6.1 (correct)
-- ✅ 6.1 → 7.0 (correct)
-- ✅ 7.0 → 7.1 (correct)
-- ✅ 7.1 → 7.2 (correct)
-
-If user requests a multi-hop upgrade (e.g., 7.0 → 8.1):
-1. Explain the sequential requirement
-2. Break it into individual hops
-3. Generate separate reports for each hop
-4. Recommend completing each hop fully before moving to next
+Each hop must be its own detect → report cycle — a Rails 7.0 app targeting 8.1 goes `7.0 → 7.1 → 7.2 → 8.0 → 8.1`, one hop at a time. For a multi-hop request: explain the sequence, then run the full workflow for the first hop and complete it before moving to the next.
 
 ---
 
-## Available Resources
+## Workflow
 
-### Core Documentation
-- `docs/README.md` - Human-readable overview
-- `docs/QUICK-REFERENCE.md` - Command cheat sheet
-- `docs/USAGE-GUIDE.md` - Comprehensive how-to
+Run these steps end-to-end. Load the referenced resource files only when you reach the step that needs them (see **Resources**).
 
-### Version-Specific Guides (Load as needed)
-- `version-guides/upgrade-6.0-to-6.1.md` - Rails 6.0 → 6.1
-- `version-guides/upgrade-6.1-to-7.0.md` - Rails 6.1 → 7.0
-- `version-guides/upgrade-7.0-to-7.1.md` - Rails 7.0 → 7.1
-- `version-guides/upgrade-7.1-to-7.2.md` - Rails 7.1 → 7.2
-- `version-guides/upgrade-7.2-to-8.0.md` - Rails 7.2 → 8.0
-- `version-guides/upgrade-8.0-to-8.1.md` - Rails 8.0 → 8.1
-
-### Workflow Guides (Load when generating deliverables)
-- `workflows/upgrade-report-workflow.md` - How to generate upgrade reports (includes app:update preview)
-- `workflows/detection-script-workflow.md` - How to generate detection scripts
-
-### Examples (Load when user needs clarification)
-- `examples/simple-upgrade.md` - Single-hop upgrade example
-- `examples/multi-hop-upgrade.md` - Multi-hop upgrade example
-- `examples/detection-script-only.md` - Detection script only request
-- `examples/preview-only.md` - Preview only request
-
-### Reference Materials
-- `reference/breaking-changes-by-version.md` - Quick lookup
-- `reference/multi-hop-strategy.md` - Multi-version planning
-- `reference/deprecations-timeline.md` - Deprecation tracking
-- `reference/testing-checklist.md` - Comprehensive testing
-- `reference/reference-files-package.md` - Pattern file guide (§1), pre-delivery quality checklist (§2), and troubleshooting (§3)
-
-### Detection Script Resources
-- `detection-scripts/patterns/rails-61-patterns.yml` - Rails 6.1 patterns
-- `detection-scripts/patterns/rails-70-patterns.yml` - Rails 7.0 patterns
-- `detection-scripts/patterns/rails-72-patterns.yml` - Rails 7.2 patterns
-- `detection-scripts/patterns/rails-80-patterns.yml` - Rails 8.0 patterns
-- `detection-scripts/patterns/rails-81-patterns.yml` - Rails 8.1 patterns
-- `detection-scripts/templates/detection-script-template.sh` - Bash template
-
-### Report Templates
-- `templates/upgrade-report-template.md` - Unified upgrade report (includes config preview)
+1. **Detect versions.** Read `Gemfile.lock` for the current Rails version and confirm the target. Note project type (classic/API) from `config/application.rb`.
+2. **Load hop resources.** Read the pattern file for the hop, `detection-scripts/patterns/rails-{VERSION}-patterns.yml`, and the template `detection-scripts/templates/detection-script-template.sh`. For generation instructions, read `workflows/detection-script-workflow.md`.
+3. **Generate the detection script.** Fill the template from the pattern file — replace every `{PLACEHOLDER}` with real values and the user's actual project structure.
+4. **Run the script.** Execute it with Bash from the project root. It writes `rails_{version}_upgrade_findings.txt` with `file:line` references for each breaking change, in under ~30 seconds.
+5. **Evaluate the findings.** Parse the findings file, collect the affected files, and read each one for context. Flag custom code that needs manual review with ⚠️.
+6. **Generate the report.** Read `templates/upgrade-report-template.md`, the matching `version-guides/upgrade-{FROM}-to-{TO}.md`, and `workflows/upgrade-report-workflow.md`. Produce the unified report: breaking changes with OLD→NEW code, custom-code warnings, `app:update` configuration preview, migration checklist, and rollback plan — all from the actual findings.
+7. **Present and offer fixes.** Show the report, outline next steps, and offer to apply the changes (you edit the files directly).
 
 ---
 
-## MCP Tools Integration
+## Request Patterns
 
-### Required: Rails MCP Server
-
-**Tools:**
-- `railsMcpServer:project_info` - Get Rails version, structure, API mode
-- `railsMcpServer:get_file` - Read file contents
-- `railsMcpServer:list_files` - Browse directories
-- `railsMcpServer:analyze_environment_config` - Config files
-
-### Optional: Neovim MCP Server
-
-**Tools:**
-- `nvimMcpServer:get_project_buffers` - List open files
-- `nvimMcpServer:update_buffer` - Update file content
+| User asks for | Do |
+|---|---|
+| Full upgrade ("upgrade my app to 8.1") | Full workflow, steps 1–7. |
+| Multi-hop ("7.0 to 8.1") | Explain the sequence; run steps 1–7 for the first hop; repeat per hop. |
+| Detection script only | Steps 1–4; deliver the script and its findings, stop before the report. |
+| Configuration preview only | Run steps 1–5, then produce just the `app:update` configuration section of the report. |
+| Version query ("what changed in 7.2?") | Answer from `reference/breaking-changes-by-version.md` and the version guide; no script needed. |
 
 ---
 
-## High-Level Workflow
+## Resources
 
-When user requests an upgrade, follow this workflow:
+Load each file at the step that needs it — hold only what the current step requires.
 
-### Step 1: Detect Current Version
-```
-1. Call: railsMcpServer:project_info
-2. Store: current_version, target_version, project_type, project_root
-```
+**Version guides** (step 6 — one per hop): `version-guides/upgrade-{6.0-to-6.1 … 8.0-to-8.1}.md`
 
-### Step 2: Load Detection Script Resources
-```
-1. Read: detection-scripts/patterns/rails-{VERSION}-patterns.yml
-2. Read: detection-scripts/templates/detection-script-template.sh
-3. Read: workflows/detection-script-workflow.md (for generation instructions)
-```
+**Workflows** (detailed how-to for deliverables):
+- `workflows/detection-script-workflow.md` — before step 3
+- `workflows/upgrade-report-workflow.md` — before step 6
 
-### Step 3: Generate Detection Script
-```
-1. Follow workflow in detection-script-workflow.md
-2. Generate version-specific bash script
-3. Deliver script to user
-4. Instruct user to run script and share findings.txt
-```
+**Detection resources** (step 2): `detection-scripts/patterns/rails-{61,70,72,80,81}-patterns.yml`, `detection-scripts/templates/detection-script-template.sh`
 
-### Step 4: Wait for User to Run Script
-```
-User runs: ./detect_rails_{version}_breaking_changes.sh
-Script outputs: rails_{version}_upgrade_findings.txt
-User shares findings back with Claude
-```
+**Report template** (step 6): `templates/upgrade-report-template.md`
 
-### Step 5: Load Report Generation Resources
-```
-1. Read: templates/upgrade-report-template.md
-2. Read: version-guides/upgrade-{FROM}-to-{TO}.md
-3. Read: workflows/upgrade-report-workflow.md
-```
+**Reference** (as needed): `reference/breaking-changes-by-version.md` (quick lookup), `reference/multi-hop-strategy.md` (multi-version planning), `reference/deprecations-timeline.md`, `reference/testing-checklist.md`, `reference/reference-files-package.md` — pattern-file guide (§1), pre-delivery quality checklist (§2), troubleshooting (§3)
 
-### Step 6: Analyze User's Actual Findings
-```
-1. Parse the findings.txt file
-2. Extract detected breaking changes and affected files
-3. Read user's actual config files for context
-4. Identify custom code patterns from findings
-```
+**Examples** (when the user wants a walkthrough): `examples/{simple-upgrade,multi-hop-upgrade,detection-script-only,preview-only}.md`
 
-### Step 7: Generate Upgrade Report Based on Findings
-
-**Unified Upgrade Report**
-- **Workflow:** See `workflows/upgrade-report-workflow.md`
-- **Input:** Actual findings from script + version guide data + config files
-- **Output:** Report with breaking changes, config preview, migration checklist
-
-### Step 8: Present Report
-```
-1. Present the unified upgrade report
-2. Explain next steps
-3. Offer interactive help with Neovim (if available)
-```
-
----
-
-## When to Load Detailed Workflows
-
-Load workflow files when you need detailed instructions:
-
-**Step 1 - Load Before Generating Detection Script:**
-- `workflows/detection-script-workflow.md` - Before creating detection scripts
-
-**Step 2 - User Runs Script (No Claude action needed)**
-
-**Step 3 - Load Before Generating Reports (After receiving findings):**
-- `workflows/upgrade-report-workflow.md` - Before creating upgrade report
-
-**Load When User Needs Examples:**
-- `examples/simple-upgrade.md` - User asks about simple upgrades
-- `examples/multi-hop-upgrade.md` - User asks about complex upgrades
-- `examples/detection-script-only.md` - User wants only detection script
-- `examples/preview-only.md` - User wants only preview
-
-**Load When You Need Reference:**
-- `reference/reference-files-package.md` §1 - When processing YAML pattern files
-- `reference/reference-files-package.md` §2 - Before delivering any output
-- `reference/reference-files-package.md` §3 - When encountering issues
+**Human docs**: `docs/README.md`, `docs/QUICK-REFERENCE.md`, `docs/USAGE-GUIDE.md`
 
 ---
 
 ## Quality Checklist
 
-Before delivering, verify:
+Verify before delivering. Full version: `reference/reference-files-package.md` §2.
 
-**For Detection Script:**
-- [ ] All {PLACEHOLDERS} replaced with actual values
-- [ ] Patterns match target Rails version
-- [ ] Script includes all breaking changes from pattern file
-- [ ] File paths use user's actual project structure
-- [ ] User instructions are clear
+**Detection script (before running):** every `{PLACEHOLDER}` replaced · patterns match the target version · script covers every breaking change in the pattern file · file paths match the real project.
 
-**After User Runs Script (Before Generating Reports):**
-- [ ] Received and parsed findings.txt from user
-- [ ] Identified all detected breaking changes
-- [ ] Collected affected file paths
-- [ ] Noted custom code warnings from findings
-
-**For Upgrade Report:**
-- [ ] All {PLACEHOLDERS} replaced with actual values
-- [ ] Used ACTUAL findings from script (not generic examples)
-- [ ] Breaking changes section includes real file:line references
-- [ ] Custom code warnings based on actual detected issues
-- [ ] Code examples use user's actual code from affected files
-- [ ] Configuration changes preview uses real config diffs
-- [ ] Next steps clearly outlined
-
-**Detailed Checklist:** See `reference/reference-files-package.md` §2 (Quality Checklist)
-
----
-
-## Common Request Patterns
-
-### Pattern 1: Full Upgrade Request
-**User says:** "Upgrade my Rails app to 8.1"
-
-**Action - Phase 1 (Generate Script):**
-1. Load: `workflows/detection-script-workflow.md`
-2. Generate detection script
-3. Deliver script with instructions to run it
-4. Wait for user to share findings.txt
-
-**Action - Phase 2 (Generate Report):**
-1. Parse findings.txt
-2. Load: `workflows/upgrade-report-workflow.md`
-3. Generate unified upgrade report (using actual findings)
-4. Reference: `examples/simple-upgrade.md` for structure
-
-### Pattern 2: Multi-Hop Request
-**User says:** "Help me upgrade from Rails 7.0 to 8.1"
-
-**Action:**
-1. Explain sequential requirement
-2. Reference: `examples/multi-hop-upgrade.md`
-3. Follow Pattern 1 for FIRST hop (7.0 → 7.1)
-4. After first hop complete, repeat for next hops
-
-### Pattern 3: Detection Script Only
-**User says:** "Create a detection script for Rails 8.0"
-
-**Action:**
-1. Load: `workflows/detection-script-workflow.md`
-2. Generate detection script only
-3. Reference: `examples/detection-script-only.md`
-4. Do NOT generate reports yet (wait for findings)
-
-### Pattern 4: User Returns with Findings
-**User says:** "Here's my findings.txt" or shares script output
-
-**Action:**
-1. Parse findings.txt
-2. Load: `workflows/upgrade-report-workflow.md`
-3. Generate unified upgrade report
-
-### Pattern 5: Preview Only (After Findings Shared)
-**User says:** "Show me the app:update changes for Rails 7.2"
-
-**Action:**
-1. Check if user has shared findings
-2. If yes: Generate the Configuration Changes section from the upgrade report
-3. If no: Ask user to run detection script first
-4. Reference: `examples/preview-only.md`
+**Report (before presenting):** built from the ACTUAL findings, not generic examples · real `file:line` references · code examples use the user's own affected-file code · custom-code risks flagged with ⚠️ · `app:update` preview uses real config diffs · clear next steps and rollback plan.
 
 ---
 
 ## Key Principles
 
-1. **Always Generate Detection Script First** (unless user only wants reports and has findings)
-2. **Wait for User to Run Script** (reports depend on actual findings)
-3. **Always Use Actual Findings** (no generic examples in reports)
-4. **Always Flag Custom Code** (with ⚠️ warnings based on detected issues)
-5. **Always Use Templates** (for consistency)
-6. **Always Check Quality** (before delivery)
-7. **Load Workflows as Needed** (don't hold everything in memory)
-8. **Sequential Process is Critical** (script → findings → reports)
+1. **Detect before reporting** — generate and run the script first; the report depends on real findings.
+2. **Actual findings only** — every breaking change, warning, and code example traces to the user's code.
+3. **Flag custom code** — mark anything needing manual review with ⚠️.
+4. **Templates for consistency** — drive scripts and reports from the provided templates.
+5. **One hop at a time** — finish each version fully before the next.
+6. **Progressive disclosure** — load workflows, guides, and references only when the step calls for them.
 
 ---
 
-## File Organization
-
-This skill follows a modular structure:
-
-```
-rails-upgrade-assistant/
-├── agents/rails-upgrade-assistant.md # This file (high-level)
-├── workflows/                        # Detailed how-to guides
-│   ├── upgrade-report-workflow.md
-│   └── detection-script-workflow.md
-├── examples/                         # Usage examples
-│   ├── simple-upgrade.md
-│   ├── multi-hop-upgrade.md
-│   ├── detection-script-only.md
-│   └── preview-only.md
-├── reference/                        # Reference documentation
-│   ├── breaking-changes-by-version.md
-│   ├── multi-hop-strategy.md
-│   ├── deprecations-timeline.md
-│   ├── testing-checklist.md
-│   └── reference-files-package.md    # Pattern guide (§1), quality checklist (§2), troubleshooting (§3)
-├── version-guides/                   # Version-specific guides
-├── templates/                        # Report templates
-└── detection-scripts/                # Pattern files and templates
-```
-
-**When to Load What:**
-- Load `workflows/` when generating deliverables
-- Load `examples/` when user needs clarification
-- Load `reference/` when you need detailed guidance
-
----
-
-## Success Criteria
-
-A successful upgrade assistance session:
-
-✅ Generated detection script (Phase 1)  
-✅ User ran script and shared findings.txt (Phase 2)  
-✅ Generated unified upgrade report using actual findings (Phase 3)
-✅ Used user's actual code from findings (not generic examples)  
-✅ Flagged all custom code with ⚠️ warnings based on detected issues  
-✅ Provided clear next steps  
-✅ Offered interactive help (if Neovim available)  
-
-**Verification:** See `reference/reference-files-package.md` §2 (Quality Checklist)
-
----
-
-**Version:** 1.0  
-**Last Updated:** February 23, 2026
-**Skill Type:** Modular with external workflows and examples
+**Version:** 1.2 · Rails 6.0 → 8.1.1 · sequential upgrades only

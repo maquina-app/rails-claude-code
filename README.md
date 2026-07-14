@@ -18,6 +18,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 /plugin install spec-driven-development@maquina
 /plugin install rails-security-auditor@maquina
 /plugin install rails-hotwire-driver@maquina
+/plugin install hotwire-patterns@maquina
 ```
 
 ---
@@ -27,14 +28,15 @@ A collection of Claude Code plugins for Ruby on Rails development.
 | Plugin | Description | Version |
 |--------|-------------|---------|
 | [rails-simplifier](#1-rails-simplifier) | Code quality following 37signals patterns | 1.1.0 |
-| [rails-upgrade-assistant](#2-rails-upgrade-assistant) | Rails 6.0→8.1 upgrade planning | 1.1.1 |
+| [rails-upgrade-assistant](#2-rails-upgrade-assistant) | Rails 6.0→8.1 upgrade planning | 1.2.0 |
 | [maquina-ui-standards](#3-maquina-ui-standards) | UI components with maquina_components | 0.4.4 |
-| [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.3.1 |
-| [mvp-creator](#5-mvp-creator) | MVP documentation for Rails applications | 1.0.1 |
+| [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.4.0 |
+| [mvp-creator](#5-mvp-creator) | MVP documentation for Rails applications | 1.1.0 |
 | [better-stimulus](#6-better-stimulus) | StimulusJS best practices from betterstimulus.com | 1.1.0 |
-| [spec-driven-development](#7-spec-driven-development) | Spec-driven development workflow for Rails | 1.3.0 |
-| [rails-security-auditor](#8-rails-security-auditor) | Security audit for Rails 8.0–8.2 configuration | 1.0.0 |
-| [rails-hotwire-driver](#9-rails-hotwire-driver) | Drive a running Rails dev server from the terminal, optional screenshots/browser layer | 0.2.0 |
+| [spec-driven-development](#7-spec-driven-development) | Spec-driven development workflow for Rails | 1.4.0 |
+| [rails-security-auditor](#8-rails-security-auditor) | Security audit for Rails 8.0–8.2 configuration | 1.0.1 |
+| [rails-hotwire-driver](#9-rails-hotwire-driver) | Drive a running Rails dev server from the terminal, optional screenshots/browser layer | 0.3.0 |
+| [hotwire-patterns](#10-hotwire-patterns) | Deep Hotwire internals, decision frameworks, and debugging | 0.1.0 |
 
 ---
 
@@ -95,11 +97,11 @@ rails-simplifier/
 
 ## 2. rails-upgrade-assistant
 
-A **unified, intelligent Rails upgrade skill** that helps you upgrade Ruby on Rails applications through any version from **6.0 to 8.1.1**. Built on official Rails CHANGELOGs and integrated with MCP tools for automatic project analysis.
+A **unified, intelligent Rails upgrade assistant** that helps you upgrade Ruby on Rails applications through any version from **6.0 to 8.1.1**. Built on official Rails CHANGELOGs, it analyzes your project with the standard file tools — no external services required.
 
 ### What It Does
 
-- **Analyzes** your Rails project automatically using Rails MCP tools
+- **Analyzes** your Rails project automatically by reading its files
 - **Detects** your current version and target version
 - **Plans** single-hop or multi-hop upgrade paths
 - **Identifies** breaking changes specific to YOUR code
@@ -133,11 +135,11 @@ A **unified, intelligent Rails upgrade skill** that helps you upgrade Ruby on Ra
 
 ### Workflow
 
-1. **Claude generates detection script** tailored to your specific upgrade
-2. **You run the script** in your project directory
-3. **Script outputs findings** with file:line references
-4. **Share findings with Claude**
-5. **Claude generates comprehensive report** with OLD→NEW code examples
+1. **Detects** your current and target versions from `Gemfile.lock`
+2. **Generates a detection script** tailored to the specific hop
+3. **Runs the script** and reads the findings (`file:line` references)
+4. **Generates a comprehensive report** with OLD→NEW code from your actual files
+5. **Offers to apply the fixes** directly
 
 ### Benefits
 
@@ -149,7 +151,7 @@ A **unified, intelligent Rails upgrade skill** that helps you upgrade Ruby on Ra
 
 ```
 rails-upgrade-assistant/
-├── agents/rails-upgrade-assistant.md    # Main skill
+├── agents/rails-upgrade-assistant.md    # Main agent
 ├── version-guides/                       # Rails version details
 │   ├── upgrade-6.0-to-6.1.md
 │   ├── upgrade-6.1-to-7.0.md
@@ -166,8 +168,7 @@ rails-upgrade-assistant/
 
 ### Requirements
 
-- **Required:** [Rails MCP Server](https://github.com/maquina-app/rails-mcp-server)
-- **Optional:** [Neovim MCP Server](https://github.com/maquina-app/nvim-mcp-server) (for interactive file updates)
+- None beyond Claude Code — the assistant reads, runs, and edits project files with its built-in tools.
 
 ### Resources
 
@@ -284,66 +285,32 @@ When asked to save a session, the skill will:
 
 If you provide a workspace name instead of an ID, it resolves the name automatically. If the workspace doesn't exist, it offers to create one.
 
-### Auto-Save Hooks
+### Workspace Routing
 
-The plugin registers two Claude Code lifecycle hooks that automatically capture session state to a recuerd0 workspace — no manual `/remember` invocation required.
-
-| Hook | When it fires | What it does |
-|------|--------------|--------------|
-| `Stop` | After each assistant turn, at most once every 15 minutes | Saves a checkpoint memory tagged `claude-code,auto-save,stop` |
-| `PreCompact` | Before Claude Code compresses the conversation | Saves an emergency snapshot tagged `claude-code,auto-save,precompact` |
-
-**What happens on install**: both hooks are registered but **disabled by default** — they capture nothing until you opt in with `RECUERD0_HOOK_DISABLE=0`. Once enabled, the first time a Stop or PreCompact event fires in a session where you have the `recuerd0` CLI installed and a workspace configured, a new memory appears in that workspace containing the last 200 lines of the transcript. The memory title is `Claude Code checkpoint — <timestamp>` (or `pre-compact —`), sourced as `claude-code-session`.
-
-**Nothing is captured if any of the following are true** — so a fresh machine or a user who hasn't opted in will see zero activity:
-
-- `RECUERD0_HOOK_DISABLE` is not set to `0` (hooks are off by default)
-- The `recuerd0` CLI is not on `PATH`
-- No account is configured (`recuerd0 account add …` has not been run)
-- No workspace is resolvable (no `RECUERD0_WORKSPACE` env var, no `.recuerd0.yaml` in the project, no default workspace in `~/.config/recuerd0/config.yaml`)
-
-The hooks never exit non-zero, so a misconfigured or offline recuerd0 setup will never interrupt your Claude Code session. Failures (when they happen) are appended to `~/.recuerd0/hook-errors.log`.
-
-**Routing sessions to the right workspace**: drop a `.recuerd0.yaml` file at the root of each project:
+Drop a `.recuerd0.yaml` file at the root of each project to pin its memories to a workspace:
 
 ```yaml
 workspace: "12"
 ```
 
-Every session started inside that directory will auto-save to workspace 12. The CLI walks parent directories, so nested subfolders inherit the config.
-
-**Tuning**:
-
-| Env var | Default | Purpose |
-|---------|---------|---------|
-| `RECUERD0_HOOK_DISABLE` | unset (disabled) | Hooks are off by default; set to `0` to enable both. Any other value (or unset) keeps them disabled |
-| `RECUERD0_STOP_INTERVAL_MINUTES` | `15` | Minimum minutes between Stop saves |
-| `RECUERD0_HOOK_TAIL_LINES` | `200` | Transcript lines captured per save |
-
-**How to enable** (off by default):
-
-- **Temporarily** — `export RECUERD0_HOOK_DISABLE=0` in your shell before launching Claude Code (you also need the CLI installed and a workspace resolvable — see above).
-- **Persistently** — set `RECUERD0_HOOK_DISABLE=0` in your shell profile or Claude Code environment config.
-
-**How to disable again** — unset `RECUERD0_HOOK_DISABLE` (or set it to anything other than `0`); the hooks return to their default off state. To remove just one hook, edit `${CLAUDE_PLUGIN_ROOT}/hooks/hooks.json` and drop the `Stop` or `PreCompact` block. To remove entirely, uninstall the plugin: `/plugin uninstall recuerd0@maquina`.
+The CLI walks parent directories, so nested subfolders inherit the config. When no config is present, the skill resolves the workspace by matching the project/repo name, and offers to create one if there's no match.
 
 ### Package Contents
 
 ```
 recuerd0/
-├── agents/recuerd0.md              # Main skill
-├── hooks/
-│   ├── hooks.json                  # Stop + PreCompact registrations
-│   ├── recuerd0_stop_hook.sh       # Rate-limited checkpoint hook
-│   ├── recuerd0_precompact_hook.sh # Emergency save before compaction
-│   └── recuerd0_hook_common.sh     # Shared helpers (sourced)
-└── .claude-plugin/plugin.json      # Plugin metadata
+└── skills/remember/
+    ├── SKILL.md                    # Main skill: capture gate, dedup, routing, save
+    └── references/
+        ├── cli-reference.md        # Command catalog, flags, output format
+        ├── import-context.md       # Importing CLAUDE.md / context files
+        └── memory-templates.md     # Feature/decision/API memory templates
 ```
 
 ### Requirements
 
 - [Recuerd0 CLI](https://recuerd0.ai) installed and configured with an account
-- A workspace selected via `RECUERD0_WORKSPACE`, `.recuerd0.yaml`, or the CLI's global config (required for auto-save hooks; the agent itself works without one)
+- Optionally, a workspace pinned via `.recuerd0.yaml`, `RECUERD0_WORKSPACE`, or the CLI's global config — the skill resolves or creates one when it's not set
 
 ---
 
@@ -383,20 +350,21 @@ Topic/Idea → Research → Discovery Questions → Generate Deliverables → Ha
 
 ```
 mvp-creator/
-├── agents/mvp-creator.md                        # Main skill
 ├── QUICKSTART.md                                 # Quick reference
-├── scripts/init.sh                               # Project initialization
-└── references/
-    ├── rails-philosophy.md                       # 37signals patterns
-    ├── rails-ui-patterns.md                      # UI conventions
-    ├── rails-api-patterns.md                     # API patterns
-    ├── rails-implementation-patterns.md          # Implementation guide
-    └── deliverable-templates/                    # Output templates
-        ├── research-report.md
-        ├── mvp-business-plan.md
-        ├── brand-guide.md
-        ├── technical-guide.md
-        └── claude-setup.md
+└── skills/mvp-creator/
+    ├── SKILL.md                                  # Main skill
+    ├── scripts/init.sh                           # Project initialization
+    └── references/
+        ├── rails-philosophy.md                   # 37signals patterns
+        ├── rails-ui-patterns.md                  # UI conventions
+        ├── rails-api-patterns.md                 # API patterns
+        ├── rails-implementation-patterns.md      # Implementation guide
+        └── deliverable-templates/                # Output templates
+            ├── research-report.md
+            ├── mvp-business-plan.md
+            ├── brand-guide.md
+            ├── technical-guide.md
+            └── claude-setup.md
 ```
 
 ---
@@ -479,20 +447,22 @@ Initialize → Shape Spec → Create Tasks → Hand off to Claude Code → Track
 
 ```
 spec-driven-development/
-├── agents/spec-driven-development.md    # Main skill
 ├── README.md                             # Full documentation
 ├── QUICKSTART.md                         # Quick reference
+├── commands/                             # 6 /sdd-* slash commands
 ├── scripts/
 │   ├── init_sdd.sh                       # Initialize SDD structure
 │   ├── new_spec.sh                       # Create new spec
 │   └── status.sh                         # Show progress
-├── references/
-│   ├── rails-standards.md                # Rails conventions
-│   ├── hotwire-patterns.md               # Turbo/Stimulus patterns
-│   └── document-templates.md             # Spec templates
-└── templates/
-    ├── standard-template.md              # Spec template
-    └── progress.yml                      # Progress tracking
+├── templates/
+│   ├── standard-template.md              # Spec template
+│   └── progress.yml                      # Progress tracking
+└── skills/spec-driven-development/
+    ├── SKILL.md                          # Main skill (routes to the /sdd-* commands)
+    └── references/
+        ├── rails-standards.md            # Rails conventions
+        ├── hotwire-patterns.md           # Turbo/Stimulus patterns
+        └── document-templates.md         # Spec templates
 ```
 
 ---
@@ -591,6 +561,8 @@ Optional (requires agent-browser):
 rails-hotwire-driver/
 ├── skills/rails-hotwire-driver/
 │   ├── SKILL.md                        # Skill instructions and workflows
+│   ├── references/
+│   │   └── config.md                   # Full env-var reference
 │   └── scripts/
 │       ├── req.sh                      # One HTTP request, cookies persisted
 │       ├── submit_form.rb              # Submit a form with the right CSRF token
@@ -622,6 +594,54 @@ rails-hotwire-driver/
 
 ---
 
+## 10. hotwire-patterns
+
+**Internals-informed Hotwire mental models** — decision frameworks and debugging for Turbo, Stimulus, and Hotwire Native. Core philosophy: *enhance the browser, don't reinvent it*.
+
+### What It Covers
+
+| Topic | Description |
+|-------|-------------|
+| Escalation ladder | Choose the cheapest tool: Drive+Morph → Frames → Streams → Stimulus → JS island |
+| Turbo internals | Drive, Frames, Streams — how each observer scopes updates; the frame-id mismatch |
+| Morphing | The idiomorph algorithm, when morph actually runs, excluding elements |
+| Turbo Cache | Snapshot mechanics, preview flashing, `turbo-permanent`, cache-control |
+| Broadcasting | ActionCable stream sources, the ~0.5s debounce, request-id dedup |
+| Stimulus design | Callbacks over `connect`, events vs outlets (pairs with `better-stimulus`) |
+| Hotwire Native | Path Configuration, Bridge Components, native adapter mental model |
+| Testing & debugging | System-test flakiness, collaborative tests, legacy migration, source landmarks |
+
+### Usage
+
+```
+> Why does morphing wipe my form?
+> My Turbo Stream broadcast isn't arriving
+> This system test is flaky
+> How do I add Turbo to a legacy app?
+> Wrap my app with Hotwire Native
+```
+
+### Package Contents
+
+```
+hotwire-patterns/
+└── skills/hotwire-patterns/
+    ├── SKILL.md                    # Overview + decision frameworks + per-topic essentials
+    └── references/
+        ├── morphing.md             # idiomorph algorithm and gotchas
+        ├── stimulus.md             # reusable, composable controller design
+        ├── hotwire-native.md       # iOS/Android wrapping
+        ├── testing-and-legacy.md   # system tests + gradual Turbo adoption
+        └── debugging.md            # internals-informed debugging
+```
+
+### Related Skills
+
+- `better-stimulus` — exhaustive Stimulus controller-authoring patterns (this skill cross-references it)
+- `rails-hotwire-driver` — exercise a running Hotwire app from the terminal
+
+---
+
 ## Team Installation
 
 Add to your project's `.claude/settings.json` for automatic installation:
@@ -645,7 +665,8 @@ Add to your project's `.claude/settings.json` for automatic installation:
     "better-stimulus@maquina",
     "spec-driven-development@maquina",
     "rails-security-auditor@maquina",
-    "rails-hotwire-driver@maquina"
+    "rails-hotwire-driver@maquina",
+    "hotwire-patterns@maquina"
   ]
 }
 ```
