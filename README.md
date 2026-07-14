@@ -26,7 +26,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 
 | Plugin | Description | Version |
 |--------|-------------|---------|
-| [rails-simplifier](#1-rails-simplifier) | Code quality following 37signals patterns | 1.0.1 |
+| [rails-simplifier](#1-rails-simplifier) | Code quality following 37signals patterns | 1.1.0 |
 | [rails-upgrade-assistant](#2-rails-upgrade-assistant) | Rails 6.0→8.1 upgrade planning | 1.1.1 |
 | [maquina-ui-standards](#3-maquina-ui-standards) | UI components with maquina_components | 0.4.4 |
 | [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.3.1 |
@@ -40,7 +40,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 
 ## 1. rails-simplifier
 
-A code simplification agent that refines Ruby on Rails code following **37signals patterns** and the **One Person Framework** philosophy.
+A code simplification skill that refines Ruby on Rails code following **37signals patterns** and the **One Person Framework** philosophy.
 
 ### Philosophy
 
@@ -69,8 +69,20 @@ A code simplification agent that refines Ruby on Rails code following **37signal
 ### Usage
 
 ```
-> Review recent changes using the rails-simplifier agent
-> Use rails-simplifier to review the bookings controller
+> Simplify the recent changes to the bookings controller
+> Refactor this to vanilla Rails / 37signals patterns
+> Review this model against the rails-simplifier standards
+```
+
+### Package Contents
+
+```
+rails-simplifier/
+└── skills/simplify/
+    ├── SKILL.md                # Main skill: rules, patterns, process
+    └── references/
+        ├── philosophy.md       # The "why" — 37signals / Jorge Manrubia philosophy
+        └── patterns.md         # The "how" — implementation catalog from Fizzy
 ```
 
 ### Resources
