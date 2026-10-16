@@ -30,7 +30,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 | [rails-simplifier](#1-rails-simplifier) | Code quality following 37signals patterns | 1.1.0 |
 | [rails-upgrade-assistant](#2-rails-upgrade-assistant) | Rails 6.0→8.1 upgrade planning | 1.2.0 |
 | [maquina-ui-standards](#3-maquina-ui-standards) | UI components with maquina_components | 0.6.0 |
-| [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.5.0 |
+| [recuerd0](#4-recuerd0) | Knowledge management from AI conversations | 1.5.1 |
 | [mvp-creator](#5-mvp-creator) | MVP documentation for Rails applications | 1.1.0 |
 | [better-stimulus](#6-better-stimulus) | StimulusJS best practices from betterstimulus.com | 1.1.0 |
 | [spec-driven-development](#7-spec-driven-development) | Spec-driven development workflow for Rails | 1.4.0 |
