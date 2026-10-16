@@ -43,7 +43,7 @@
 #   SETTLE_MS       default 300   (extra wait after load, for Turbo morph/animations)
 #   MIN_DIM/MAX_DIM default 100/1600 (clamp the element-scoped viewport size)
 #   AGENT_BROWSER   default agent-browser  (binary name/path)
-#   RUBY            default "bundle exec ruby" (used to run jar_to_storage.rb)
+#   RUBY            default "ruby" (runs jar_to_storage.rb; standard library only)
 #
 # For a sweep across breakpoints/devices, loop the script rather than adding
 # that here — it doesn't need new capability, just repeated calls:
@@ -68,7 +68,9 @@ set -euo pipefail
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 JAR_TO_STORAGE="$here/jar_to_storage.rb"
-RUBY="${RUBY:-bundle exec ruby}"
+# jar_to_storage.rb needs only the standard library; `bundle exec` would fail
+# with "Could not locate Gemfile" whenever the cwd is outside an app.
+RUBY="${RUBY:-ruby}"
 
 BASE_URL="${BASE_URL:-http://localhost:3000}"
 JAR="${JAR:-./.hotwire/cookies.txt}"
@@ -136,6 +138,11 @@ selector="${positional[1]:-}"
 output="${positional[2]:-}"
 
 mkdir -p "$SCREENSHOT_DIR" "$(dirname "$STATE")"
+
+# Absolute paths, so a RUBY wrapper that changes directory (e.g. `mise exec -C`)
+# still reads the jar and writes the state where this script expects them.
+STATE="$(cd "$(dirname "$STATE")" && pwd)/$(basename "$STATE")"
+if [ -d "$(dirname "$JAR")" ]; then JAR="$(cd "$(dirname "$JAR")" && pwd)/$(basename "$JAR")"; fi
 
 # --- 1. bridge the curl session into the browser -----------------------------
 if [ "$no_bridge" = true ]; then

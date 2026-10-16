@@ -9,7 +9,7 @@ Every script is configured through environment variables, with sane defaults. Th
 - `JAR` — cookie jar path, default `./.hotwire/cookies.txt`.
 - `LOG_FILE` — default `./log/development.log` (point at the specific app's log).
 - `MAX_BYTES` — response body cap for `req.sh`, default `100000`.
-- `RUBY` — how to run the `.rb` scripts, default `bundle exec ruby`.
+- `RUBY` — how to run the `.rb` scripts. `submit_form.rb` and `flow.sh` default to `bundle exec ruby` (they need the app bundle's Nokogiri); the browser scripts' cookie bridge (`jar_to_storage.rb`) defaults to plain `ruby`, since it needs only the standard library. Paths passed to it are made absolute first, so a wrapper that changes directory still works.
 
 ## Browser scripts only
 
