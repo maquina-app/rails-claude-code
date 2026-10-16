@@ -42,7 +42,9 @@ set -euo pipefail
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 JAR_TO_STORAGE="$here/jar_to_storage.rb"
-RUBY="${RUBY:-bundle exec ruby}"
+# jar_to_storage.rb needs only the standard library; `bundle exec` would fail
+# with "Could not locate Gemfile" whenever the cwd is outside an app.
+RUBY="${RUBY:-ruby}"
 
 BASE_URL="${BASE_URL:-http://localhost:3000}"
 JAR="${JAR:-./.hotwire/cookies.txt}"
@@ -89,6 +91,11 @@ esac
 ab() { "$AGENT_BROWSER" --session "$SESSION" "$@"; }
 
 mkdir -p "$SCREENSHOT_DIR" "$(dirname "$STATE")" "$(dirname "$baseline")"
+
+# Absolute paths, so a RUBY wrapper that changes directory (e.g. `mise exec -C`)
+# still reads the jar and writes the state where this script expects them.
+STATE="$(cd "$(dirname "$STATE")" && pwd)/$(basename "$STATE")"
+if [ -d "$(dirname "$JAR")" ]; then JAR="$(cd "$(dirname "$JAR")" && pwd)/$(basename "$JAR")"; fi
 
 # --- 1. bridge the curl session into the browser -----------------------------
 if [ -s "$JAR" ]; then

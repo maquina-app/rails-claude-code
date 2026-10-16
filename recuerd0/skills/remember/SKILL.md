@@ -97,8 +97,8 @@ Before any `memory create`, you MUST:
 
    **Stop condition.** If two or more variants return zero results and one returns a weak/unrelated hit, treat the topic as **not found** and create — but log in your reasoning that recall was thin, so a later audit can catch a possible twin. If any variant returns a strong same-topic match, default to `memory version create`.
 3. **Search across workspaces** — also run `recuerd0 search "<key terms>" --pretty` *without* `--workspace` to find related memories in other workspaces in the same account. If a strong cross-workspace match exists, after you've created or versioned the new memory, ask the user in one line: `Link this to memory <id> '<title>' in workspace <name>? (y/n)`. On yes, run `recuerd0 memory link add <new_id> --to <other_id>`. On anything else, skip the link. Never link silently.
-4. **Decide** based on what you find:
-   - **Strong match** (same topic, same scope, just evolved): use `recuerd0 memory version create --workspace <id> <memory_id> --content -` to add a new version. **Default to versioning** — recuerd0's whole versioning model exists for this. Preserve history.
+4. **Decide** based on what you find. **Normalize the id first:** one memory has two ids. `memory list` returns its head (version) id and `search` returns its stable base (root) id. `memory show` resolves either, so check `data.id` before `version create`, `update`, `delete` or `link add`. When citing a memory in docs or a CLAUDE.md, use the root id, since a version id pins to that version's text forever.
+   - **Strong match** (same topic, same scope, just evolved): use `recuerd0 memory version create --workspace <id> <memory_id> --title "<current title>" --tags "<current tags>" --source "<source>" --category <category> --content -` to add a new version. Pass all four metadata flags every time, copied from the current head (or changed on purpose): a version created without `--title` takes the **base row's** title, silently undoing every rename since, and tags, source and category get the same treatment. **Default to versioning** — recuerd0's whole versioning model exists for this. Preserve history.
    - **Wrong match** (the existing memory is incorrect, not just outdated): use `recuerd0 memory update --workspace <id> <memory_id>` to overwrite.
    - **Reversed** (the memory was right, and the thing it describes no longer exists or was decided against): retire it with an obsolete tag rather than overwriting it — see **Retiring Memories**. The old rationale stays readable; it just stops surfacing.
    - **No match**: only then call `recuerd0 memory create`.
@@ -115,6 +115,9 @@ recuerd0 workspace context 1 --pretty
 recuerd0 search "auth strategy" --workspace 1 --pretty
 # Finds memory 42: "Auth strategy" — outdated
 recuerd0 memory version create --workspace 1 42 \
+  --title "Auth strategy" \
+  --tags "auth,api,cli" \
+  --source "claude-code-session" \
   --category decision \
   --content - <<'EOF'
 # Auth strategy v2
@@ -199,7 +202,7 @@ Every memory carries a `category`, picked from a locked four-value enum. The ser
 
 **Picking heuristic**: if torn between two, prefer the more specific one — `discovery` over `general`, `decision` over `discovery`. `general` is a fallback, not a default.
 
-**Versions inherit** the parent memory's category unless you explicitly override with `--category` on `memory version create`.
+**Versions take their metadata from the base row, not the current head.** A `memory version create` without `--title` reuses the base (v1) row's title, so a memory renamed in a later version silently reverts. Pass `--title`, `--tags`, `--source` and `--category` explicitly on every version, copied from the current head unless you mean to change them.
 
 ---
 
@@ -278,7 +281,7 @@ recuerd0 memory link add <memory_id> --to <other_memory_id> [--workspace ID]    
 recuerd0 memory link remove <memory_id> --to <other_memory_id> [--workspace ID] # Remove a link
 ```
 
-The `--workspace` flag refers to the *source* memory's workspace; the target memory may live in any workspace within the same account. The memory show JSON and the workspace context JSON now include a `links_count` field on each memory so you can see at a glance how connected something is.
+The `--workspace` flag refers to the *source* memory's workspace; the target memory may live in any workspace within the same account. The memory show JSON and the workspace context JSON include a `links_count` field, but **don't rely on it**: it has read `0` on memories that demonstrably have links, including version rows whose base row carries them. Check connectivity with `memory link list`. Links carry no label, so write the *reason* for a link into the memory body as a `[[id]]` reference.
 
 **Confirm before linking — always.** Your job is to *suggest* a link when a strong cross-workspace match surfaces during dedup. Ask the user in one line and wait for a one-word approval. Create a link only with that approval. A noisy link graph is worse than no graph.
 
