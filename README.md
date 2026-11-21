@@ -34,7 +34,7 @@ A collection of Claude Code plugins for Ruby on Rails development.
 | [mvp-creator](#5-mvp-creator) | MVP documentation for Rails applications | 1.1.0 |
 | [better-stimulus](#6-better-stimulus) | StimulusJS best practices from betterstimulus.com | 1.1.0 |
 | [spec-driven-development](#7-spec-driven-development) | Spec-driven development workflow for Rails | 1.4.0 |
-| [rails-security-auditor](#8-rails-security-auditor) | Security audit for Rails 8.0–8.2 configuration | 1.0.1 |
+| [rails-security-auditor](#8-rails-security-auditor) | Security audit for Rails 8.0–8.2 configuration | 1.1.0 |
 | [rails-hotwire-driver](#9-rails-hotwire-driver) | Drive a running Rails dev server from the terminal, optional screenshots/browser layer | 0.3.1 |
 | [hotwire-patterns](#10-hotwire-patterns) | Deep Hotwire internals, decision frameworks, and debugging | 0.1.0 |
 
@@ -478,9 +478,9 @@ A security auditor that scans a Rails application's configuration and produces a
 
 ### What It Does
 
-- **Scans** production environment, initializers, controllers, Gemfile, and CI config
-- **Detects** the Rails version from `Gemfile.lock` and adjusts expectations accordingly
-- **Checks** CSRF, security headers, CSP, session cookies, rate limiting, authorization, dependency CVEs, and Rails 8.2 framework defaults
+- **Scans** production environment, initializers, controllers, Gemfile, Dockerfile, and CI config
+- **Detects** the Rails version, the `load_defaults` version, and the Ruby version, and adjusts expectations accordingly
+- **Checks** CSRF, security headers, CSP, session cookies, rate limiting, authorization, Active Storage media processing, patched Rails and Ruby versions, and Rails 8.2 framework defaults
 - **Reports** each finding with severity, evidence, plain-language risk explanation, and exact fix
 - **Offers** to apply fixes — one, all critical, or all — with minimal diffs
 
@@ -488,17 +488,18 @@ A security auditor that scans a Rails application's configuration and produces a
 
 | Category | Covers |
 |----------|--------|
-| PROD | `force_ssl`, `assume_ssl`, log level, `filter_parameters`, trusted proxies |
-| CSRF | `protect_from_forgery`, strategy, per-form tokens |
-| HDR | X-Frame-Options, X-Content-Type-Options, Referrer-Policy |
-| CSP | Content Security Policy initializer and directives |
+| PROD | `force_ssl`, `assume_ssl`, log level, `filter_parameters`, trusted proxies, allowed hosts, multipart encoding |
+| CSRF | Disabled or skipped forgery protection, strategy, per-form tokens |
+| HDR | X-Frame-Options, X-Content-Type-Options, Referrer-Policy, X-Permitted-Cross-Domain-Policies |
+| CSP | Content Security Policy initializer, directives, and nonces under Turbo |
 | SESS | Session cookie `SameSite`, `expire_after`, `httponly` |
 | RATE | `rate_limit` macro, Rack::Attack throttles and safelists |
-| AUTH | Authorization gem, tenant scoping, `allow_unauthenticated_access` |
-| GEM | Brakeman, bundler-audit, Rails CVEs |
-| CI | Security scanning in CI |
-| DATA | Column-level encryption, hardcoded secrets |
-| FWKD | Rails 8.2 framework defaults (CSRF header strategy, transaction-aware jobs) |
+| AUTH | Authorization gem, tenant scoping, `allow_unauthenticated_access`, `authenticate_by` |
+| GEM | Brakeman, bundler-audit, patched Rails and Ruby versions, importmap audit |
+| CI | Security scanning in CI, hardened GitHub Actions workflows |
+| DATA | Column-level encryption, hardcoded secrets, credentials keys |
+| STOR | Active Storage media processing (ffmpeg/ffprobe codec allowlists) |
+| FWKD | Rails 8.2 framework defaults (CSRF header strategy, transaction-aware jobs, association owner conditions) |
 
 ### Usage
 
